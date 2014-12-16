@@ -1,0 +1,66 @@
+1) A new class, with most of the current KFilterDev code, but an improved API:
+
+class KCompressionDevice : public QIODevice
+{
+public:
+    enum CompressionType { GZip, BZip2, Xz, None }; // or is that called Lzma?
+
+    KCompressionDevice(QIODevice* inputDevice, CompressionType type);
+
+    KCompressionDevice(const QString& fileName, CompressionType type);
+
+    // The compression actually used by this device.
+    // If the support for the compression requested in the constructor
+    // is not available, then the device will use None.
+    => the docu for the constructors should recommend to check compressionType()...
+    CompressionType compressionType() const;
+
+    // from KFilterDev:
+    // open, close, seek, atEnd, setOrigFileName, setSkipHeaders
+    // readData, writeData
+};
+
+No use of KMimeType or mimetype strings in that code, the enum is used instead.
+The handling of None is new, it has to be added to the code.
+
+2) For compatibility and for a slightly higher-level class which can auto-detect mimetypes,
+we keep KFilterDev:
+
+class KFilterDev : public KCompressionDevice
+{
+public:
+    // @since 5.0
+    //
+    KFilterDev(const QString& fileName);
+
+    // @since 5.0
+    // PENDING: remove? add it for easy porting but deprecate?
+    KFilterDev(QIODevice* inputDevice, const QString& mimetype = QString(), bool forceCompression = false);
+
+    // @since 5.0
+    // PENDING: remove? add it for easy porting but deprecate?
+    KFilterDev(const QString& fileName, const QString& mimetype = QString(), bool forceCompression = false);
+
+    // Returns the compression type for the given mimetype, if possible. Otherwise returns None.
+    // This handles simple cases like application/x-gzip, but also application/x-compressed-tar, and inheritance.
+    static CompressionType compressionTypeForMimeType(const QString& mimetype);
+
+    // @deprecated Use the constructor instead (if mimetype is empty), or KCompressionDevice (if the mimetype is known).
+    static KCompressionDevice* deviceForFile(const QString & fileName,
+                                             const QString & mimetype = QString(),
+                                             bool forceCompression = false);
+
+    // @deprecated Use the constructor instead (if mimetype is empty), or KCompressionDevice (if the mimetype is known).
+    static KCompressionDevice* device(QIODevice* inputDevice, const QString & mimetype, bool autoDeleteInputDevice = true);
+};
+
+
+Implementation details:
+* remove autoDeleteFilterBase, I don't see how/why it would be set to false.
+* move the static methods in KFilterBase to be file-static in kfilterdev.cpp (they need mimetypes)
+* stop installing kfilterbase.h, stop exporting KFilterBase
+
+Porting notes:
+* KTar's call to deviceForFile is changed like this:
+- QIODevice *filterDev = KFilterDev::deviceForFile( fileName, mimetype, forced );
++

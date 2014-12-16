@@ -1,0 +1,190 @@
+From 10ffd716fa81905ca22b721e47fcc777308e67dc Mon Sep 17 00:00:00 2001
+From: Debao Zhang <hello@debao.me>
+Date: Thu, 11 Dec 2014 10:25:47 +0800
+Subject: [PATCH 3/3] Fix compile error with Qt5 bubbled zlib
+
+both compress and crc32 are macros used by zlib!!
+---
+ examples/helloworld/helloworld.pro | 3 ++-
+ src/kcompressiondevice.cpp         | 4 ++--
+ src/kfilterbase.h                  | 4 ++--
+ src/kgzipfilter.cpp                | 4 ++--
+ src/kgzipfilter.h                  | 4 ++--
+ src/knonefilter.cpp                | 4 ++--
+ src/knonefilter.h                  | 4 ++--
+ src/kzip.cpp                       | 6 +++---
+ src/kzipfileentry.h                | 2 +-
+ 9 files changed, 18 insertions(+), 17 deletions(-)
+
+diff --git a/examples/helloworld/helloworld.pro b/examples/helloworld/helloworld.pro
+index cba4f7a..11abd06 100644
+--- a/examples/helloworld/helloworld.pro
++++ b/examples/helloworld/helloworld.pro
+@@ -1,6 +1,7 @@
+ # Show how to use KArchive using qmake
+ 
+ # Set $QMAKEPATH to your KArchive install prefix if this is not found.
+-QT += KArchive
++#QT += KArchive
++include (../../karchive.pri)
+ 
+ SOURCES += main.cpp
+diff --git a/src/kcompressiondevice.cpp b/src/kcompressiondevice.cpp
+index 05d6859..4f7bba0 100644
+--- a/src/kcompressiondevice.cpp
++++ b/src/kcompressiondevice.cpp
+@@ -267,7 +267,7 @@ qint64 KCompressionDevice::readData(char *data, qint64 maxlen)
+             d->bNeedHeader = false;
+         }
+ 
+-        d->result = filter->uncompress();
++        d->result = filter->uncompress_();
+ 
+         if (d->result == KFilterBase::Error) {
+             //qWarning() << "KCompressionDevice: Error when uncompressing data";
+@@ -320,7 +320,7 @@ qint64 KCompressionDevice::writeData(const char *data /*0 to finish*/, qint64 le
+     uint availIn = len;
+     while (dataWritten < len || finish) {
+ 
+-        d->result = filter->compress(finish);
++        d->result = filter->compress_(finish);
+ 
+         if (d->result == KFilterBase::Error) {
+             //qWarning() << "KCompressionDevice: Error when compressing data";
+diff --git a/src/kfilterbase.h b/src/kfilterbase.h
+index 9cbaf95..1787250 100644
+--- a/src/kfilterbase.h
++++ b/src/kfilterbase.h
+@@ -81,9 +81,9 @@ public:
+     /** \internal */
+     enum Result { Ok, End, Error };
+     /** \internal */
+-    virtual Result uncompress() = 0;
++    virtual Result uncompress_() = 0;
+     /** \internal */
+-    virtual Result compress(bool finish) = 0;
++    virtual Result compress_(bool finish) = 0;
+ 
+     /**
+      * \internal
+diff --git a/src/kgzipfilter.cpp b/src/kgzipfilter.cpp
+index 160cff5..7c80366 100644
+--- a/src/kgzipfilter.cpp
++++ b/src/kgzipfilter.cpp
+@@ -336,7 +336,7 @@ KGzipFilter::Result KGzipFilter::uncompress_noop()
+     }
+ }
+ 
+-KGzipFilter::Result KGzipFilter::uncompress()
++KGzipFilter::Result KGzipFilter::uncompress_()
+ {
+ #ifndef NDEBUG
+     if (d->mode == 0) {
+@@ -370,7 +370,7 @@ KGzipFilter::Result KGzipFilter::uncompress()
+     }
+ }
+ 
+-KGzipFilter::Result KGzipFilter::compress(bool finish)
++KGzipFilter::Result KGzipFilter::compress_(bool finish)
+ {
+     Q_ASSERT(d->compressed);
+     Q_ASSERT(d->mode == QIODevice::WriteOnly);
+diff --git a/src/kgzipfilter.h b/src/kgzipfilter.h
+index 6dda8f9..5d8f2c5 100644
+--- a/src/kgzipfilter.h
++++ b/src/kgzipfilter.h
+@@ -60,8 +60,8 @@ public:
+     void setInBuffer(const char *data, uint size) Q_DECL_OVERRIDE;
+     int  inBufferAvailable() const Q_DECL_OVERRIDE;
+     int  outBufferAvailable() const Q_DECL_OVERRIDE;
+-    Result uncompress() Q_DECL_OVERRIDE;
+-    Result compress(bool finish) Q_DECL_OVERRIDE;
++    Result uncompress_() Q_DECL_OVERRIDE;
++    Result compress_(bool finish) Q_DECL_OVERRIDE;
+ 
+ private:
+     Result uncompress_noop();
+diff --git a/src/knonefilter.cpp b/src/knonefilter.cpp
+index 055fab9..adaf1b2 100644
+--- a/src/knonefilter.cpp
++++ b/src/knonefilter.cpp
+@@ -101,7 +101,7 @@ int KNoneFilter::outBufferAvailable() const
+     return d->avail_out;
+ }
+ 
+-KNoneFilter::Result KNoneFilter::uncompress()
++KNoneFilter::Result KNoneFilter::uncompress_()
+ {
+ #ifndef NDEBUG
+     if (d->mode != QIODevice::ReadOnly) {
+@@ -111,7 +111,7 @@ KNoneFilter::Result KNoneFilter::uncompress()
+     return copyData();
+ }
+ 
+-KNoneFilter::Result KNoneFilter::compress(bool finish)
++KNoneFilter::Result KNoneFilter::compress_(bool finish)
+ {
+     Q_ASSERT(d->mode == QIODevice::WriteOnly);
+     Q_UNUSED(finish);
+diff --git a/src/knonefilter.h b/src/knonefilter.h
+index 7113379..11e7a33 100644
+--- a/src/knonefilter.h
++++ b/src/knonefilter.h
+@@ -48,8 +48,8 @@ public:
+     void setInBuffer(const char *data, uint size) Q_DECL_OVERRIDE;
+     int  inBufferAvailable() const Q_DECL_OVERRIDE;
+     int  outBufferAvailable() const Q_DECL_OVERRIDE;
+-    Result uncompress() Q_DECL_OVERRIDE;
+-    Result compress(bool finish) Q_DECL_OVERRIDE;
++    Result uncompress_() Q_DECL_OVERRIDE;
++    Result compress_(bool finish) Q_DECL_OVERRIDE;
+ 
+ private:
+     Result copyData();
+diff --git a/src/kzip.cpp b/src/kzip.cpp
+index fd9a5e0..6731e9a 100644
+--- a/src/kzip.cpp
++++ b/src/kzip.cpp
+@@ -793,7 +793,7 @@ bool KZip::closeArchive()
+         //    << it.current()->path()
+         //    << "encoding:" << it.current()->encoding();
+ 
+-        uLong mycrc = it.value()->crc32();
++        uLong mycrc = it.value()->crc32_();
+         buffer[0] = char(mycrc); // crc checksum, at headerStart+14
+         buffer[1] = char(mycrc >> 8);
+         buffer[2] = char(mycrc >> 16);
+@@ -846,7 +846,7 @@ bool KZip::closeArchive()
+ 
+         transformToMsDos(it.value()->date(), &buffer[ 12 ]);
+ 
+-        uLong mycrc = it.value()->crc32();
++        uLong mycrc = it.value()->crc32_();
+         buffer[ 16 ] = char(mycrc); // crc checksum
+         buffer[ 17 ] = char(mycrc >> 8);
+         buffer[ 18 ] = char(mycrc >> 16);
+@@ -1316,7 +1316,7 @@ qint64 KZipFileEntry::headerStart() const
+     return d->headerStart;
+ }
+ 
+-unsigned long KZipFileEntry::crc32() const
++unsigned long KZipFileEntry::crc32_() const
+ {
+     return d->crc;
+ }
+diff --git a/src/kzipfileentry.h b/src/kzipfileentry.h
+index b924efb..b1277b3 100644
+--- a/src/kzipfileentry.h
++++ b/src/kzipfileentry.h
+@@ -52,7 +52,7 @@ public:
+     qint64 headerStart() const;
+ 
+     /// CRC: only used when writing
+-    unsigned long crc32() const;
++    unsigned long crc32_() const;
+     void setCRC32(unsigned long crc32);
+ 
+     /// Name with complete path - KArchiveFile::name() is the filename only (no path)
+-- 
+1.9.2.msysgit.0
+
