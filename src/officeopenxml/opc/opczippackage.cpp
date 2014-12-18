@@ -64,8 +64,8 @@ bool ZipPackage::doOpenPackage(QIODevice::OpenMode mode)
 
     bool ret = true;
     if (mode == QIODevice::ReadOnly || mode == QIODevice::WriteOnly) {
-        ret = d->zipArchive->open(mode);
-        d->mode = mode;
+        if ((ret = d->zipArchive->open(mode)))
+            d->mode = mode;
     }
 
     if (ret && mode == QIODevice::ReadOnly)
