@@ -40,6 +40,9 @@ public:
     QIODevice *device() const;
     QString packageName() const;
 
+    static Package *open(QIODevice *device, QIODevice::OpenMode mode);
+    static Package *open(const QString &packageName, QIODevice::OpenMode mode);
+
     PackagePart *part(const QString &partName) const;
     QList<PackagePart *> parts() const;
     PackagePart *createPart(const QString &partName, const QString &contentType);

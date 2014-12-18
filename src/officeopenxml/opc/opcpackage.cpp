@@ -17,6 +17,7 @@
 #include "opcpackagepart.h"
 #include "opcpackagerelationship.h"
 #include "opcpartbasedpackageproperties_p.h"
+#include "opczippackage.h"
 
 #include <QFile>
 
@@ -210,6 +211,26 @@ PackageProperties *Package::packageProperties() const
         self->d_func()->packageProperties = new PartBasedPackageProperties(self);
     }
     return d->packageProperties;
+}
+
+/*!
+ * ZipPackage is the default package type that is used by the open method.
+*/
+Package * Package::open(QIODevice *device, QIODevice::OpenMode mode)
+{
+    Package *package = new ZipPackage(device);
+    package->open(mode);
+    return package;
+}
+
+/*!
+ * ZipPackage is the default package type that is used by the open method.
+*/
+Package * Package::open(const QString &packageName, QIODevice::OpenMode mode)
+{
+    Package *package = new ZipPackage(packageName);
+    package->open(mode);
+    return package;
 }
 
 } // namespace Opc
