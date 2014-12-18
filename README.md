@@ -49,3 +49,6 @@ The library, the header files, and others will be installed to your system.
 * http://referencesource.microsoft.com/#WindowsBase/Base/System/IO/Packaging/Package.cs
 * http://msdn.microsoft.com/en-us/library/System.IO.Packaging%28v=vs.110%29.aspx
 * https://github.com/mono/mono
+
+* http://msdn.microsoft.com/en-us/library/cc313071.aspx
+* http://www.lyquidity.com/devblog/?p=35

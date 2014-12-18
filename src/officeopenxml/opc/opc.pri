@@ -12,7 +12,8 @@ HEADERS += \
     $$PWD/opczippackagepart.h \
     $$PWD/opczippackagepart_p.h \
     $$PWD/opcpackagerelationship_p.h \
-    $$PWD/opcutils_p.h
+    $$PWD/opcutils_p.h \
+    $$PWD/opcpartbasedpackageproperties_p.h
 
 SOURCES += \
     $$PWD/opcpackage.cpp \
@@ -21,4 +22,5 @@ SOURCES += \
     $$PWD/opcpackagerelationship.cpp \
     $$PWD/opcpackageproperties.cpp \
     $$PWD/opczippackagepart.cpp \
-    $$PWD/opcutils.cpp
+    $$PWD/opcutils.cpp \
+    $$PWD/opcpartbasedpackageproperties.cpp

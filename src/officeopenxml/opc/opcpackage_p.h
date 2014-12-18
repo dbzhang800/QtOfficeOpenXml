@@ -48,6 +48,7 @@ public:
     QIODevice::OpenMode mode;
     QMap<QString, PackagePart *> parts;
     QMap<QString, PackageRelationship *> relationships;
+    PackageProperties *packageProperties;
 };
 
 } // namespace Opc

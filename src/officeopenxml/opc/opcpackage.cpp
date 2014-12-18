@@ -16,6 +16,7 @@
 #include "opcpackage_p.h"
 #include "opcpackagepart.h"
 #include "opcpackagerelationship.h"
+#include "opcpartbasedpackageproperties_p.h"
 
 #include <QFile>
 
@@ -23,7 +24,8 @@ namespace QtOfficeOpenXml {
 namespace Opc {
 
 PackagePrivate::PackagePrivate(const QString &packageName, QIODevice *device, Package *q)
-    :q_ptr(q), fileName(packageName), device(device), mode(QIODevice::NotOpen)
+    :q_ptr(q), fileName(packageName), device(device), mode(QIODevice::NotOpen),
+      packageProperties(0)
 {
 
 }
@@ -51,6 +53,8 @@ Package::~Package()
     Q_D(Package);
     qDeleteAll(d->parts);
     qDeleteAll(d->relationships);
+    if (d->packageProperties)
+        delete d->packageProperties;
 
     delete d;
 }
@@ -75,6 +79,10 @@ bool Package::close()
     Q_D(Package);
     if (!isOpen())
         return true;
+
+    if (d->packageProperties)
+        d->packageProperties->flush();
+
     doClosePackage();
 
     d->mode = QIODevice::NotOpen;
@@ -196,7 +204,12 @@ void Package::deleteRelationship(const QString &id)
 
 PackageProperties *Package::packageProperties() const
 {
-    return 0;
+    Q_D(const Package);
+    if (!d->packageProperties) {
+        Package *self = const_cast<Package *>(this);
+        self->d_func()->packageProperties = new PartBasedPackageProperties(self);
+    }
+    return d->packageProperties;
 }
 
 } // namespace Opc

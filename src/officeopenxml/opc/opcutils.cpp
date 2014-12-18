@@ -26,6 +26,9 @@ QStringList splitPartName(const QString &partName)
     if (idx == -1)
         return QStringList()<<QStringLiteral(".")<<partName;
 
+    if (idx == 0)
+        return QStringList()<<partName<<QString();
+
     return QStringList()<<partName.left(idx)<<partName.mid(idx+1);
 }
 

@@ -18,9 +18,5 @@
 namespace QtOfficeOpenXml {
 namespace Opc {
 
-PackageProperties::PackageProperties()
-{
-}
-
 } // namespace Opc
 } // namespace QtOfficeOpenXml
