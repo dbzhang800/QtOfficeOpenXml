@@ -16,12 +16,23 @@ public:
     ZippackageTest();
 
 private Q_SLOTS:
+    void testNonOpcPackageRead();
     void testPackageRead();
     void testPackageWrite();
 };
 
 ZippackageTest::ZippackageTest()
 {
+}
+
+void ZippackageTest::testNonOpcPackageRead()
+{
+    Opc::ZipPackage package1(SRCDIR"non-opc-package.zip");
+    package1.open(QIODevice::ReadOnly);
+    QVERIFY(!package1.isOpen());
+
+    Opc::Package *package2 = Opc::Package::open(SRCDIR"non-opc-package.zip", QIODevice::ReadOnly);
+    QVERIFY(!package2);
 }
 
 void ZippackageTest::testPackageRead()
