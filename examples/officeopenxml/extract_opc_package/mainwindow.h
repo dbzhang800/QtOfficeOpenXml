@@ -43,13 +43,11 @@ public:
 private slots:
     void onOpen();
     void onAbout();
-    void onItemClicked(QTreeWidgetItem *item, int column);
+    void onPartChanged(const QString &partName);
+    void onShowContentButtonClicked();
 
 private:
-    void visit(Opc::PackagePart *part, QTreeWidgetItem *parentItem);
-
     Ui::MainWindow *ui;
-    QWidget *m_partWidget;
     Opc::Package *m_package;
 };
 
