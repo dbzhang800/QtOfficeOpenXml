@@ -66,15 +66,18 @@ ZipPackage::~ZipPackage()
 bool ZipPackage::doOpenPackage(QIODevice::OpenMode mode)
 {
     Q_D(ZipPackage);
+    //We only support readOnly and writeOnly at present.
+    if (mode != QIODevice::ReadOnly && mode != QIODevice::WriteOnly)
+        return false;
 
-    bool ret = true;
-    if (mode == QIODevice::ReadOnly || mode == QIODevice::WriteOnly) {
-        if ((ret = d->zipArchive->open(mode)))
-            d->mode = mode;
+    if (d->zipArchive->open(mode)) {
+        if (mode == QIODevice::ReadOnly && !d->doLoadPackage()) {
+            //Not a valid OPC package, return false.
+            d->zipArchive->close();
+            return false;
+        }
+        return true;
     }
-
-    if (ret && mode == QIODevice::ReadOnly)
-        d->doLoadPackage();
 
     return false;
 }

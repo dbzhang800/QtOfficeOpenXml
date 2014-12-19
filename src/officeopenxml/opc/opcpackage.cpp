@@ -222,6 +222,10 @@ Package * Package::open(QIODevice *device, QIODevice::OpenMode mode)
 {
     Package *package = new ZipPackage(device);
     package->open(mode);
+    if (!package->isOpen()) {
+        delete package;
+        return 0;
+    }
     return package;
 }
 
@@ -232,6 +236,10 @@ Package * Package::open(const QString &packageName, QIODevice::OpenMode mode)
 {
     Package *package = new ZipPackage(packageName);
     package->open(mode);
+    if (!package->isOpen()) {
+        delete package;
+        return 0;
+    }
     return package;
 }
 
