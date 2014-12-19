@@ -20,8 +20,8 @@
 ****************************************************************************/
 #include "opcpackage.h"
 #include "opcpackage_p.h"
-#include "opcpackagepart.h"
-#include "opcpackagerelationship.h"
+#include "opcpackagepart_p.h"
+#include "opcpackagerelationship_p.h"
 #include "opcpartbasedpackageproperties_p.h"
 #include "opczippackage.h"
 
@@ -32,14 +32,21 @@ namespace Opc {
 
 PackagePrivate::PackagePrivate(const QString &packageName, QIODevice *device, Package *q)
     :q_ptr(q), fileName(packageName), device(device), mode(QIODevice::NotOpen),
-      packageProperties(0)
+     relationshipHelper(0), packageProperties(0)
 {
 
 }
 
 PackagePrivate::~PackagePrivate()
 {
+}
 
+void PackagePrivate::ensureRelationship() const
+{
+    if (!relationshipHelper) {
+        PackagePrivate *self = const_cast<PackagePrivate *>(this);
+        self->relationshipHelper = new PackageRelationshipHelper(self->q_func(), QStringLiteral("/"));
+    }
 }
 
 /*!
@@ -59,7 +66,8 @@ Package::~Package()
 {
     Q_D(Package);
     qDeleteAll(d->parts);
-    qDeleteAll(d->relationships);
+    if (d->relationshipHelper)
+        delete d->relationshipHelper;
     if (d->packageProperties)
         delete d->packageProperties;
 
@@ -89,6 +97,15 @@ bool Package::close()
 
     if (d->packageProperties)
         d->packageProperties->flush();
+
+    foreach (PackagePart *part, d->parts)
+        part->d_func()->flushRelationships();
+
+    //Other operation such as packagePropertiesPart
+    //add root relationship item. So flush it after
+    //all others have been flushed.
+    if (d->relationshipHelper)
+        d->relationshipHelper->flush();
 
     doClosePackage();
 
@@ -156,57 +173,36 @@ void Package::deletePart(const QString &partName)
 PackageRelationship *Package::relationship(const QString &id) const
 {
     Q_D(const Package);
-    if (d->relationships.contains(id.toUpper()))
-        return d->relationships[id.toUpper()];
-    return 0;
+    d->ensureRelationship();
+    return d->relationshipHelper->relationship(id);
 }
 
 QList<PackageRelationship *> Package::relationships() const
 {
     Q_D(const Package);
-    return d->relationships.values();
+    d->ensureRelationship();
+    return d->relationshipHelper->relationships();
 }
 
 QList<PackageRelationship *> Package::getRelationshipsByType(const QString &type) const
 {
     Q_D(const Package);
-    QList<PackageRelationship *> rels;
-    QMapIterator<QString, PackageRelationship * > it(d->relationships);
-    while (it.hasNext()) {
-        it.next();
-        if (it.value()->relationshipType().toUpper() == type.toUpper())
-            rels.append(it.value());
-    }
-    return rels;
+    d->ensureRelationship();
+    return d->relationshipHelper->getRelationshipsByType(type);
 }
 
 PackageRelationship *Package::createRelationship(const QString &target, TargetMode mode, const QString &type, const QString &id)
 {
     Q_D(Package);
-    //If id already in-used, return.
-    if (!id.isEmpty() && relationship(id))
-        return 0;
-
-    QString realId = id;
-    //Generated a properly one.
-    if (realId.isEmpty()) {
-        int idx = d->relationships.size();
-        do {
-            ++idx;
-            realId = QStringLiteral("rId%1").arg(idx);
-        } while (relationship(realId));
-    }
-
-    PackageRelationship *rel = new PackageRelationship(realId, type, QStringLiteral("/"), target, mode);
-    d->relationships.insert(realId.toUpper(), rel);
-    return rel;
+    d->ensureRelationship();
+    return d->relationshipHelper->createRelationship(target, mode, type, id);
 }
 
 void Package::deleteRelationship(const QString &id)
 {
     Q_D(Package);
-    delete relationship(id);
-    d->relationships.remove(id.toUpper());
+    d->ensureRelationship();
+    d->relationshipHelper->deleteRelationship(id);
 }
 
 PackageProperties *Package::packageProperties() const

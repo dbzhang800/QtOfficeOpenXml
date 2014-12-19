@@ -29,7 +29,9 @@ void ZippackageTest::testPackageRead()
     Opc::ZipPackage package(SRCDIR"test.xlsx");
     package.open(QIODevice::ReadOnly);
 
-    QCOMPARE(package.parts().size(), 9);
+    QCOMPARE(package.parts().size(), 12);
+    QVERIFY(package.part("/_rels/.rels"));
+    QVERIFY(package.part("/xl/_rels/workbook.xml.rels"));
     QVERIFY(package.part("/xl/workbook.xml"));
     QVERIFY(package.part("/xl/theme/theme1.xml"));
     QCOMPARE(package.part("/xl/workbook.xml")->contentType(), QStringLiteral("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"));
@@ -43,14 +45,17 @@ void ZippackageTest::testPackageRead()
     Opc::PackageProperties *properties = package.packageProperties();
     QCOMPARE(properties->creator(), QStringLiteral("Debao Zhang"));
     QCOMPARE(properties->created(), QDateTime(QDate(2006, 9, 16), QTime(), Qt::UTC));
+
+    QList<Opc::PackageRelationship *> rootRelations = package.relationships();
+    QCOMPARE(rootRelations.size(), 3);
 }
 
 void ZippackageTest::testPackageWrite()
 {
     QTemporaryFile tempFile;
     tempFile.open();
-//    tempFile.setAutoRemove(false);
-//    qDebug()<<tempFile.fileName();
+    //tempFile.setAutoRemove(false);
+    //qDebug()<<tempFile.fileName();
 
     //Write some things to generate a package.
     Opc::ZipPackage package1(&tempFile);
@@ -77,7 +82,7 @@ void ZippackageTest::testPackageWrite()
     QCOMPARE(package2.packageProperties()->modified(), QDateTime(QDate(2014,1,1), QTime(), Qt::UTC));
 
     QCOMPARE(package2.relationships().size(), 2);
-    QCOMPARE(package2.parts().size(), 3);
+    QCOMPARE(package2.parts().size(), 5);
     Opc::PackagePart *p2p1 = package2.part("/p1/part1.par");
     QVERIFY(p2p1);
     QCOMPARE(p2p1->contentType(), QStringLiteral("application/par"));

@@ -33,6 +33,8 @@ class QIODevice;
 
 namespace QtOfficeOpenXml {
 namespace Opc {
+class Package;
+class PackagePart;
 class PackageRelationshipPrivate
 {
 public:
@@ -51,8 +53,24 @@ public:
 class PackageRelationshipHelper
 {
 public:
-    static QMap<QString, PackageRelationship*> loadRelationshipFromStream(QIODevice *device, const QString &partName);
-    static void saveRelationshipToStream(QIODevice *device, const QList<PackageRelationship*> &relationshipList);
+    PackageRelationshipHelper(Package *package, const QString &sourcePartName);
+    ~PackageRelationshipHelper();
+    void flush();
+
+    PackageRelationship *relationship(const QString &id) const;
+    QList<PackageRelationship *> relationships() const;
+    QList<PackageRelationship *> getRelationshipsByType(const QString &type) const;
+    PackageRelationship *createRelationship(const QString &target, TargetMode mode, const QString &type, const QString &id=QString());
+    void deleteRelationship(const QString &id);
+
+private:
+    void doLoadFromXml(QIODevice *device);
+    void doSaveToXml(QIODevice *device);
+
+    QMap<QString, PackageRelationship *> m_relationships;
+    Package *m_package;
+    PackagePart *m_relationshipsPart;
+    QString m_sourcePartName;
 };
 
 

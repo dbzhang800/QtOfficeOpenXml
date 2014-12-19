@@ -22,7 +22,6 @@
 #include "opczippackage_p.h"
 #include "opczippackagepart.h"
 #include "opczippackagepart_p.h"
-#include "opcpackagerelationship_p.h"
 #include "opcutils_p.h"
 
 #include <kzip.h>
@@ -122,7 +121,7 @@ bool ZipPackagePrivate::doLoadPackage()
     const KArchiveDirectory *root = zipArchive->directory();
     QStringList zipFilePaths = extractZipFilePaths(root, QString());
 
-    //Try load "[Content_Types].xml"
+    //Try load "[Content_Types].xml", which is not a part of OPC package.
     QString contentTypeFilePath = findZipFilePath(QStringLiteral("/[Content_Types].xml"), zipFilePaths);
     if (contentTypeFilePath.isEmpty())
         return false;
@@ -131,38 +130,17 @@ bool ZipPackagePrivate::doLoadPackage()
     contentTypeHelper.loadFromStream(contentTypeStream);
     delete contentTypeStream;
 
-    //Try load "_rels/.rels"
-    QString rootRelsFilePath = findZipFilePath(QStringLiteral("/_rels/.rels"), zipFilePaths);
-    if (rootRelsFilePath.isEmpty())
-        return false;
-    QIODevice *rootRelsStream = root->file(rootRelsFilePath)->createDevice();
-    relationships = PackageRelationshipHelper::loadRelationshipFromStream(rootRelsStream, QStringLiteral("/"));
-    delete rootRelsStream;
-
-    //Load other parts
+    //Load parts
     foreach (QString name, zipFilePaths) {
         //Skip the "[Content_Types].xml" file.
         if (name == contentTypeFilePath)
             continue;
 
-        //Skip all the .rels files.
-        const QString type = contentTypeHelper.contentType(name);
-        if (type == QStringLiteral("application/vnd.openxmlformats-package.relationships+xml"))
-            continue;
-
         //Load part
-        ZipPackagePart *part = new ZipPackagePart(name, type, q);
+        ZipPackagePart *part = new ZipPackagePart(name, contentTypeHelper.contentType(name), q);
         part->d_func()->zipArchive = zipArchive;
         part->d_func()->zipFileEntry = static_cast<const KZipFileEntry *>(root->file(name));
         parts.insert(name.toUpper(), part);
-
-        //Find whether the part has a rels
-        QString relsFilePath = findZipFilePath(getRelsPath(name), zipFilePaths);
-        if (relsFilePath.isEmpty())
-            continue;
-        QIODevice *relsStream = root->file(relsFilePath)->createDevice();
-        part->d_func()->relationships = PackageRelationshipHelper::loadRelationshipFromStream(relsStream, name);
-        delete relsStream;
     }
     return true;
 }
@@ -174,26 +152,12 @@ bool ZipPackagePrivate::doSavePackage()
 {
     //Generate the "[Content_Types].xml" file
     ContentTypeHelper contentTypeHelper;
-    contentTypeHelper.addContentType(QStringLiteral(".rels"), QStringLiteral("application/vnd.openxmlformats-package.relationships+xml"));
     foreach (PackagePart *part, parts)
         contentTypeHelper.addContentType(part->partName(), part->contentType());
     ZipPartWriteDevice *contentTypeStream = new ZipPartWriteDevice(zipArchive, QStringLiteral("/[Content_Types].xml"));
     contentTypeHelper.saveToStream(contentTypeStream);
     delete contentTypeStream;
 
-    //Write root .rels file.
-    ZipPartWriteDevice *rootRelsStream = new ZipPartWriteDevice(zipArchive, QStringLiteral("/_rels/.rels"));
-    PackageRelationshipHelper::saveRelationshipToStream(rootRelsStream, relationships.values());
-    delete rootRelsStream;
-
-    //Write .rels for all the parts.
-    foreach (PackagePart *part, parts) {
-        if (!part->relationships().isEmpty()) {
-            ZipPartWriteDevice *relsStream = new ZipPartWriteDevice(zipArchive, getRelsPath(part->partName()));
-            PackageRelationshipHelper::saveRelationshipToStream(relsStream, part->relationships());
-            delete relsStream;
-        }
-    }
     return true;
 }
 

@@ -22,6 +22,8 @@
 #include "opcpackagerelationship.h"
 #include "opcpackagerelationship_p.h"
 #include "opcutils_p.h"
+#include "opcpackage.h"
+#include "opcpackagepart.h"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -71,10 +73,89 @@ TargetMode PackageRelationship::targetMode() const
     return d_func()->targetMode;
 }
 
-
-QMap<QString, PackageRelationship*> PackageRelationshipHelper::loadRelationshipFromStream(QIODevice *device, const QString &source)
+PackageRelationshipHelper::PackageRelationshipHelper(Package *package, const QString &sourcePartName)
+    :m_package(package), m_relationshipsPart(0), m_sourcePartName(sourcePartName)
 {
-    QMap<QString, PackageRelationship*> relationships;
+    if (package->mode() & QIODevice::ReadOnly) {
+        //Try Load from the part stream.
+        m_relationshipsPart = m_package->part(getRelsPath(m_sourcePartName));
+        if (m_relationshipsPart) {
+            doLoadFromXml(m_relationshipsPart->getDevice());
+            m_relationshipsPart->releaseDevice();
+        }
+    }
+}
+
+PackageRelationshipHelper::~PackageRelationshipHelper()
+{
+    qDeleteAll(m_relationships);
+}
+
+void PackageRelationshipHelper::flush()
+{
+    if (m_package->mode() == QIODevice::WriteOnly) {
+        if (!m_relationshipsPart) {
+            m_relationshipsPart = m_package->createPart(getRelsPath(m_sourcePartName), QStringLiteral("application/vnd.openxmlformats-package.relationships+xml"));
+            //relationshp part can not have relationships with other parts.
+        }
+        doSaveToXml(m_relationshipsPart->getDevice());
+        m_relationshipsPart->releaseDevice();
+    }
+}
+
+PackageRelationship *PackageRelationshipHelper::relationship(const QString &id) const
+{
+    if (m_relationships.contains(id))
+        return m_relationships[id];
+    return 0;
+}
+
+QList<PackageRelationship *> PackageRelationshipHelper::relationships() const
+{
+    return m_relationships.values();
+}
+
+QList<PackageRelationship *> PackageRelationshipHelper::getRelationshipsByType(const QString &type) const
+{
+    QList<PackageRelationship *> rels;
+    QMapIterator<QString, PackageRelationship * > it(m_relationships);
+    while (it.hasNext()) {
+        it.next();
+        if (it.value()->relationshipType() == type)
+            rels.append(it.value());
+    }
+    return rels;
+}
+
+PackageRelationship *PackageRelationshipHelper::createRelationship(const QString &target, TargetMode mode, const QString &type, const QString &id)
+{
+    //If id already in-used, return.
+    if (!id.isEmpty() && m_relationships.contains(id))
+        return 0;
+
+    QString realId = id;
+    //Generated a properly one.
+    if (realId.isEmpty()) {
+        int idx = m_relationships.size();
+        do {
+            ++idx;
+            realId = QStringLiteral("rId%1").arg(idx);
+        } while (m_relationships.contains(realId));
+    }
+
+    PackageRelationship *rel = new PackageRelationship(realId, type, m_sourcePartName, target, mode);
+    m_relationships.insert(realId, rel);
+    return rel;
+}
+
+void PackageRelationshipHelper::deleteRelationship(const QString &id)
+{
+    m_relationships.remove(id);
+}
+
+void PackageRelationshipHelper::doLoadFromXml(QIODevice *device)
+{
+    m_relationships.clear();
     QXmlStreamReader reader(device);
     while(!reader.atEnd()) {
         if (reader.readNextStartElement() && reader.name() == QLatin1String("Relationship")) {
@@ -84,25 +165,23 @@ QMap<QString, PackageRelationship*> PackageRelationshipHelper::loadRelationshipF
             const QString target = attributes.value(QLatin1String("Target")).toString();
             const TargetMode targetMode = attributes.value(QLatin1String("TargetMode")) == QLatin1String("External")
                     ? External : Internal;
-            relationships.insert(id.toUpper(), new PackageRelationship(id, type, source, getAbsolutePartName(source, target), targetMode));
+            m_relationships.insert(id, new PackageRelationship(id, type, m_sourcePartName, getAbsolutePartName(m_sourcePartName, target), targetMode));
         }
     }
-
-    return relationships;
 }
 
-void PackageRelationshipHelper::saveRelationshipToStream(QIODevice *device, const QList<PackageRelationship *> &relationshipList)
+void PackageRelationshipHelper::doSaveToXml(QIODevice *device)
 {
     QXmlStreamWriter writer(device);
 
     writer.writeStartDocument(QStringLiteral("1.0"), true);
     writer.writeStartElement(QStringLiteral("Relationships"));
     writer.writeAttribute(QStringLiteral("xmlns"), QStringLiteral("http://schemas.openxmlformats.org/package/2006/relationships"));
-    foreach (PackageRelationship *relation, relationshipList) {
+    foreach (PackageRelationship *relation, m_relationships) {
         writer.writeStartElement(QStringLiteral("Relationship"));
         writer.writeAttribute(QStringLiteral("Id"), relation->id());
         writer.writeAttribute(QStringLiteral("Type"), relation->relationshipType());
-        writer.writeAttribute(QStringLiteral("Target"), getRelativePartName(relation->source(), relation->target()));
+        writer.writeAttribute(QStringLiteral("Target"), getRelativePartName(m_sourcePartName, relation->target()));
         if (relation->targetMode() == External)
             writer.writeAttribute(QStringLiteral("TargetMode"), QStringLiteral("External"));
         writer.writeEndElement();

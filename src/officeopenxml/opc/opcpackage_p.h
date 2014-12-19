@@ -37,7 +37,7 @@
 
 namespace QtOfficeOpenXml {
 namespace Opc {
-
+class PackageRelationshipHelper;
 class OFFICEOPENXML_AUTOTEST_EXPORT PackagePrivate
 {
     Q_DECLARE_PUBLIC(Package)
@@ -46,6 +46,7 @@ public:
     PackagePrivate(const QString &packageName, QIODevice *device, Package *q);
 
     virtual ~PackagePrivate();
+    void ensureRelationship() const;
 
     Package *q_ptr;
 
@@ -53,7 +54,7 @@ public:
     QIODevice *device;
     QIODevice::OpenMode mode;
     QMap<QString, PackagePart *> parts;
-    QMap<QString, PackageRelationship *> relationships;
+    PackageRelationshipHelper *relationshipHelper;
     PackageProperties *packageProperties;
 };
 

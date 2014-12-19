@@ -48,6 +48,8 @@ public:
     void deleteRelationship(const QString &id);
 
 protected:
+    friend class Package;
+
     PackagePart(PackagePartPrivate *d);
     virtual QIODevice *doGetDevice() = 0;
     virtual void doReleaseDevice() = 0;

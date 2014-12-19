@@ -21,25 +21,48 @@
 
 #include "opcpackagepart.h"
 #include "opcpackagepart_p.h"
+#include "opcpackage.h"
+#include "opcpackagerelationship_p.h"
 
 namespace QtOfficeOpenXml {
 namespace Opc {
 
 PackagePartPrivate::PackagePartPrivate(const QString &partName, const QString type, PackagePart *q, Package *package)
-    :q_ptr(q), package(package), partName(partName), contentType(type)
+    :q_ptr(q), package(package), partName(partName), contentType(type), relationshipHelper(0)
 {
 
 }
 
 PackagePartPrivate::~PackagePartPrivate()
 {
+    if (relationshipHelper)
+        delete relationshipHelper;
+}
 
+void PackagePartPrivate::ensureRelationship() const
+{
+    if (!relationshipHelper) {
+        PackagePartPrivate *self = const_cast<PackagePartPrivate *>(this);
+        self->relationshipHelper = new PackageRelationshipHelper(self->package, self->partName);
+    }
+}
+
+bool PackagePartPrivate::isRelationshipPart() const
+{
+    return contentType == QLatin1String("application/vnd.openxmlformats-package.relationships+xml");
+}
+
+void PackagePartPrivate::flushRelationships()
+{
+    if (!relationshipHelper || relationshipHelper->relationships().isEmpty())
+        return;
+
+    relationshipHelper->flush();
 }
 
 PackagePart::PackagePart(PackagePartPrivate *d)
     :d_ptr(d)
 {
-
 }
 
 PackagePart::~PackagePart()
@@ -72,57 +95,48 @@ void PackagePart::releaseDevice()
 PackageRelationship *PackagePart::relationship(const QString &id) const
 {
     Q_D(const PackagePart);
-    if (d->relationships.contains(id.toUpper()))
-        return d->relationships[id.toUpper()];
-    return 0;
+    //RelationshipPart can not have relationship with another parts.
+    if (d->isRelationshipPart())
+        return 0;
+    d->ensureRelationship();
+    return d->relationshipHelper->relationship(id);
 }
 
 QList<PackageRelationship *> PackagePart::relationships() const
 {
     Q_D(const PackagePart);
-    return d->relationships.values();
+    if (d->isRelationshipPart())
+        return QList<PackageRelationship *>();
+
+    d->ensureRelationship();
+    return d->relationshipHelper->relationships();
 }
 
 QList<PackageRelationship *> PackagePart::getRelationshipsByType(const QString &type) const
 {
     Q_D(const PackagePart);
-    QList<PackageRelationship *> rels;
-    QMapIterator<QString, PackageRelationship*> it(d->relationships);
-    while (it.hasNext()) {
-        it.next();
-        if (it.value()->relationshipType().toUpper() == type.toUpper())
-            rels.append(it.value());
-    }
-    return rels;
+    if (d->isRelationshipPart())
+        return QList<PackageRelationship *>();
+    d->ensureRelationship();
+    return d->relationshipHelper->getRelationshipsByType(type);
 }
 
 PackageRelationship *PackagePart::createRelationship(const QString &target, TargetMode mode, const QString &type, const QString &id)
 {
     Q_D(PackagePart);
-    //If id already in-used, return.
-    if (!id.isEmpty() && relationship(id))
+    if (d->isRelationshipPart())
         return 0;
-
-    QString realId = id;
-    //Generated a properly one.
-    if (realId.isEmpty()) {
-        int idx = d->relationships.size();
-        do {
-            ++idx;
-            realId = QStringLiteral("rId%1").arg(idx);
-        } while (relationship(realId));
-    }
-
-    PackageRelationship *rel = new PackageRelationship(realId, type, QStringLiteral("/"), target, mode);
-    d->relationships.insert(realId.toUpper(), rel);
-    return rel;
+    d->ensureRelationship();
+    return d->relationshipHelper->createRelationship(target, mode, type, id);
 }
 
 void PackagePart::deleteRelationship(const QString &id)
 {
     Q_D(PackagePart);
-    delete relationship(id);
-    d->relationships.remove(id.toUpper());
+    if (d->isRelationshipPart())
+        return;
+    d->ensureRelationship();
+    d->relationshipHelper->deleteRelationship(id);
 }
 
 } // namespace Opc
