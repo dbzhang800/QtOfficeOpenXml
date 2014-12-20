@@ -162,10 +162,12 @@ void PackageRelationshipHelper::doLoadFromXml(QIODevice *device)
             QXmlStreamAttributes attributes = reader.attributes();
             const QString id = attributes.value(QLatin1String("Id")).toString();
             const QString type = attributes.value(QLatin1String("Type")).toString();
-            const QString target = attributes.value(QLatin1String("Target")).toString();
+            QString target = attributes.value(QLatin1String("Target")).toString();
             const TargetMode targetMode = attributes.value(QLatin1String("TargetMode")) == QLatin1String("External")
                     ? External : Internal;
-            m_relationships.insert(id, new PackageRelationship(id, type, m_sourcePartName, getAbsolutePartName(m_sourcePartName, target), targetMode));
+            if (targetMode == Internal)
+                target = getAbsolutePartName(m_sourcePartName, target);
+            m_relationships.insert(id, new PackageRelationship(id, type, m_sourcePartName, target, targetMode));
         }
     }
 }
@@ -181,9 +183,12 @@ void PackageRelationshipHelper::doSaveToXml(QIODevice *device)
         writer.writeStartElement(QStringLiteral("Relationship"));
         writer.writeAttribute(QStringLiteral("Id"), relation->id());
         writer.writeAttribute(QStringLiteral("Type"), relation->relationshipType());
-        writer.writeAttribute(QStringLiteral("Target"), getRelativePartName(m_sourcePartName, relation->target()));
-        if (relation->targetMode() == External)
+        if (relation->targetMode() == External) {
+            writer.writeAttribute(QStringLiteral("Target"), relation->target());
             writer.writeAttribute(QStringLiteral("TargetMode"), QStringLiteral("External"));
+        } else {
+            writer.writeAttribute(QStringLiteral("Target"), getRelativePartName(m_sourcePartName, relation->target()));
+        }
         writer.writeEndElement();
     }
     writer.writeEndElement();//Relationships
