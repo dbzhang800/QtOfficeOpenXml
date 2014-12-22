@@ -23,6 +23,7 @@
 #include "opcpackagepart_p.h"
 #include "opcpackage.h"
 #include "opcpackagerelationship_p.h"
+#include "opcutils_p.h"
 
 namespace QtOfficeOpenXml {
 namespace Opc {
@@ -49,7 +50,7 @@ void PackagePartPrivate::ensureRelationship() const
 
 bool PackagePartPrivate::isRelationshipPart() const
 {
-    return contentType == QLatin1String("application/vnd.openxmlformats-package.relationships+xml");
+    return contentType == QLatin1String(ContentTypes::relationships);
 }
 
 void PackagePartPrivate::flushRelationships()

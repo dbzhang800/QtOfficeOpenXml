@@ -219,7 +219,7 @@ void ContentTypeHelper::saveToStream(QIODevice *device)
 
     writer.writeStartDocument(QStringLiteral("1.0"), true);
     writer.writeStartElement(QStringLiteral("Types"));
-    writer.writeAttribute(QStringLiteral("xmlns"), QStringLiteral("http://schemas.openxmlformats.org/package/2006/content-types"));
+    writer.writeAttribute(QStringLiteral("xmlns"), QString::fromLatin1(NamespaceIds::contentTypes));
 
     foreach (DefaultData data, defaults) {
         writer.writeStartElement(QStringLiteral("Default"));

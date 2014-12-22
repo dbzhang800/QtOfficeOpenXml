@@ -22,6 +22,7 @@
 #include "opcpartbasedpackageproperties_p.h"
 #include "opcpackage.h"
 #include "opcpackagepart.h"
+#include "opcutils_p.h"
 
 #include <QDateTime>
 #include <QXmlStreamReader>
@@ -67,8 +68,8 @@ void PartBasedPackageProperties::flush()
     if (m_package->mode() == QIODevice::WriteOnly) {
         if (!m_propertyPart) {
             //create part if not exists.
-            m_propertyPart = m_package->createPart(QStringLiteral("/docProps/core.xml"), QStringLiteral("application/vnd.openxmlformats-package.core-properties+xml"));
-            m_package->createRelationship(m_propertyPart->partName(), Internal, QStringLiteral("http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties"));
+            m_propertyPart = m_package->createPart(QStringLiteral("/docProps/core.xml"), QString::fromLatin1(ContentTypes::coreProperties));
+            m_package->createRelationship(m_propertyPart->partName(), Internal, QString::fromLatin1(RelationshipTypes::coreProperties));
         }
 
         QIODevice *stream = m_propertyPart->getDevice();
@@ -79,7 +80,7 @@ void PartBasedPackageProperties::flush()
 
 void PartBasedPackageProperties::readPropertiesFromPackage()
 {
-    QList<PackageRelationship *> relationships = m_package->getRelationshipsByType(QStringLiteral("http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties"));
+    QList<PackageRelationship *> relationships = m_package->getRelationshipsByType(QString::fromLatin1(RelationshipTypes::coreProperties));
     if (relationships.size() != 1)
         return;
     m_propertyPart = m_package->part(relationships[0]->target());
@@ -110,11 +111,11 @@ void PartBasedPackageProperties::doLoadFromXml(QIODevice *device)
 void PartBasedPackageProperties::doSaveToXml(QIODevice *device)
 {
     QXmlStreamWriter writer(device);
-    const QString cp = QStringLiteral("http://schemas.openxmlformats.org/package/2006/metadata/core-properties");
-    const QString dc = QStringLiteral("http://purl.org/dc/elements/1.1/");
-    const QString dcterms = QStringLiteral("http://purl.org/dc/terms/");
-    const QString dcmitype = QStringLiteral("http://purl.org/dc/dcmitype/");
-    const QString xsi = QStringLiteral("http://www.w3.org/2001/XMLSchema-instance");
+    const QString cp = QString::fromLatin1(NamespaceIds::coreProperties);
+    const QString dc = QString::fromLatin1(NamespaceIds::dc);
+    const QString dcterms = QString::fromLatin1(NamespaceIds::dcterms);
+    const QString dcmitype = QString::fromLatin1(NamespaceIds::dcmitype);
+    const QString xsi = QString::fromLatin1(NamespaceIds::xsi);
     writer.writeStartDocument(QStringLiteral("1.0"), true);
     writer.writeStartElement(QStringLiteral("cp:coreProperties"));
     writer.writeNamespace(cp, QStringLiteral("cp"));

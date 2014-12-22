@@ -95,7 +95,7 @@ void PackageRelationshipHelper::flush()
 {
     if (m_package->mode() == QIODevice::WriteOnly) {
         if (!m_relationshipsPart) {
-            m_relationshipsPart = m_package->createPart(getRelsPath(m_sourcePartName), QStringLiteral("application/vnd.openxmlformats-package.relationships+xml"));
+            m_relationshipsPart = m_package->createPart(getRelsPath(m_sourcePartName), QString::fromLatin1(ContentTypes::relationships));
             //relationshp part can not have relationships with other parts.
         }
         doSaveToXml(m_relationshipsPart->getDevice());
@@ -178,7 +178,7 @@ void PackageRelationshipHelper::doSaveToXml(QIODevice *device)
 
     writer.writeStartDocument(QStringLiteral("1.0"), true);
     writer.writeStartElement(QStringLiteral("Relationships"));
-    writer.writeAttribute(QStringLiteral("xmlns"), QStringLiteral("http://schemas.openxmlformats.org/package/2006/relationships"));
+    writer.writeAttribute(QStringLiteral("xmlns"), QString::fromLatin1(NamespaceIds::relationships));
     foreach (PackageRelationship *relation, m_relationships) {
         writer.writeStartElement(QStringLiteral("Relationship"));
         writer.writeAttribute(QStringLiteral("Id"), relation->id());

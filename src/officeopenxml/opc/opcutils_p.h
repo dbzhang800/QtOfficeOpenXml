@@ -39,10 +39,47 @@ class QStringList;
 
 namespace QtOfficeOpenXml {
 namespace Opc {
+
 QStringList splitPartName(const QString &partName);
 QString getAbsolutePartName(const QString &baseName, const QString &relativeName);
 QString getRelativePartName(const QString &baseName, const QString &absoluteName);
 QString getRelsPath(const QString &partName);
+
+class ContentTypes
+{
+public:
+    static const char * const coreProperties;
+    static const char * const digitalSignatureCertificate;
+    static const char * const digitalSignatureOrigin;
+    static const char * const digitalSignatureXMLSignature;
+    static const char * const relationships;
+};
+
+class RelationshipTypes
+{
+public:
+    static const char * const coreProperties;
+    static const char * const digitalSignature;
+    static const char * const digitalSignatureCertificate;
+    static const char * const digitalSignatureOrigin;
+    static const char * const thumbnail;
+};
+
+class NamespaceIds
+{
+public:
+    static const char * const contentTypes;
+    static const char * const coreProperties;
+    static const char * const digitalSignatures;
+    static const char * const relationships;
+    static const char * const markupCompatibility;
+
+    static const char * const xmlSchema;
+    static const char * const xsi;
+    static const char * const dc;
+    static const char * const dcterms;
+    static const char * const dcmitype;
+};
 
 } // namespace Opc
 } // namespace QtOfficeOpenXml
