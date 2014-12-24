@@ -227,8 +227,9 @@ QXmlStreamAttributes XmlStreamReader::attributes() const
     Q_D(const XmlStreamReader);
     QXmlStreamAttributes attributes;
     //Remove all the non-understood and ignorable attributes.
-    foreach (QXmlStreamAttribute attri, d->reader->attributes()) {
-        if (!d->nonUnderstoodNamespacesCache.contains(attri.namespaceUri().toString()))
+    foreach (const QXmlStreamAttribute attri, d->reader->attributes()) {
+        const QString ns = attri.namespaceUri().toString();
+        if (!d->nonUnderstoodNamespacesCache.contains(ns) || ns == QLatin1String(mcNamespace))
             attributes.append(attri);
     }
     return attributes;
@@ -267,7 +268,14 @@ QStringRef XmlStreamReader::prefix() const
 QXmlStreamNamespaceDeclarations XmlStreamReader::namespaceDeclarations() const
 {
     Q_D(const XmlStreamReader);
-    return d->reader->namespaceDeclarations();
+    QXmlStreamNamespaceDeclarations declarations;
+    foreach (const QXmlStreamNamespaceDeclaration decl, d->reader->namespaceDeclarations()) {
+        const QString ns = decl.namespaceUri().toString();
+        if (!d->nonUnderstoodNamespacesCache.contains(ns) || ns == QLatin1String(mcNamespace))
+            declarations.append(decl);
+    }
+
+    return declarations;
 }
 
 void XmlStreamReader::raiseError(const QString& message)
