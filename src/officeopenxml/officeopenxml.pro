@@ -10,6 +10,7 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 HEADERS += $$PWD/ooxmlglobal.h
+include($$PWD/mce/mce.pri)
 include($$PWD/opc/opc.pri)
 
 #Define this macro if you want to run tests, so more AIPs will get exported.

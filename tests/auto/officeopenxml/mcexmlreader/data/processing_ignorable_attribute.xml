@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Circles xmlns="http://schemas.openxmlformats.org/Circles/v1"
+xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+xmlns:v2="http://schemas.openxmlformats.org/Circles/v2"
+xmlns:v3="http://schemas.openxmlformats.org/Circles/v3"
+mc:Ignorable="v2 v3">
+<Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" v3:Luminance="13" />
+<Circle Center="25,0" Radius="20" Color="Black" v2:Opacity="0.5" v3:Luminance="13" />
+<Circle Center="50,0" Radius="20" Color="Red" v2:Opacity="0.5" v3:Luminance="13" />
+<Circle Center="13,0" Radius="20" Color="Yellow" v2:Opacity="0.5" v3:Luminance="13" />
+<Circle Center="38,0" Radius="20" Color="Green" v2:Opacity="0.5" v3:Luminance="13" />
+</Circles>
