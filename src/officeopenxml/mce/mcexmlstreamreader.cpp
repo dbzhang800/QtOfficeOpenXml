@@ -21,6 +21,7 @@
 #include "mcexmlstreamreader_p.h"
 #include <QtCore/qstringlist.h>
 #include <QtCore/qregularexpression.h>
+#include <QtCore/qdebug.h>
 
 namespace QtOfficeOpenXml {
 namespace Mce {
@@ -110,55 +111,79 @@ bool XmlStreamReader::atEnd() const
 QXmlStreamReader::TokenType XmlStreamReader::readNext()
 {
     Q_D(XmlStreamReader);
-    d->reader->readNext();
-    if (isStartElement()) {
-        //Find non understood namespaces.
-        QHash<QString, QString> nonUnderstoodNsHash;
-        foreach (QXmlStreamNamespaceDeclaration decl, d->reader->namespaceDeclarations()) {
-            const QString uri = decl.namespaceUri().toString();
-            if (uri != QLatin1String(mcNamespace) && !d->mceCurrentNamespaces.contains(uri)
-                    && !d->mceObsoleteNamespaces.contains(uri)) {
-                nonUnderstoodNsHash.insert(decl.prefix().toString(), uri);
+    while (!d->reader->atEnd() && !d->reader->hasError()) {
+        d->reader->readNext();
+
+        if (d->reader->isStartElement()) {
+            //Figure out whether this element should be skiped
+            if (d->nonUnderstoodNamespacesCache.contains(d->reader->namespaceUri().toString())) {
+                d->reader->skipCurrentElement();
+                if (d->reader->hasError())
+                    break;
+                else
+                    continue;
             }
-        }
-        if (!nonUnderstoodNsHash.isEmpty()) {
-            //vertify whether all the non-understood namespaces are are ignorable.
-            QString nsPrefixString = d->reader->attributes().value(QLatin1String(mcNamespace), QLatin1String("Ignorable")).toString();
-            if (nsPrefixString.isEmpty()) {
-                raiseError(QStringLiteral("Non understood namespace found %1").arg(QStringList(nonUnderstoodNsHash.values()).join(QLatin1Char(' '))));
-            } else {
-                QStringList nsPrefixList = nsPrefixString.split(QRegularExpression(QStringLiteral("[ \\t\\r\\n]+")));
-                QHashIterator<QString, QString> it(nonUnderstoodNsHash);
-                while (it.hasNext()) {
-                    it.next();
-                    if (!nsPrefixList.contains(it.key())) {
-                        raiseError(QStringLiteral("Non understood namespace found %1").arg(it.value()));
-                        break;
-                    }
+
+            //Find non understood namespaces.
+            //Note that, more than one prefixs may point to the same one namespace.
+            QHash<QString, QString> namespacePrefixHash;
+            QSet<QString> nonUnderstoodNamespaces;
+            foreach (QXmlStreamNamespaceDeclaration decl, d->reader->namespaceDeclarations()) {
+                const QString uri = decl.namespaceUri().toString();
+                namespacePrefixHash.insert(decl.prefix().toString(), uri);
+                if (uri != QLatin1String(mcNamespace) && !d->mceCurrentNamespaces.contains(uri)
+                        && !d->mceObsoleteNamespaces.contains(uri)) {
+                    nonUnderstoodNamespaces.insert(uri);
                 }
             }
-            if (!hasError()) {
+
+            if (!nonUnderstoodNamespaces.isEmpty()) {
+                //vertify whether all the non-understood namespaces are are ignorable.
+                QString nsPrefixString = d->reader->attributes().value(QLatin1String(mcNamespace), QLatin1String("Ignorable")).toString();
+                if (nsPrefixString.isEmpty()) {
+                    raiseError(QStringLiteral("Non understood namespace found %1").arg(QStringList(namespacePrefixHash.values()).join(QLatin1Char(' '))));
+                } else {
+                    QStringList nsPrefixList = nsPrefixString.split(QRegularExpression(QStringLiteral("[ \\t\\r\\n]+")));
+                    QSet<QString> ignorableNamespaces;
+                    foreach (QString nsPrefix, nsPrefixList)
+                        ignorableNamespaces.insert(namespacePrefixHash[nsPrefix]);
+
+                    QSetIterator<QString> it(nonUnderstoodNamespaces);
+                    while (it.hasNext()) {
+                        const QString &ns = it.next();
+                        if(!ignorableNamespaces.contains(ns)) {
+                            raiseError(QStringLiteral("Non understood namespace found %1").arg(ns));
+                            break;
+                        }
+                    }
+                }
+                if (d->reader->hasError())
+                    break;
+
                 //Push all the non-understood and ignorable ns to the stack.
-                QStringList nonUnderstoodNsList(nonUnderstoodNsHash.values());
-                d->nonUnderstoodNamespacesStack.push(nonUnderstoodNsList);
-                foreach (QString ns, nonUnderstoodNsList) {
+                d->nonUnderstoodNamespacesStack.push(nonUnderstoodNamespaces);
+                foreach (const QString ns, nonUnderstoodNamespaces) {
                     if (d->nonUnderstoodNamespacesCache.contains(ns))
                         d->nonUnderstoodNamespacesCache[ns]++;
                     else
                         d->nonUnderstoodNamespacesCache.insert(ns, 1);
                 }
+            } else {
+                d->nonUnderstoodNamespacesStack.push(QSet<QString>());
             }
+            break;
+        } else if (d->reader->isEndElement()) {
+            //Pop up the non-understood and ignorable ns from the stack.
+            QSet<QString> nonUnderstoodNamespaces = d->nonUnderstoodNamespacesStack.pop();
+            foreach (QString ns, nonUnderstoodNamespaces) {
+                if (d->nonUnderstoodNamespacesCache[ns] == 1)
+                    d->nonUnderstoodNamespacesCache.remove(ns);
+                else
+                    d->nonUnderstoodNamespacesCache[ns]--;
+            }
+            break;
         } else {
-            d->nonUnderstoodNamespacesStack.push(QStringList());
-        }
-    } else if (isEndElement()) {
-        //Pop up the non-understood and ignorable ns from the stack.
-        QStringList nonUnderstoodNsList = d->nonUnderstoodNamespacesStack.pop();
-        foreach (QString ns, nonUnderstoodNsList) {
-            if (d->nonUnderstoodNamespacesCache[ns] == 1)
-                d->nonUnderstoodNamespacesCache.remove(ns);
-            else
-                d->nonUnderstoodNamespacesCache[ns]--;
+            break;
         }
     }
 

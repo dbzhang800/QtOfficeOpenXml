@@ -38,7 +38,7 @@ public:
     QSet<QString> mceCurrentNamespaces;
     QHash<QString, QString> mceObsoleteNamespaces;
     QHash<QString, int> nonUnderstoodNamespacesCache;
-    QStack<QStringList> nonUnderstoodNamespacesStack;
+    QStack<QSet<QString> > nonUnderstoodNamespacesStack;
 
     QXmlStreamReader *reader;
     XmlStreamReader *q_ptr;

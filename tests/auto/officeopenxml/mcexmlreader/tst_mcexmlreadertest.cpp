@@ -15,6 +15,7 @@ public:
 
 private Q_SLOTS:
     void testProcessingIgnorableAttribute();
+    void testProcessingIgnorableContent();
 };
 
 MceXmlReaderTest::MceXmlReaderTest()
@@ -45,6 +46,8 @@ void MceXmlReaderTest::testProcessingIgnorableAttribute()
         Mce::XmlStreamReader reader(&file);
         reader.addMceCurrentNamespace(v1);
         reader.readNextStartElement(); //Circles start
+        QVERIFY(reader.isStartElement());
+        QCOMPARE(reader.name().toString(), QString("Circles"));
 
         reader.readNextStartElement(); //first Circle start
         QXmlStreamAttributes attributes = reader.attributes();
@@ -100,6 +103,48 @@ void MceXmlReaderTest::testProcessingIgnorableAttribute()
         QCOMPARE(attributes.value(v2, "Opacity").toString(), QString("0.5"));
         QCOMPARE(attributes.value(v3, "Luminance").toString(), QString("13"));
         reader.readNextStartElement(); //second Circle end
+        file.close();
+    }
+}
+
+void MceXmlReaderTest::testProcessingIgnorableContent()
+{
+    QFile file(SRCDIR"data/processing_ignorable_content.xml");
+    const QString v1("http://schemas.openxmlformats.org/Circles/v1");
+    const QString a("http://schemas.openxmlformats.org/MyExtension/v1");
+    const QString b(a);
+
+    //elements in both "a" and "b" will be ignored when consumer only support v1.
+    {
+        file.open(QFile::ReadOnly);
+        Mce::XmlStreamReader reader(&file);
+        reader.addMceCurrentNamespace(v1);
+        reader.readNextStartElement(); //Circles start
+        QCOMPARE(int(reader.tokenType()), int(QXmlStreamReader::StartElement));
+        QCOMPARE(reader.name().toString(), QString("Circles"));
+        reader.readNextStartElement(); //Circles end
+        QCOMPARE(int(reader.tokenType()), int(QXmlStreamReader::EndElement));
+        QCOMPARE(reader.name().toString(), QString("Circles"));
+        file.close();
+    }
+
+
+    //no elements will be ignored when consumer support v1 and a.
+    {
+        file.open(QFile::ReadOnly);
+        Mce::XmlStreamReader reader(&file);
+        reader.setMceCurrentNamespaces(QSet<QString>() << v1 << a);
+        reader.readNextStartElement(); //Circles start
+
+        reader.readNextStartElement(); //IgnoreMe start
+        QCOMPARE(reader.name().toString(), QString("IgnoreMe"));
+        QCOMPARE(reader.namespaceUri().toString(), a);
+        reader.readNextStartElement(); //IgnoreMe end
+
+        reader.readNextStartElement(); //IgnoreMeToo start
+        QCOMPARE(reader.name().toString(), QString("IgnoreMeToo"));
+        QCOMPARE(reader.namespaceUri().toString(), b);
+        reader.readNextStartElement(); //IgnoreMeToo end
         file.close();
     }
 }
