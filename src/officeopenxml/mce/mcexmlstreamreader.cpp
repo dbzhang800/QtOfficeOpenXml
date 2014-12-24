@@ -28,6 +28,79 @@ namespace Mce {
 
 static const char * const mcNamespace = "http://schemas.openxmlformats.org/markup-compatibility/2006";
 
+MceXmlElementState::MceXmlElementState()
+{
+    //The d pointer is initialized with a null pointer
+}
+
+MceXmlElementState::MceXmlElementState(const QSet<QString> &nonUnderstoodNsSet)
+    :d(new MceXmlElementStateData)
+{
+    d->nonUnderstoodNamespaces = nonUnderstoodNsSet;
+}
+
+MceXmlElementState::MceXmlElementState(const MceXmlElementState &other)
+    :d(other.d)
+{
+}
+
+MceXmlElementState::~MceXmlElementState()
+{
+
+}
+
+bool MceXmlElementState::isNull() const
+{
+    return !d;
+}
+
+QSet<QString> MceXmlElementState::nonUnderstoodNamespaces() const
+{
+    if (!d)
+        return QSet<QString>();
+    return d->nonUnderstoodNamespaces;
+}
+
+QSet<MceXmlElementName> MceXmlElementState::processContentNeededElements() const
+{
+    if (!d)
+        return QSet<MceXmlElementName>();
+    return d->processContentNeededElements;
+}
+
+void MceXmlElementState::setNonUnderstoodNamespaces(const QSet<QString> &nss)
+{
+    if (!d)
+        d = new MceXmlElementStateData();
+    d->nonUnderstoodNamespaces = nss;
+}
+
+void MceXmlElementState::setProcessContentNeededElements(const QSet<MceXmlElementName> &names)
+{
+    if (!d)
+        d = new MceXmlElementStateData();
+    d->processContentNeededElements = names;
+}
+
+void MceXmlElementState::addNonUnderstoodNamespace(const QString &ns)
+{
+    if (!d)
+        d = new MceXmlElementStateData();
+    d->nonUnderstoodNamespaces.insert(ns);
+}
+
+void MceXmlElementState::addProcessContentNeededElement(const MceXmlElementName &name)
+{
+    if (!d)
+        d = new MceXmlElementStateData();
+    d->processContentNeededElements.insert(name);
+}
+
+void MceXmlElementState::addProcessContentNeededElement(const QString &nsUri, const QString &name)
+{
+    addProcessContentNeededElement(MceXmlElementName(nsUri, name));
+}
+
 XmlStreamReaderPrivate::XmlStreamReaderPrivate(QXmlStreamReader *reader, XmlStreamReader *q):
     reader(reader), q_ptr(q)
 {
@@ -91,7 +164,7 @@ void XmlStreamReader::addMceObsoleteNamespace(const QString &obsoleteNs, const Q
 void XmlStreamReader::setDevice(QIODevice *device)
 {
     Q_D(XmlStreamReader);
-    d->nonUnderstoodNamespacesStack.clear();
+    d->mceElementStateStack.clear();
     d->nonUnderstoodNamespacesCache.clear();
     d->reader->setDevice(device);
 }
@@ -123,6 +196,8 @@ QXmlStreamReader::TokenType XmlStreamReader::readNext()
                 else
                     continue;
             }
+
+            MceXmlElementState state;
 
             //Find non understood namespaces.
             //Note that, more than one prefixs may point to the same one namespace.
@@ -160,31 +235,31 @@ QXmlStreamReader::TokenType XmlStreamReader::readNext()
                 if (d->reader->hasError())
                     break;
 
-                //Push all the non-understood and ignorable ns to the stack.
-                d->nonUnderstoodNamespacesStack.push(nonUnderstoodNamespaces);
+                //OK, add these non understood namespaces to the element state.
+                state.setNonUnderstoodNamespaces(nonUnderstoodNamespaces);
                 foreach (const QString ns, nonUnderstoodNamespaces) {
                     if (d->nonUnderstoodNamespacesCache.contains(ns))
                         d->nonUnderstoodNamespacesCache[ns]++;
                     else
                         d->nonUnderstoodNamespacesCache.insert(ns, 1);
                 }
-            } else {
-                d->nonUnderstoodNamespacesStack.push(QSet<QString>());
             }
-            break;
+
+            d->mceElementStateStack.push(state);
         } else if (d->reader->isEndElement()) {
-            //Pop up the non-understood and ignorable ns from the stack.
-            QSet<QString> nonUnderstoodNamespaces = d->nonUnderstoodNamespacesStack.pop();
-            foreach (QString ns, nonUnderstoodNamespaces) {
-                if (d->nonUnderstoodNamespacesCache[ns] == 1)
-                    d->nonUnderstoodNamespacesCache.remove(ns);
-                else
-                    d->nonUnderstoodNamespacesCache[ns]--;
+            //Pop up the element state from the stack.
+            MceXmlElementState state = d->mceElementStateStack.pop();
+            if (!state.isNull()) {
+                foreach (QString ns, state.nonUnderstoodNamespaces()) {
+                    if (d->nonUnderstoodNamespacesCache[ns] == 1)
+                        d->nonUnderstoodNamespacesCache.remove(ns);
+                    else
+                        d->nonUnderstoodNamespacesCache[ns]--;
+                }
             }
-            break;
-        } else {
-            break;
         }
+
+        break;
     }
 
     return d->reader->tokenType();
