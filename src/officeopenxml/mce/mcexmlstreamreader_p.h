@@ -73,12 +73,12 @@ class MceXmlElementStateData : public QSharedData
 public:
     MceXmlElementStateData() {}
     MceXmlElementStateData(const MceXmlElementStateData &other)
-        :QSharedData(other), nonUnderstoodNamespaces(other.nonUnderstoodNamespaces)
+        :QSharedData(other), ignorableNamespaces(other.ignorableNamespaces)
         , processContentNeededElements(other.processContentNeededElements)
     {}
     ~MceXmlElementStateData(){}
 
-    QSet<QString> nonUnderstoodNamespaces;
+    QSet<QString> ignorableNamespaces;
     QSet<MceXmlElementName> processContentNeededElements;
 };
 
@@ -86,18 +86,18 @@ class MceXmlElementState
 {
 public:
     MceXmlElementState();
-    MceXmlElementState(const QSet<QString> &nonUnderstoodNsSet);
+    MceXmlElementState(const QSet<QString> &ignorableNss);
     MceXmlElementState(const MceXmlElementState &other);
     ~MceXmlElementState();
 
     bool isNull() const;
-    QSet<QString> nonUnderstoodNamespaces() const;
-    QSet<MceXmlElementName> processContentNeededElements() const;
-    void setNonUnderstoodNamespaces(const QSet<QString> &nss);
-    void setProcessContentNeededElements(const QSet<MceXmlElementName> &names);
-    void addNonUnderstoodNamespace(const QString &ns);
-    void addProcessContentNeededElement(const MceXmlElementName &name);
-    void addProcessContentNeededElement(const QString &nsUri, const QString &name);
+    QSet<QString> ignorableNamespaces() const;
+    QSet<MceXmlElementName> processContentElements() const;
+    void setIgnorableNamespaces(const QSet<QString> &nss);
+    void setProcessContentElements(const QSet<MceXmlElementName> &names);
+    void addIgnorableNamespace(const QString &ns);
+    void addProcessContentElement(const MceXmlElementName &name);
+    void addProcessContentElement(const QString &nsUri, const QString &name);
 
 private:
     QSharedDataPointer<MceXmlElementStateData> d;
@@ -109,10 +109,13 @@ class XmlStreamReaderPrivate
 public:
     XmlStreamReaderPrivate(QXmlStreamReader *reader, XmlStreamReader *q);
     ~XmlStreamReaderPrivate();
+    void pushElementState(const MceXmlElementState &state);
+    MceXmlElementState popElementState();
 
     QSet<QString> mceCurrentNamespaces;
     QHash<QString, QString> mceObsoleteNamespaces;
-    QHash<QString, int> nonUnderstoodNamespacesCache;
+
+    QHash<QString, int> ignorableNamespacesCache;
     QHash<MceXmlElementName, int> processContentElementCache;
     QStack<MceXmlElementState> mceElementStateStack;
 

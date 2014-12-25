@@ -18,6 +18,7 @@ private Q_SLOTS:
     void testIgnorableContent();
     void testIgnorableAndProcessContentAttributes();
     void testProcessContentAndExpandedNames();
+    void testMustUnderstandAttribute();
 };
 
 MceXmlReaderTest::MceXmlReaderTest()
@@ -250,6 +251,41 @@ void MceXmlReaderTest::testProcessContentAndExpandedNames()
         QCOMPARE(reader.name().toString(), QString("Blink"));
 
         file.close();
+    }
+}
+
+void MceXmlReaderTest::testMustUnderstandAttribute()
+{
+    QFile file1(SRCDIR"data/processing_an_attribute_prefixed_qualified_name.xml");
+    QFile file2(SRCDIR"data/processing_mustunderstand_attribute.xml");
+
+    const QString v1("http://schemas.openxmlformats.org/Circles/v1");
+    const QString v2("http://schemas.openxmlformats.org/Circles/v2");
+
+    //Without MustUnderstand attribute, error wil be triggered
+    //when we try to access the element that contains non-understand and
+    //non-ignorable attributes
+    {
+        file1.open(QFile::ReadOnly);
+        Mce::XmlStreamReader reader(&file1);
+        reader.addMceCurrentNamespace(v1);
+        reader.readNextStartElement(); //Circles start
+        QVERIFY(reader.isStartElement());
+        QCOMPARE(reader.name().toString(), QString("Circles"));
+
+        while (reader.readNext() != QXmlStreamReader::Invalid);
+        QVERIFY(reader.hasError());
+        file1.close();
+    }
+
+    //With MustUnderstand attribute
+    {
+        file2.open(QFile::ReadOnly);
+        Mce::XmlStreamReader reader(&file2);
+        reader.addMceCurrentNamespace(v1);
+        reader.readNextStartElement(); //Try Circles start
+        QVERIFY(reader.hasError());
+        file2.close();
     }
 }
 
