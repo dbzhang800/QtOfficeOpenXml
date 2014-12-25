@@ -188,13 +188,22 @@ QXmlStreamReader::TokenType XmlStreamReader::readNext()
         d->reader->readNext();
 
         if (d->reader->isStartElement()) {
-            //Figure out whether this element should be skiped
-            if (d->nonUnderstoodNamespacesCache.contains(d->reader->namespaceUri().toString())) {
-                d->reader->skipCurrentElement();
-                if (d->reader->hasError())
-                    break;
-                else
+            const QString nsUri = d->reader->namespaceUri().toString();
+            if (d->nonUnderstoodNamespacesCache.contains(nsUri)) {
+                //Figure out whether this element should be skiped
+                //Or should we just processContent.
+                if (d->processContentElementCache.contains(MceXmlElementName(nsUri, d->reader->name().toString()))
+                        ||d->processContentElementCache.contains(MceXmlElementName(nsUri, QStringLiteral("*")))) {
+                    //Just skip this start element.
                     continue;
+                } else {
+                    //Skip this element totally.
+                    d->reader->skipCurrentElement();
+                    if (d->reader->hasError())
+                        break;
+                    else
+                        continue;
+                }
             }
 
             MceXmlElementState state;
@@ -214,11 +223,11 @@ QXmlStreamReader::TokenType XmlStreamReader::readNext()
 
             if (!nonUnderstoodNamespaces.isEmpty()) {
                 //vertify whether all the non-understood namespaces are are ignorable.
-                QString nsPrefixString = d->reader->attributes().value(QLatin1String(mcNamespace), QLatin1String("Ignorable")).toString();
+                QStringRef nsPrefixString = d->reader->attributes().value(QLatin1String(mcNamespace), QLatin1String("Ignorable"));
                 if (nsPrefixString.isEmpty()) {
                     raiseError(QStringLiteral("Non understood namespace found %1").arg(QStringList(namespacePrefixHash.values()).join(QLatin1Char(' '))));
                 } else {
-                    QStringList nsPrefixList = nsPrefixString.split(QRegularExpression(QStringLiteral("[ \\t\\r\\n]+")));
+                    QStringList nsPrefixList = nsPrefixString.toString().split(QRegularExpression(QStringLiteral("[ \\t\\r\\n]+")));
                     QSet<QString> ignorableNamespaces;
                     foreach (QString nsPrefix, nsPrefixList)
                         ignorableNamespaces.insert(namespacePrefixHash[nsPrefix]);
@@ -234,27 +243,79 @@ QXmlStreamReader::TokenType XmlStreamReader::readNext()
                 }
                 if (d->reader->hasError())
                     break;
-
                 //OK, add these non understood namespaces to the element state.
                 state.setNonUnderstoodNamespaces(nonUnderstoodNamespaces);
+                //Update the cache.
                 foreach (const QString ns, nonUnderstoodNamespaces) {
                     if (d->nonUnderstoodNamespacesCache.contains(ns))
                         d->nonUnderstoodNamespacesCache[ns]++;
                     else
                         d->nonUnderstoodNamespacesCache.insert(ns, 1);
                 }
+
+                //Try figure out process-content attribute
+                QSet<MceXmlElementName> processContentNames;
+                QStringRef pcAttribValue = d->reader->attributes().value(QLatin1String(mcNamespace), QLatin1String("ProcessContent"));
+                pcAttribValue.isEmpty();
+                if (!pcAttribValue.isEmpty()) {
+                    QStringList pcNameList = pcAttribValue.toString().split(QRegularExpression(QStringLiteral("[ \\t\\r\\n]+")));
+                    foreach (const QString pcName, pcNameList) {
+                        int idx = pcName.indexOf(QLatin1Char(':'));
+                        if (idx == -1 || idx == 0 || idx == pcName.size()-1) {
+                            raiseError(QStringLiteral("Invalid ProcessContent attribute value %1").arg(pcAttribValue.toString()));
+                            break;
+                        }
+                        QString nsPrefix = pcName.left(idx);
+                        if (!namespacePrefixHash.contains(nsPrefix)) {
+                            raiseError(QStringLiteral("Invalid ProcessContent attribute value %1").arg(pcAttribValue.toString()));
+                            break;
+                        }
+                        QString ns = namespacePrefixHash[nsPrefix];
+                        if (!nonUnderstoodNamespaces.contains(ns))
+                            continue;
+                        processContentNames.insert(MceXmlElementName(ns, pcName.mid(idx+1)));
+                    }
+                    if (d->reader->hasError())
+                        break;
+                    //OK, add these processContentNames to the element state.
+                    state.setProcessContentNeededElements(processContentNames);
+                    //Update the cache.
+                    foreach (const MceXmlElementName mceName, processContentNames) {
+                        if (d->processContentElementCache.contains(mceName))
+                            d->processContentElementCache[mceName]++;
+                        else
+                            d->processContentElementCache.insert(mceName, 1);
+                    }
+                }
             }
 
             d->mceElementStateStack.push(state);
         } else if (d->reader->isEndElement()) {
+            //Figure out whether this end element should be skipped.
+            const QString nsUri = d->reader->namespaceUri().toString();
+            if (d->nonUnderstoodNamespacesCache.contains(nsUri)) {
+                if (d->processContentElementCache.contains(MceXmlElementName(nsUri, d->reader->name().toString()))
+                        ||d->processContentElementCache.contains(MceXmlElementName(nsUri, QStringLiteral("*")))) {
+                    //Just skip this end element.
+                    continue;
+                }
+            }
+
             //Pop up the element state from the stack.
             MceXmlElementState state = d->mceElementStateStack.pop();
             if (!state.isNull()) {
+                //Update the cache.
                 foreach (QString ns, state.nonUnderstoodNamespaces()) {
                     if (d->nonUnderstoodNamespacesCache[ns] == 1)
                         d->nonUnderstoodNamespacesCache.remove(ns);
                     else
                         d->nonUnderstoodNamespacesCache[ns]--;
+                }
+                foreach (MceXmlElementName mceName, state.processContentNeededElements()) {
+                    if (d->processContentElementCache[mceName] == 1)
+                        d->processContentElementCache.remove(mceName);
+                    else
+                        d->processContentElementCache[mceName]--;
                 }
             }
         }

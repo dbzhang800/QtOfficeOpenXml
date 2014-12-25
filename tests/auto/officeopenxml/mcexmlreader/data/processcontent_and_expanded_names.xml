@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Circles
+    xmlns="http://schemas.openxmlformats.org/Circles/v1"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:extA="http://schemas.openxmlformats.org/Circles/extension"
+    xmlns:extB="http://schemas.openxmlformats.org/Circles/extension"
+    mc:Ignorable="extB"
+    mc:ProcessContent="extA:Blink" >
+    <extB:Blink>
+        <Circle Center="0,0" Radius="20" Color="Blue" />
+        <Circle Center="25,0" Radius="20" Color="Black" />
+        <Circle Center="50,0" Radius="20" Color="Red" />
+    </extB:Blink>
+</Circles>

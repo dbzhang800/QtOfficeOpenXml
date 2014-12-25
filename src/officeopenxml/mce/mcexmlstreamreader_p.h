@@ -113,6 +113,7 @@ public:
     QSet<QString> mceCurrentNamespaces;
     QHash<QString, QString> mceObsoleteNamespaces;
     QHash<QString, int> nonUnderstoodNamespacesCache;
+    QHash<MceXmlElementName, int> processContentElementCache;
     QStack<MceXmlElementState> mceElementStateStack;
 
     QXmlStreamReader *reader;

@@ -5,6 +5,9 @@
 #-------------------------------------------------
 
 QT       += testlib officeopenxml
+QT       -= gui
+
+CONFIG += testcase
 
 TARGET = tst_mcexmlreadertest
 CONFIG   += console

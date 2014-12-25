@@ -14,15 +14,17 @@ public:
     MceXmlReaderTest();
 
 private Q_SLOTS:
-    void testProcessingIgnorableAttribute();
-    void testProcessingIgnorableContent();
+    void testIgnorableAttribute();
+    void testIgnorableContent();
+    void testIgnorableAndProcessContentAttributes();
+    void testProcessContentAndExpandedNames();
 };
 
 MceXmlReaderTest::MceXmlReaderTest()
 {
 }
 
-void MceXmlReaderTest::testProcessingIgnorableAttribute()
+void MceXmlReaderTest::testIgnorableAttribute()
 {
     QFile file(SRCDIR"data/processing_ignorable_attribute.xml");
     const QString v1("http://schemas.openxmlformats.org/Circles/v1");
@@ -107,7 +109,7 @@ void MceXmlReaderTest::testProcessingIgnorableAttribute()
     }
 }
 
-void MceXmlReaderTest::testProcessingIgnorableContent()
+void MceXmlReaderTest::testIgnorableContent()
 {
     QFile file(SRCDIR"data/processing_ignorable_content.xml");
     const QString v1("http://schemas.openxmlformats.org/Circles/v1");
@@ -145,6 +147,108 @@ void MceXmlReaderTest::testProcessingIgnorableContent()
         QCOMPARE(reader.name().toString(), QString("IgnoreMeToo"));
         QCOMPARE(reader.namespaceUri().toString(), b);
         reader.readNextStartElement(); //IgnoreMeToo end
+        file.close();
+    }
+}
+
+void MceXmlReaderTest::testIgnorableAndProcessContentAttributes()
+{
+    QFile file(SRCDIR"data/processing_ignorable_and_processcontent_attributes.xml");
+    const QString v1("http://schemas.openxmlformats.org/Circles/v1");
+    const QString v2("http://schemas.openxmlformats.org/Circles/v2");
+
+    //elements in v2:Blink will be processed directly when consumer only support v1.
+    {
+        file.open(QFile::ReadOnly);
+        Mce::XmlStreamReader reader(&file);
+        reader.addMceCurrentNamespace(v1);
+        reader.readNextStartElement(); //Circles start
+        QVERIFY(reader.isStartElement());
+        QCOMPARE(reader.name().toString(), QString("Circles"));
+
+        reader.readNextStartElement(); //yellow Circle start
+        QVERIFY(reader.isStartElement());
+        QCOMPARE(reader.name().toString(), QString("Circle"));
+
+        reader.readNextStartElement(); //yellow Circle end
+        reader.readNextStartElement(); //green Circle start
+        reader.readNextStartElement(); //green Circle end
+
+        reader.readNextStartElement(); //Circles end
+        QVERIFY(reader.isEndElement());
+        QCOMPARE(reader.name().toString(), QString("Circles"));
+        file.close();
+    }
+
+    //processContent has no effect when consumer support v1 and v2.
+    {
+        file.open(QFile::ReadOnly);
+        Mce::XmlStreamReader reader(&file);
+        reader.addMceCurrentNamespace(v1);
+        reader.addMceCurrentNamespace(v2);
+
+        reader.readNextStartElement(); //Circles start
+        QVERIFY(reader.isStartElement());
+        QCOMPARE(reader.name().toString(), QString("Circles"));
+
+        reader.readNextStartElement(); // v2:Watermark start
+        QCOMPARE(reader.name().toString(), QString("Watermark"));
+        reader.skipCurrentElement(); //skip v2:Watermark
+
+        reader.readNextStartElement(); // v2:Blink start
+        QVERIFY(reader.isStartElement());
+        QCOMPARE(reader.name().toString(), QString("Blink"));
+
+        file.close();
+    }
+}
+
+void MceXmlReaderTest::testProcessContentAndExpandedNames()
+{
+    QFile file(SRCDIR"data/processcontent_and_expanded_names.xml");
+    const QString v1("http://schemas.openxmlformats.org/Circles/v1");
+    const QString extA("http://schemas.openxmlformats.org/Circles/extension");
+    const QString extB(extA);
+
+    //elements in extB:Blink should be processed directly when consumer only support v1.
+    {
+        file.open(QFile::ReadOnly);
+        Mce::XmlStreamReader reader(&file);
+        reader.addMceCurrentNamespace(v1);
+        reader.readNextStartElement(); //Circles start
+        QVERIFY(reader.isStartElement());
+        QCOMPARE(reader.name().toString(), QString("Circles"));
+
+        reader.readNextStartElement(); //blue Circle start
+        QVERIFY(reader.isStartElement());
+        QCOMPARE(reader.name().toString(), QString("Circle"));
+        reader.skipCurrentElement();
+
+        reader.readNextStartElement(); //blank Circle start
+        reader.skipCurrentElement();
+        reader.readNextStartElement(); //red Circle start
+        reader.skipCurrentElement();
+
+        reader.readNextStartElement(); //Circles end
+        QVERIFY(reader.isEndElement());
+        QCOMPARE(reader.name().toString(), QString("Circles"));
+        file.close();
+    }
+
+    //processContent has no effect when consumer support v1 and extA.
+    {
+        file.open(QFile::ReadOnly);
+        Mce::XmlStreamReader reader(&file);
+        reader.addMceCurrentNamespace(v1);
+        reader.addMceCurrentNamespace(extA);
+
+        reader.readNextStartElement(); //Circles start
+        QVERIFY(reader.isStartElement());
+        QCOMPARE(reader.name().toString(), QString("Circles"));
+
+        reader.readNextStartElement(); // extB:Blink start
+        QCOMPARE(reader.name().toString(), QString("Blink"));
+
         file.close();
     }
 }
