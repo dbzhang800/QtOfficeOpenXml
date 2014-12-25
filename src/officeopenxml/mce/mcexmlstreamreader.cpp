@@ -113,6 +113,9 @@ XmlStreamReaderPrivate::~XmlStreamReaderPrivate()
 void XmlStreamReaderPrivate::pushElementState(const MceXmlElementState &state)
 {
     mceElementStateStack.push(state);
+    if (state.isNull())
+        return;
+
     //Update caches.
     foreach (const QString ns, state.ignorableNamespaces()) {
         if (ignorableNamespacesCache.contains(ns))
@@ -205,6 +208,7 @@ void XmlStreamReader::setDevice(QIODevice *device)
     Q_D(XmlStreamReader);
     d->mceElementStateStack.clear();
     d->ignorableNamespacesCache.clear();
+    d->processContentElementCache.clear();
     d->reader->setDevice(device);
 }
 
@@ -413,9 +417,40 @@ QXmlStreamAttributes XmlStreamReader::attributes() const
 
 QString XmlStreamReader::readElementText(QXmlStreamReader::ReadElementTextBehaviour behaviour)
 {
-    Q_D(XmlStreamReader);
-    //Todo
-    return d->reader->readElementText(behaviour);
+    //we can not call QXmlStreamReader::readElementText() directly here.
+    //as we must call our own readNext().
+    if (isStartElement()) {
+        QString result;
+        forever {
+            switch (readNext()) {
+            case QXmlStreamReader::Characters:
+            case QXmlStreamReader::EntityReference:
+                result += text();
+                break;
+            case QXmlStreamReader::EndElement:
+                return result;
+            case QXmlStreamReader::ProcessingInstruction:
+            case QXmlStreamReader::Comment:
+                break;
+            case QXmlStreamReader::StartElement:
+                if (behaviour == QXmlStreamReader::SkipChildElements) {
+                    skipCurrentElement();
+                    break;
+                } else if (behaviour == QXmlStreamReader::IncludeChildElements) {
+                    result += readElementText(behaviour);
+                    break;
+                }
+                // Fall through (for ErrorOnUnexpectedElement)
+            default:
+                if (hasError() || behaviour == QXmlStreamReader::ErrorOnUnexpectedElement) {
+                    if (hasError())
+                        raiseError(QStringLiteral("Expected character data."));
+                    return result;
+                }
+            }
+        }
+    }
+    return QString();
 }
 
 QStringRef XmlStreamReader::name() const
@@ -440,6 +475,12 @@ QStringRef XmlStreamReader::prefix() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->prefix();
+}
+
+QStringRef XmlStreamReader::text() const
+{
+    Q_D(const XmlStreamReader);
+    return d->reader->text();
 }
 
 QXmlStreamNamespaceDeclarations XmlStreamReader::namespaceDeclarations() const

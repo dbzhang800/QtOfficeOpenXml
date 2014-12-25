@@ -70,6 +70,8 @@ public:
     QStringRef qualifiedName() const;
     QStringRef prefix() const;
 
+    QStringRef text() const;
+
     QXmlStreamNamespaceDeclarations namespaceDeclarations() const;
 
     void raiseError(const QString& message = QString());
