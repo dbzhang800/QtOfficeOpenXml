@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Circles
+xmlns="http://schemas.openxmlformats.org/Circles/v1"
+xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" >
+<mc:AlternateContent
+    xmlns:m="http://schemas.openxmlformats.org/metallicfinishes/v1">
+    <mc:Choice Requires="m">
+        <Circle m:Finish="GoldLeaf" Center="100,100" Radius="50" />
+    </mc:Choice>
+    <mc:Fallback>
+        <Circle Fill="Gold" Center="100,100" Radius="50" />
+    </mc:Fallback>
+</mc:AlternateContent>
+</Circles>

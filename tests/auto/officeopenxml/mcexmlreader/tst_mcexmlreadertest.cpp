@@ -19,6 +19,8 @@ private Q_SLOTS:
     void testIgnorableAndProcessContentAttributes();
     void testProcessContentAndExpandedNames();
     void testMustUnderstandAttribute();
+    void testAlternateContentMarkup();
+    void testAlternateContentMarkupUsingNamespaces();
 };
 
 MceXmlReaderTest::MceXmlReaderTest()
@@ -286,6 +288,73 @@ void MceXmlReaderTest::testMustUnderstandAttribute()
         reader.readNextStartElement(); //Try Circles start
         QVERIFY(reader.hasError());
         file2.close();
+    }
+}
+
+void MceXmlReaderTest::testAlternateContentMarkup()
+{
+    QFile file(SRCDIR"data/processing_alternatecontent_markup.xml");
+    const QString v1("http://schemas.openxmlformats.org/Circles/v1");
+    const QString v2("http://schemas.openxmlformats.org/Circles/v2");
+    const QString v3("http://schemas.openxmlformats.org/Circles/v3");
+
+    //Fallback will be selected when consumer only support v1.
+    {
+        file.open(QFile::ReadOnly);
+        Mce::XmlStreamReader reader(&file);
+        reader.addMceCurrentNamespace(v1);
+        reader.readNextStartElement(); //Circles start
+        reader.readNextStartElement(); //LuminanceFilter start
+        QCOMPARE(reader.name().toString(), QStringLiteral("LuminanceFilter"));
+        reader.skipCurrentElement();
+
+        reader.readNextStartElement(); //Circles end
+        QVERIFY(reader.isEndElement());
+        QCOMPARE(reader.name().toString(), QStringLiteral("Circles"));
+        file.close();
+    }
+
+    //First choice will be selected when consumer support v1 and v3.
+    {
+        file.open(QFile::ReadOnly);
+        Mce::XmlStreamReader reader(&file);
+        reader.addMceCurrentNamespace(v1);
+        reader.addMceCurrentNamespace(v3);
+
+        reader.readNextStartElement(); //Circles start
+        reader.readNextStartElement(); //Circle start
+        QCOMPARE(reader.name().toString(), QStringLiteral("Circle"));
+        file.close();
+    }
+}
+
+void MceXmlReaderTest::testAlternateContentMarkupUsingNamespaces()
+{
+    QFile file(SRCDIR"data/processing_alternatecontent_markup_using_namespaces.xml");
+    const QString v1("http://schemas.openxmlformats.org/Circles/v1");
+    const QString m("http://schemas.openxmlformats.org/metallicfinishes/v1");
+
+    //Fallback will be selected when consumer only support v1.
+    {
+        file.open(QFile::ReadOnly);
+        Mce::XmlStreamReader reader(&file);
+        reader.addMceCurrentNamespace(v1);
+        reader.readNextStartElement(); //Circles start
+        reader.readNextStartElement(); //Circle start
+        QCOMPARE(reader.attributes().value("Fill").toString(), QStringLiteral("Gold"));
+        file.close();
+    }
+
+    //The first choice will be selected when consumer support v1 and m.
+    {
+        file.open(QFile::ReadOnly);
+        Mce::XmlStreamReader reader(&file);
+        reader.addMceCurrentNamespace(v1);
+        reader.addMceCurrentNamespace(m);
+        reader.readNextStartElement(); //Circles start
+        reader.readNextStartElement(); //Circle start
+        QCOMPARE(reader.attributes().value(m, "Finish").toString(), QStringLiteral("GoldLeaf"));
+        file.close();
     }
 }
 

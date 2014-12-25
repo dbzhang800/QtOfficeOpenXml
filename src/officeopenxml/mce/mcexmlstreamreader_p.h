@@ -80,24 +80,28 @@ public:
 
     QSet<QString> ignorableNamespaces;
     QSet<MceXmlElementName> processContentNeededElements;
+    QHash<QString, QString> namespacePrefixes;
 };
 
 class MceXmlElementState
 {
 public:
     MceXmlElementState();
-    MceXmlElementState(const QSet<QString> &ignorableNss);
     MceXmlElementState(const MceXmlElementState &other);
     ~MceXmlElementState();
 
     bool isNull() const;
     QSet<QString> ignorableNamespaces() const;
     QSet<MceXmlElementName> processContentElements() const;
+    QHash<QString, QString> namespacePrefixes() const;
+    bool hasNamespacePrefix(const QString &prefix) const;
+    QString getNamespaceByPrefix(const QString &prefix) const;
     void setIgnorableNamespaces(const QSet<QString> &nss);
     void setProcessContentElements(const QSet<MceXmlElementName> &names);
     void addIgnorableNamespace(const QString &ns);
     void addProcessContentElement(const MceXmlElementName &name);
     void addProcessContentElement(const QString &nsUri, const QString &name);
+    void addNamespacePrefix(const QString &prefix, const QString &ns);
 
 private:
     QSharedDataPointer<MceXmlElementStateData> d;
@@ -109,8 +113,11 @@ class XmlStreamReaderPrivate
 public:
     XmlStreamReaderPrivate(QXmlStreamReader *reader, XmlStreamReader *q);
     ~XmlStreamReaderPrivate();
+
+    QXmlStreamReader::TokenType doReadNext_1();
     void pushElementState(const MceXmlElementState &state);
     MceXmlElementState popElementState();
+    QString getNamespaceByPrefix(const QString &prefix) const;
 
     QSet<QString> mceCurrentNamespaces;
     QHash<QString, QString> mceObsoleteNamespaces;
@@ -118,6 +125,22 @@ public:
     QHash<QString, int> ignorableNamespacesCache;
     QHash<MceXmlElementName, int> processContentElementCache;
     QStack<MceXmlElementState> mceElementStateStack;
+
+    //Ecma Office Open Xml 10.2.1
+    //"An AlternateContent element shall not be the child of an AlternateContent element."
+    struct AlternateContentState
+    {
+        AlternateContentState():inAC(false), selected(false) {}
+        void clear()
+        {
+            inAC = false;
+            selected = false;
+        }
+
+        bool inAC;
+        bool selected;
+
+    } alternateContentState;
 
     QXmlStreamReader *reader;
     XmlStreamReader *q_ptr;
