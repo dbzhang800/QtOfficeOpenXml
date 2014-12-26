@@ -80,6 +80,7 @@ public:
 
     QSet<QString> ignorableNamespaces;
     QSet<MceXmlElementName> processContentNeededElements;
+    QSet<MceXmlElementName> extensionElements;
     QHash<QString, QString> namespacePrefixes;
 };
 
@@ -93,6 +94,7 @@ public:
     bool isNull() const;
     QSet<QString> ignorableNamespaces() const;
     QSet<MceXmlElementName> processContentElements() const;
+    QSet<MceXmlElementName> extensionElements() const;
     QHash<QString, QString> namespacePrefixes() const;
     bool hasNamespacePrefix(const QString &prefix) const;
     QString getNamespaceByPrefix(const QString &prefix) const;
@@ -101,6 +103,8 @@ public:
     void addIgnorableNamespace(const QString &ns);
     void addProcessContentElement(const MceXmlElementName &name);
     void addProcessContentElement(const QString &nsUri, const QString &name);
+    void addExtensionElement(const MceXmlElementName &name);
+    void addExtensionElement(const QString &nsUri, const QString &name);
     void addNamespacePrefix(const QString &prefix, const QString &ns);
 
 private:
@@ -119,11 +123,13 @@ public:
     void pushElementState(const MceXmlElementState &state);
     MceXmlElementState popElementState();
     QString getNamespaceByPrefix(const QString &prefix) const;
+    void tryInitExtensionElementsCache(const QString &rootNsUri);
 
     QSet<QString> mceUnderstoodNamespaces;
 
     QHash<QString, int> ignorableNamespacesCache;
     QHash<MceXmlElementName, int> processContentElementCache;
+    QHash<MceXmlElementName, int> extensionElementsCache;
     QStack<MceXmlElementState> mceElementStateStack;
 
     //Ecma Office Open Xml 10.2.1
@@ -141,6 +147,10 @@ public:
         bool selected;
 
     } alternateContentState;
+
+    //in application-defined extension element or not
+    int extensionElementDepth;
+    bool hasFoundRootElement;
 
     QXmlStreamReader *reader;
     XmlStreamReader *q_ptr;

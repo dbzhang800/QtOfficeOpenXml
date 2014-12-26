@@ -62,6 +62,13 @@ QSet<MceXmlElementName> MceXmlElementState::processContentElements() const
     return d->processContentNeededElements;
 }
 
+QSet<MceXmlElementName> MceXmlElementState::extensionElements() const
+{
+    if (!d)
+        return QSet<MceXmlElementName>();
+    return d->extensionElements;
+}
+
 QHash<QString, QString> MceXmlElementState::namespacePrefixes() const
 {
     if (!d)
@@ -116,6 +123,18 @@ void MceXmlElementState::addProcessContentElement(const QString &nsUri, const QS
     addProcessContentElement(MceXmlElementName(nsUri, name));
 }
 
+void MceXmlElementState::addExtensionElement(const MceXmlElementName &name)
+{
+    if (!d)
+        d = new MceXmlElementStateData();
+    d->extensionElements.insert(name);
+}
+
+void MceXmlElementState::addExtensionElement(const QString &nsUri, const QString &name)
+{
+    addExtensionElement(MceXmlElementName(nsUri, name));
+}
+
 void MceXmlElementState::addNamespacePrefix(const QString &prefix, const QString &ns)
 {
     if (!d)
@@ -124,7 +143,7 @@ void MceXmlElementState::addNamespacePrefix(const QString &prefix, const QString
 }
 
 XmlStreamReaderPrivate::XmlStreamReaderPrivate(QXmlStreamReader *reader, XmlStreamReader *q):
-    reader(reader), q_ptr(q)
+    extensionElementDepth(0), hasFoundRootElement(false), reader(reader), q_ptr(q)
 {
 }
 
@@ -151,6 +170,12 @@ void XmlStreamReaderPrivate::pushElementState(const MceXmlElementState &state)
         else
             processContentElementCache.insert(mceName, 1);
     }
+    foreach (const MceXmlElementName mceName, state.extensionElements()) {
+        if (extensionElementsCache.contains(mceName))
+            extensionElementsCache[mceName]++;
+        else
+            extensionElementsCache.insert(mceName, 1);
+    }
 }
 
 MceXmlElementState XmlStreamReaderPrivate::popElementState()
@@ -170,6 +195,12 @@ MceXmlElementState XmlStreamReaderPrivate::popElementState()
             else
                 processContentElementCache[mceName]--;
         }
+        foreach (MceXmlElementName mceName, state.extensionElements()) {
+            if (extensionElementsCache[mceName] == 1)
+                extensionElementsCache.remove(mceName);
+            else
+                extensionElementsCache[mceName]--;
+        }
     }
     return state;
 }
@@ -184,6 +215,31 @@ QString XmlStreamReaderPrivate::getNamespaceByPrefix(const QString &prefix) cons
             return state.getNamespaceByPrefix(prefix);
     }
     return QString();
+}
+
+/*
+ * Should we do this?
+ */
+void XmlStreamReaderPrivate::tryInitExtensionElementsCache(const QString &rootNsUri)
+{
+    if (!hasFoundRootElement) {
+        hasFoundRootElement = true;
+        if (rootNsUri.startsWith(QLatin1String("http://schemas.openxmlformats.org/"))) {
+            extensionElementsCache.insert(MceXmlElementName(QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/chart"), QStringLiteral("ext")), 1);
+            extensionElementsCache.insert(MceXmlElementName(QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/chartDrawing"), QStringLiteral("ext")), 1);
+            extensionElementsCache.insert(MceXmlElementName(QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/main"), QStringLiteral("ext")), 1);
+            extensionElementsCache.insert(MceXmlElementName(QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"), QStringLiteral("ext")), 1);
+            extensionElementsCache.insert(MceXmlElementName(QStringLiteral("http://schemas.openxmlformats.org/presentationml/2006/main"), QStringLiteral("ext")), 1);
+            extensionElementsCache.insert(MceXmlElementName(QStringLiteral("http://schemas.openxmlformats.org/spreadsheetml/2006/main"), QStringLiteral("ext")), 1);
+        } else if (rootNsUri.startsWith(QLatin1String("http://purl.oclc.org/ooxml/"))) {
+            extensionElementsCache.insert(MceXmlElementName(QStringLiteral("http://purl.oclc.org/ooxml/drawingml/chart"), QStringLiteral("ext")), 1);
+            extensionElementsCache.insert(MceXmlElementName(QStringLiteral("http://purl.oclc.org/ooxml/drawingml/chartDrawing"), QStringLiteral("ext")), 1);
+            extensionElementsCache.insert(MceXmlElementName(QStringLiteral("http://purl.oclc.org/ooxml/drawingml/main"), QStringLiteral("ext")), 1);
+            extensionElementsCache.insert(MceXmlElementName(QStringLiteral("http://purl.oclc.org/ooxml/drawingml/spreadsheetDrawing"), QStringLiteral("ext")), 1);
+            extensionElementsCache.insert(MceXmlElementName(QStringLiteral("http://purl.oclc.org/ooxml/presentationml/main"), QStringLiteral("ext")), 1);
+            extensionElementsCache.insert(MceXmlElementName(QStringLiteral("http://purl.oclc.org/ooxml/spreadsheetml/main"), QStringLiteral("ext")), 1);
+        }
+    }
 }
 
 void XmlStreamReaderPrivate::doSkipCurrentElemenet_1()
@@ -234,6 +290,9 @@ void XmlStreamReader::setDevice(QIODevice *device)
     d->mceElementStateStack.clear();
     d->ignorableNamespacesCache.clear();
     d->processContentElementCache.clear();
+    d->extensionElementsCache.clear();
+    d->extensionElementDepth = 0;
+    d->hasFoundRootElement = false;
     d->reader->setDevice(device);
 }
 
@@ -341,12 +400,25 @@ QXmlStreamReader::TokenType XmlStreamReaderPrivate::doReadNext_1()
 {
     while (reader->readNext() != QXmlStreamReader::Invalid) {
         if (reader->isStartElement()) {
+            const QString nsUri = reader->namespaceUri().toString();
+
+            if (!hasFoundRootElement)
+                tryInitExtensionElementsCache(nsUri);
+
+            if (extensionElementDepth) {
+                extensionElementDepth++;
+                break;
+            } else {
+                //Figure out whether this is an Extension Element or not
+                if (extensionElementsCache.contains(MceXmlElementName(nsUri, reader->name().toString()))) {
+                    extensionElementDepth = 1;
+                    break;
+                }
+            }
 
             //Deal with namespace of this element.
             //Todo: should we move this block of code after we parse all other
             //attributes of this element?
-            const QString nsUri = reader->namespaceUri().toString();
-
             if (nsUri == QLatin1String(mcNamespace) || mceUnderstoodNamespaces.contains(nsUri)) {
                 //Ok valid supported, nothing need to do.
             } else if (ignorableNamespacesCache.contains(nsUri)) {
@@ -452,6 +524,11 @@ QXmlStreamReader::TokenType XmlStreamReaderPrivate::doReadNext_1()
                 }
             }
         } else if (reader->isEndElement()) {
+            if (extensionElementDepth) {
+                extensionElementDepth--;
+                break;
+            }
+
             //Figure out whether this end element should be skipped.
             const QString nsUri = reader->namespaceUri().toString();
             if (nsUri == QLatin1String(mcNamespace)) {
@@ -509,6 +586,9 @@ QXmlStreamReader::TokenType XmlStreamReader::tokenType() const
 QXmlStreamAttributes XmlStreamReader::attributes() const
 {
     Q_D(const XmlStreamReader);
+    if (d->extensionElementDepth)
+        return d->reader->attributes();
+
     QXmlStreamAttributes attributes;
     //Remove all the non-understood and ignorable attributes.
     foreach (const QXmlStreamAttribute attri, d->reader->attributes()) {
@@ -590,6 +670,9 @@ QStringRef XmlStreamReader::text() const
 QXmlStreamNamespaceDeclarations XmlStreamReader::namespaceDeclarations() const
 {
     Q_D(const XmlStreamReader);
+    if (d->extensionElementDepth)
+        return d->reader->namespaceDeclarations();
+
     QXmlStreamNamespaceDeclarations declarations;
     foreach (const QXmlStreamNamespaceDeclaration decl, d->reader->namespaceDeclarations()) {
         const QString ns = decl.namespaceUri().toString();

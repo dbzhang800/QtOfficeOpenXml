@@ -18,3 +18,5 @@ TEMPLATE = app
 
 SOURCES += tst_mcexmlreadertest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
+
+OTHER_FILES += data/*
