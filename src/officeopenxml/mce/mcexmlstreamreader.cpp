@@ -210,40 +210,22 @@ XmlStreamReader::~XmlStreamReader()
     delete d_ptr;
 }
 
-QSet<QString> XmlStreamReader::mceCurrentNamespaces() const
+QSet<QString> XmlStreamReader::mceUnderstoodNamespaces() const
 {
     Q_D(const XmlStreamReader);
-    return d->mceCurrentNamespaces;
+    return d->mceUnderstoodNamespaces;
 }
 
-QHash<QString, QString> XmlStreamReader::mceObsoleteNamespaces() const
-{
-    Q_D(const XmlStreamReader);
-    return d->mceObsoleteNamespaces;
-}
-
-void XmlStreamReader::setMceCurrentNamespaces(const QSet<QString> &nsList)
+void XmlStreamReader::setMceUnderstoodNamespaces(const QSet<QString> &nsList)
 {
     Q_D(XmlStreamReader);
-    d->mceCurrentNamespaces = nsList;
+    d->mceUnderstoodNamespaces = nsList;
 }
 
-void XmlStreamReader::setMceObsoleteNamespaces(const QHash<QString, QString> &nsMap)
+void XmlStreamReader::addMceUnderstoodNamespace(const QString &ns)
 {
     Q_D(XmlStreamReader);
-    d->mceObsoleteNamespaces = nsMap;
-}
-
-void XmlStreamReader::addMceCurrentNamespace(const QString &ns)
-{
-    Q_D(XmlStreamReader);
-    d->mceCurrentNamespaces.insert(ns);
-}
-
-void XmlStreamReader::addMceObsoleteNamespace(const QString &obsoleteNs, const QString &currentNs)
-{
-    Q_D(XmlStreamReader);
-    d->mceObsoleteNamespaces.insert(obsoleteNs, currentNs);
+    d->mceUnderstoodNamespaces.insert(ns);
 }
 
 void XmlStreamReader::setDevice(QIODevice *device)
@@ -304,8 +286,7 @@ QXmlStreamReader::TokenType XmlStreamReader::readNext()
                                 ok = false;
                                 break;
                             }
-                            if (!(d->mceCurrentNamespaces.contains(ns)
-                                                 || d->mceObsoleteNamespaces.contains(ns))) {
+                            if (!(d->mceUnderstoodNamespaces.contains(ns))) {
                                 ok = false;
                                 break;
                             }
@@ -366,9 +347,7 @@ QXmlStreamReader::TokenType XmlStreamReaderPrivate::doReadNext_1()
             //attributes of this element?
             const QString nsUri = reader->namespaceUri().toString();
 
-            if (nsUri == QLatin1String(mcNamespace)
-                    || mceCurrentNamespaces.contains(nsUri)
-                    || mceObsoleteNamespaces.contains(nsUri)) {
+            if (nsUri == QLatin1String(mcNamespace) || mceUnderstoodNamespaces.contains(nsUri)) {
                 //Ok valid supported, nothing need to do.
             } else if (ignorableNamespacesCache.contains(nsUri)) {
                 //Ignorable or ProcessContent.
@@ -400,8 +379,7 @@ QXmlStreamReader::TokenType XmlStreamReaderPrivate::doReadNext_1()
             foreach (QXmlStreamNamespaceDeclaration decl, reader->namespaceDeclarations()) {
                 const QString uri = decl.namespaceUri().toString();
                 state.addNamespacePrefix(decl.prefix().toString(), uri);
-                if (uri != QLatin1String(mcNamespace) && !mceCurrentNamespaces.contains(uri)
-                        && !mceObsoleteNamespaces.contains(uri)) {
+                if (uri != QLatin1String(mcNamespace) && !mceUnderstoodNamespaces.contains(uri)) {
                     nonUnderstoodNamespaces.insert(uri);
                 }
             }
@@ -425,7 +403,7 @@ QXmlStreamReader::TokenType XmlStreamReaderPrivate::doReadNext_1()
                     QStringList nsPrefixList = nsPrefixString.toString().split(QRegularExpression(QStringLiteral("[ \\t\\r\\n]+")));
                     foreach (QString nsPrefix, nsPrefixList) {
                         QString nsUri = state.getNamespaceByPrefix(nsPrefix);
-                        if (!mceCurrentNamespaces.contains(nsUri) && !mceObsoleteNamespaces.contains(nsUri)) {
+                        if (!mceUnderstoodNamespaces.contains(nsUri)) {
                             //Error
                             reader->raiseError(QStringLiteral("Don't understand MustUnderstand namespace %1").arg(nsUri));
                             break;
@@ -466,7 +444,7 @@ QXmlStreamReader::TokenType XmlStreamReaderPrivate::doReadNext_1()
             //Make sure all of the attributes are understood or ignorable.
             foreach (const QXmlStreamAttribute attri, reader->attributes()) {
                 const QString ns = attri.namespaceUri().toString();
-                if (!ns.isEmpty() && !mceCurrentNamespaces.contains(ns) && !mceObsoleteNamespaces.contains(ns)
+                if (!ns.isEmpty() && !mceUnderstoodNamespaces.contains(ns)
                         && !ignorableNamespacesCache.contains(ns) && ns != QLatin1String(mcNamespace)) {
                     reader->raiseError(QStringLiteral("Non-understood and non-ignorable namespace %1 used in attribute %2")
                                           .arg(ns, attri.qualifiedName().toString()));

@@ -120,8 +120,7 @@ public:
     MceXmlElementState popElementState();
     QString getNamespaceByPrefix(const QString &prefix) const;
 
-    QSet<QString> mceCurrentNamespaces;
-    QHash<QString, QString> mceObsoleteNamespaces;
+    QSet<QString> mceUnderstoodNamespaces;
 
     QHash<QString, int> ignorableNamespacesCache;
     QHash<MceXmlElementName, int> processContentElementCache;

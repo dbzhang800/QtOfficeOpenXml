@@ -49,7 +49,7 @@ void MceXmlReaderTest::testIgnorableAttribute()
     {
         file.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file);
-        reader.addMceCurrentNamespace(v1);
+        reader.addMceUnderstoodNamespace(v1);
         reader.readNextStartElement(); //Circles start
         QVERIFY(reader.isStartElement());
         QCOMPARE(reader.name().toString(), QString("Circles"));
@@ -74,8 +74,8 @@ void MceXmlReaderTest::testIgnorableAttribute()
     {
         file.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file);
-        reader.addMceCurrentNamespace(v1);
-        reader.addMceCurrentNamespace(v2);
+        reader.addMceUnderstoodNamespace(v1);
+        reader.addMceUnderstoodNamespace(v2);
         reader.readNextStartElement(); //Circles start
 
         reader.readNextStartElement(); //first Circle start
@@ -95,7 +95,7 @@ void MceXmlReaderTest::testIgnorableAttribute()
     {
         file.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file);
-        reader.setMceCurrentNamespaces(QSet<QString>()<<v1<<v2<<v3);
+        reader.setMceUnderstoodNamespaces(QSet<QString>()<<v1<<v2<<v3);
         reader.readNextStartElement(); //Circles start
 
         reader.readNextStartElement(); //first Circle start
@@ -123,7 +123,7 @@ void MceXmlReaderTest::testIgnorableContent()
     {
         file.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file);
-        reader.addMceCurrentNamespace(v1);
+        reader.addMceUnderstoodNamespace(v1);
         reader.readNextStartElement(); //Circles start
         QCOMPARE(int(reader.tokenType()), int(QXmlStreamReader::StartElement));
         QCOMPARE(reader.name().toString(), QString("Circles"));
@@ -138,7 +138,7 @@ void MceXmlReaderTest::testIgnorableContent()
     {
         file.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file);
-        reader.setMceCurrentNamespaces(QSet<QString>() << v1 << a);
+        reader.setMceUnderstoodNamespaces(QSet<QString>() << v1 << a);
         reader.readNextStartElement(); //Circles start
 
         reader.readNextStartElement(); //IgnoreMe start
@@ -164,7 +164,7 @@ void MceXmlReaderTest::testIgnorableAndProcessContentAttributes()
     {
         file.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file);
-        reader.addMceCurrentNamespace(v1);
+        reader.addMceUnderstoodNamespace(v1);
         reader.readNextStartElement(); //Circles start
         QVERIFY(reader.isStartElement());
         QCOMPARE(reader.name().toString(), QString("Circles"));
@@ -187,8 +187,8 @@ void MceXmlReaderTest::testIgnorableAndProcessContentAttributes()
     {
         file.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file);
-        reader.addMceCurrentNamespace(v1);
-        reader.addMceCurrentNamespace(v2);
+        reader.addMceUnderstoodNamespace(v1);
+        reader.addMceUnderstoodNamespace(v2);
 
         reader.readNextStartElement(); //Circles start
         QVERIFY(reader.isStartElement());
@@ -217,7 +217,7 @@ void MceXmlReaderTest::testProcessContentAndExpandedNames()
     {
         file.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file);
-        reader.addMceCurrentNamespace(v1);
+        reader.addMceUnderstoodNamespace(v1);
         reader.readNextStartElement(); //Circles start
         QVERIFY(reader.isStartElement());
         QCOMPARE(reader.name().toString(), QString("Circles"));
@@ -242,8 +242,8 @@ void MceXmlReaderTest::testProcessContentAndExpandedNames()
     {
         file.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file);
-        reader.addMceCurrentNamespace(v1);
-        reader.addMceCurrentNamespace(extA);
+        reader.addMceUnderstoodNamespace(v1);
+        reader.addMceUnderstoodNamespace(extA);
 
         reader.readNextStartElement(); //Circles start
         QVERIFY(reader.isStartElement());
@@ -270,7 +270,7 @@ void MceXmlReaderTest::testMustUnderstandAttribute()
     {
         file1.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file1);
-        reader.addMceCurrentNamespace(v1);
+        reader.addMceUnderstoodNamespace(v1);
         reader.readNextStartElement(); //Circles start
         QVERIFY(reader.isStartElement());
         QCOMPARE(reader.name().toString(), QString("Circles"));
@@ -284,7 +284,7 @@ void MceXmlReaderTest::testMustUnderstandAttribute()
     {
         file2.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file2);
-        reader.addMceCurrentNamespace(v1);
+        reader.addMceUnderstoodNamespace(v1);
         reader.readNextStartElement(); //Try Circles start
         QVERIFY(reader.hasError());
         file2.close();
@@ -302,7 +302,7 @@ void MceXmlReaderTest::testAlternateContentMarkup()
     {
         file.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file);
-        reader.addMceCurrentNamespace(v1);
+        reader.addMceUnderstoodNamespace(v1);
         reader.readNextStartElement(); //Circles start
         reader.readNextStartElement(); //LuminanceFilter start
         QCOMPARE(reader.name().toString(), QStringLiteral("LuminanceFilter"));
@@ -318,8 +318,8 @@ void MceXmlReaderTest::testAlternateContentMarkup()
     {
         file.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file);
-        reader.addMceCurrentNamespace(v1);
-        reader.addMceCurrentNamespace(v3);
+        reader.addMceUnderstoodNamespace(v1);
+        reader.addMceUnderstoodNamespace(v3);
 
         reader.readNextStartElement(); //Circles start
         reader.readNextStartElement(); //Circle start
@@ -338,7 +338,7 @@ void MceXmlReaderTest::testAlternateContentMarkupUsingNamespaces()
     {
         file.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file);
-        reader.addMceCurrentNamespace(v1);
+        reader.addMceUnderstoodNamespace(v1);
         reader.readNextStartElement(); //Circles start
         reader.readNextStartElement(); //Circle start
         QCOMPARE(reader.attributes().value("Fill").toString(), QStringLiteral("Gold"));
@@ -349,8 +349,8 @@ void MceXmlReaderTest::testAlternateContentMarkupUsingNamespaces()
     {
         file.open(QFile::ReadOnly);
         Mce::XmlStreamReader reader(&file);
-        reader.addMceCurrentNamespace(v1);
-        reader.addMceCurrentNamespace(m);
+        reader.addMceUnderstoodNamespace(v1);
+        reader.addMceUnderstoodNamespace(m);
         reader.readNextStartElement(); //Circles start
         reader.readNextStartElement(); //Circle start
         QCOMPARE(reader.attributes().value(m, "Finish").toString(), QStringLiteral("GoldLeaf"));

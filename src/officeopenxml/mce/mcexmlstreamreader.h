@@ -37,12 +37,9 @@ public:
     explicit XmlStreamReader(QIODevice *device);
     ~XmlStreamReader();
 
-    QSet<QString> mceCurrentNamespaces() const;
-    QHash<QString, QString> mceObsoleteNamespaces() const;
-    void setMceCurrentNamespaces(const QSet<QString> &nsList);
-    void setMceObsoleteNamespaces(const QHash<QString, QString> &nsMap);
-    void addMceCurrentNamespace(const QString &ns);
-    void addMceObsoleteNamespace(const QString &obsoleteNs, const QString &currentNs);
+    QSet<QString> mceUnderstoodNamespaces() const;
+    void setMceUnderstoodNamespaces(const QSet<QString> &nsList);
+    void addMceUnderstoodNamespace(const QString &ns);
 
     void setDevice(QIODevice *device);
     QIODevice *device() const;
