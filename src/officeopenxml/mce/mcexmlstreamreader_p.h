@@ -115,6 +115,7 @@ public:
     ~XmlStreamReaderPrivate();
 
     QXmlStreamReader::TokenType doReadNext_1();
+    void doSkipCurrentElemenet_1();
     void pushElementState(const MceXmlElementState &state);
     MceXmlElementState popElementState();
     QString getNamespaceByPrefix(const QString &prefix) const;

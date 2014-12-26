@@ -186,6 +186,15 @@ QString XmlStreamReaderPrivate::getNamespaceByPrefix(const QString &prefix) cons
     return QString();
 }
 
+void XmlStreamReaderPrivate::doSkipCurrentElemenet_1()
+{
+    reader->skipCurrentElement();
+    if (reader->tokenType() != QXmlStreamReader::Invalid) {
+        //we must pop the state element as the end element has been skipped.
+        popElementState();
+    }
+}
+
 /*!
  * \class XmlStreamReader
  */
@@ -280,7 +289,7 @@ QXmlStreamReader::TokenType XmlStreamReader::readNext()
                     }
                     if (d->alternateContentState.selected) {
                         //Choice has been selected. Skip this element totally.
-                        d->reader->skipCurrentElement();
+                        d->doSkipCurrentElemenet_1();
                         continue;
                     }
 
@@ -305,7 +314,7 @@ QXmlStreamReader::TokenType XmlStreamReader::readNext()
 
                     if (!ok) {
                         //Skip this element totally.
-                        d->reader->skipCurrentElement();
+                        d->doSkipCurrentElemenet_1();
                         continue;
                     }
 
@@ -320,7 +329,7 @@ QXmlStreamReader::TokenType XmlStreamReader::readNext()
                     }
                     if (d->alternateContentState.selected) {
                         //Choice has been selected. Skip this element totally.
-                        d->reader->skipCurrentElement();
+                        d->doSkipCurrentElemenet_1();
                         continue;
                     }
                     //No Choice has been selected, select this Fallback element.
