@@ -41,6 +41,8 @@ class Q_OFFICEOPENXML_EXPORT XmlStreamReader
     Q_DECLARE_PRIVATE(XmlStreamReader)
 public:
     explicit XmlStreamReader(QIODevice *device);
+    explicit XmlStreamReader(const QByteArray &data);
+
     ~XmlStreamReader();
 
     QSet<QString> mceUnderstoodNamespaces() const;

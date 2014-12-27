@@ -260,6 +260,12 @@ XmlStreamReader::XmlStreamReader(QIODevice *device):
 {
 }
 
+XmlStreamReader::XmlStreamReader(const QByteArray &data):
+    d_ptr(new XmlStreamReaderPrivate(new QXmlStreamReader(data), this))
+{
+
+}
+
 XmlStreamReader::~XmlStreamReader()
 {
     delete d_ptr->reader;
