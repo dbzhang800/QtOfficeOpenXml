@@ -143,7 +143,7 @@ void MceXmlElementState::addNamespacePrefix(const QString &prefix, const QString
 }
 
 XmlStreamReaderPrivate::XmlStreamReaderPrivate(QXmlStreamReader *reader, XmlStreamReader *q):
-    extensionElementDepth(0), hasFoundRootElement(false), reader(reader), q_ptr(q)
+    hasFoundRootElement(false), reader(reader), q_ptr(q)
 {
 }
 
@@ -291,7 +291,8 @@ void XmlStreamReader::setDevice(QIODevice *device)
     d->ignorableNamespacesCache.clear();
     d->processContentElementCache.clear();
     d->extensionElementsCache.clear();
-    d->extensionElementDepth = 0;
+    d->alternateContentState.clear();
+    d->extensionElementState.clear();
     d->hasFoundRootElement = false;
     d->reader->setDevice(device);
 }
@@ -311,8 +312,12 @@ bool XmlStreamReader::atEnd() const
 QXmlStreamReader::TokenType XmlStreamReader::readNext()
 {
     Q_D(XmlStreamReader);
-    //Deal with AlternateContent
     while (d->doReadNext_1() != QXmlStreamReader::Invalid) {
+        //Nothing else should do for extension elements.
+        if (d->extensionElementState.inEE)
+            break;
+
+        //Deal with AlternateContent
         if (d->reader->isStartElement()) {
             if (d->reader->namespaceUri() == QLatin1String(mcNamespace)) {
                 if (d->reader->name() == QLatin1String("AlternateContent")) {
@@ -399,19 +404,25 @@ QXmlStreamReader::TokenType XmlStreamReader::readNext()
 QXmlStreamReader::TokenType XmlStreamReaderPrivate::doReadNext_1()
 {
     while (reader->readNext() != QXmlStreamReader::Invalid) {
+
+        //When try to read next element just after one Extension Element, clear flags.
+        if (extensionElementState.inEE && extensionElementState.depth == 0)
+            extensionElementState.clear();
+
         if (reader->isStartElement()) {
             const QString nsUri = reader->namespaceUri().toString();
 
             if (!hasFoundRootElement)
                 tryInitExtensionElementsCache(nsUri);
 
-            if (extensionElementDepth) {
-                extensionElementDepth++;
+            if (extensionElementState.inEE) {
+                extensionElementState.depth++;
                 break;
             } else {
                 //Figure out whether this is an Extension Element or not
                 if (extensionElementsCache.contains(MceXmlElementName(nsUri, reader->name().toString()))) {
-                    extensionElementDepth = 1;
+                    extensionElementState.inEE = true;
+                    extensionElementState.depth = 1;
                     break;
                 }
             }
@@ -524,8 +535,10 @@ QXmlStreamReader::TokenType XmlStreamReaderPrivate::doReadNext_1()
                 }
             }
         } else if (reader->isEndElement()) {
-            if (extensionElementDepth) {
-                extensionElementDepth--;
+            if (extensionElementState.inEE) {
+                extensionElementState.depth--;
+                //Don't clear the inEE flag even when depth == 0.
+                //clean the flag when try to access next element just after this.
                 break;
             }
 
@@ -586,7 +599,7 @@ QXmlStreamReader::TokenType XmlStreamReader::tokenType() const
 QXmlStreamAttributes XmlStreamReader::attributes() const
 {
     Q_D(const XmlStreamReader);
-    if (d->extensionElementDepth)
+    if (d->extensionElementState.inEE)
         return d->reader->attributes();
 
     QXmlStreamAttributes attributes;
@@ -670,7 +683,7 @@ QStringRef XmlStreamReader::text() const
 QXmlStreamNamespaceDeclarations XmlStreamReader::namespaceDeclarations() const
 {
     Q_D(const XmlStreamReader);
-    if (d->extensionElementDepth)
+    if (d->extensionElementState.inEE)
         return d->reader->namespaceDeclarations();
 
     QXmlStreamNamespaceDeclarations declarations;

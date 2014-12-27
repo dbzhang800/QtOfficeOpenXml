@@ -21,6 +21,17 @@
 #ifndef MCEXMLSTREAMREADER_P_H
 #define MCEXMLSTREAMREADER_P_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt Office Open Xml API.  It exists for
+// the convenience of the Qt Office Open Xml.  This header file may
+// change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #include "mcexmlstreamreader.h"
 #include <QtCore/qstringlist.h>
 #include <QtCore/qstack.h>
@@ -149,6 +160,19 @@ public:
     } alternateContentState;
 
     //in application-defined extension element or not
+    struct ExtensionElementState
+    {
+        ExtensionElementState():inEE(false), depth(0) {}
+        void clear()
+        {
+            inEE = false;
+            depth = 0;
+        }
+
+        bool inEE;
+        int depth;
+    } extensionElementState;
+
     int extensionElementDepth;
     bool hasFoundRootElement;
 
