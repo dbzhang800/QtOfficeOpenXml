@@ -21,7 +21,7 @@
 #ifndef QTOFFICEOPENXML_MCE_XMLSTREAMREADER_H
 #define QTOFFICEOPENXML_MCE_XMLSTREAMREADER_H
 
-#include "ooxmlglobal.h"
+#include <QtOfficeOpenXml/ooxmlglobal.h>
 #include <QtCore/qxmlstream.h>
 #include <QtCore/qhash.h>
 #include <QtCore/qset.h>

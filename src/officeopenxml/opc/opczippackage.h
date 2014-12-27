@@ -21,7 +21,7 @@
 #ifndef OOXMLZIPPACKAGE_H
 #define OOXMLZIPPACKAGE_H
 
-#include "opcpackage.h"
+#include <QtOfficeOpenXml/opcpackage.h>
 
 namespace QtOfficeOpenXml {
 namespace Opc {

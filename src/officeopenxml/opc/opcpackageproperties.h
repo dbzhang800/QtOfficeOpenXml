@@ -21,7 +21,7 @@
 #ifndef QTOFFICEOPENXML_OPC_OPCPACKAGEPROPERTIES_H
 #define QTOFFICEOPENXML_OPC_OPCPACKAGEPROPERTIES_H
 
-#include "ooxmlglobal.h"
+#include <QtOfficeOpenXml/ooxmlglobal.h>
 
 class QString;
 class QDateTime;

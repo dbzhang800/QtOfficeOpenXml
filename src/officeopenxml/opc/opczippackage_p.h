@@ -32,8 +32,8 @@
 // We mean it.
 //
 
-#include "opczippackage.h"
-#include "opcpackage_p.h"
+#include <QtOfficeOpenXml/opczippackage.h>
+#include <private/opcpackage_p.h>
 
 class KZip;
 

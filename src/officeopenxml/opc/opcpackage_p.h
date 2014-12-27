@@ -32,8 +32,8 @@
 // We mean it.
 //
 
-#include "opcpackage.h"
-#include <QMap>
+#include <QtOfficeOpenXml/opcpackage.h>
+#include <QtCore/qmap.h>
 
 namespace QtOfficeOpenXml {
 namespace Opc {

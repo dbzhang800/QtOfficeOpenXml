@@ -21,7 +21,7 @@
 #ifndef QTOFFICEOPEN_OPC_OPCZIPPACKAGEPART_H
 #define QTOFFICEOPEN_OPC_OPCZIPPACKAGEPART_H
 
-#include "opcpackagepart.h"
+#include <QtOfficeOpenXml/opcpackagepart.h>
 
 namespace QtOfficeOpenXml {
 namespace Opc {

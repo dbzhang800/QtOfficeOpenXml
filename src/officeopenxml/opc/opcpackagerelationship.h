@@ -21,8 +21,8 @@
 #ifndef QTOFFICEOPENXML_OPC_OPCPACKAGERELATIONSHIP_H
 #define QTOFFICEOPENXML_OPC_OPCPACKAGERELATIONSHIP_H
 
-#include "ooxmlglobal.h"
-#include <QString>
+#include <QtOfficeOpenXml/ooxmlglobal.h>
+#include <QtCore/qstring.h>
 
 namespace QtOfficeOpenXml {
 namespace Opc {

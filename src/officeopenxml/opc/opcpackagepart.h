@@ -21,8 +21,7 @@
 #ifndef QTOFFICEOPENXML_OPC_OPCPACKAGEPART_H
 #define QTOFFICEOPENXML_OPC_OPCPACKAGEPART_H
 
-#include "ooxmlglobal.h"
-#include "opcpackagerelationship.h"
+#include <QtOfficeOpenXml/opcpackagerelationship.h>
 
 class QIODevice;
 

@@ -26,8 +26,8 @@
 // We mean it.
 //
 
-#include "opcpackagerelationship.h"
-#include <QMap>
+#include <QtOfficeOpenXml/opcpackagerelationship.h>
+#include <QtCore/qmap.h>
 
 class QIODevice;
 

@@ -32,10 +32,9 @@
 // We mean it.
 //
 
-#include "opcpackagepart_p.h"
-#include "opczippackagepart.h"
-
-#include <QIODevice>
+#include <private/opcpackagepart_p.h>
+#include <QtOfficeOpenXml/opczippackagepart.h>
+#include <QtCore/qiodevice.h>
 
 class KZip;
 class KZipFileEntry;

@@ -32,7 +32,7 @@
 // We mean it.
 //
 
-#include "mcexmlstreamreader.h"
+#include <QtOfficeOpenXml/mcexmlstreamreader.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qstack.h>
 #include <QtCore/qshareddata.h>

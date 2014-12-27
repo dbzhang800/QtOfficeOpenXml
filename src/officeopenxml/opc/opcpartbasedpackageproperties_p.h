@@ -32,8 +32,8 @@
 // We mean it.
 //
 
-#include "opcpackageproperties.h"
-#include <QMap>
+#include <QtOfficeOpenXml/opcpackageproperties.h>
+#include <QtCore/qmap.h>
 
 class QIODevice;
 

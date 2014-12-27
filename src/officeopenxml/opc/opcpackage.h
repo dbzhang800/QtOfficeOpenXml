@@ -21,11 +21,8 @@
 #ifndef OOXMLPACKAGE_H
 #define OOXMLPACKAGE_H
 
-#include "ooxmlglobal.h"
-#include "opcpackagerelationship.h"
-#include <QIODevice>
-
-class QIODevice;
+#include <QtOfficeOpenXml/opcpackagerelationship.h>
+#include <QtCore/qiodevice.h>
 
 namespace QtOfficeOpenXml {
 namespace Opc {
