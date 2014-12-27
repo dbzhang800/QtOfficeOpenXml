@@ -21,6 +21,8 @@ private Q_SLOTS:
     void testMustUnderstandAttribute();
     void testAlternateContentMarkup();
     void testAlternateContentMarkupUsingNamespaces();
+
+    void testMceFlag_allowNonUnderstoodNamespaces();
 };
 
 MceXmlReaderTest::MceXmlReaderTest()
@@ -355,6 +357,33 @@ void MceXmlReaderTest::testAlternateContentMarkupUsingNamespaces()
         reader.readNextStartElement(); //Circle start
         QCOMPARE(reader.attributes().value(m, "Finish").toString(), QStringLiteral("GoldLeaf"));
         file.close();
+    }
+}
+
+void MceXmlReaderTest::testMceFlag_allowNonUnderstoodNamespaces()
+{
+    QFile file(SRCDIR"data/processing_ignorable_attribute.xml");
+    const QString v1("http://schemas.openxmlformats.org/Circles/v1");
+    const QString v2("http://schemas.openxmlformats.org/Circles/v2");
+    const QString v3("http://schemas.openxmlformats.org/Circles/v3");
+
+    //non-understood and non-ignorable namespace v1 will be treated as understood.
+    {
+        file.open(QFile::ReadOnly);
+        Mce::XmlStreamReader reader(&file);
+        //reader.addMceCurrentNamespace(v1);
+        reader.setMceParseFlag(Mce::PF_AllowNonUnderstoodNonIngorableNamespaces);
+
+        reader.readNextStartElement(); //Circles start
+        QVERIFY(reader.isStartElement());
+        QCOMPARE(reader.name().toString(), QString("Circles"));
+
+        reader.readNextStartElement(); //first Circle start
+        QXmlStreamAttributes attributes = reader.attributes();
+        QCOMPARE(attributes.value("Center").toString(), QString("0,0"));
+        QVERIFY(!attributes.hasAttribute(v2, "Opacity"));
+        QVERIFY(!attributes.hasAttribute(v3, "Luminance"));
+        reader.readNextStartElement(); //first Circle end
     }
 }
 

@@ -137,6 +137,7 @@ public:
     void tryInitExtensionElementsCache(const QString &rootNsUri);
 
     QSet<QString> mceUnderstoodNamespaces;
+    int mceParseFlags;
 
     QHash<QString, int> ignorableNamespacesCache;
     QHash<MceXmlElementName, int> processContentElementCache;

@@ -29,6 +29,12 @@
 namespace QtOfficeOpenXml {
 namespace Mce {
 
+enum ParseFlag
+{
+    PF_AllowNonUnderstoodNonIngorableNamespaces = 0x01,
+    PF_SkipExtensionElements = 0x02
+};
+
 class XmlStreamReaderPrivate;
 class Q_OFFICEOPENXML_EXPORT XmlStreamReader
 {
@@ -40,6 +46,7 @@ public:
     QSet<QString> mceUnderstoodNamespaces() const;
     void setMceUnderstoodNamespaces(const QSet<QString> &nsList);
     void addMceUnderstoodNamespace(const QString &ns);
+    void setMceParseFlag(ParseFlag flag, bool enabled = true);
 
     void setDevice(QIODevice *device);
     QIODevice *device() const;
