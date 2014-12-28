@@ -623,6 +623,54 @@ QXmlStreamReader::TokenType XmlStreamReader::tokenType() const
     return d->reader->tokenType();
 }
 
+bool XmlStreamReader::isWhitespace() const
+{
+    Q_D(const XmlStreamReader);
+    return d->reader->isWhitespace();
+}
+
+bool XmlStreamReader::isCDATA() const
+{
+    Q_D(const XmlStreamReader);
+    return d->reader->isCDATA();
+}
+
+bool XmlStreamReader::isStandaloneDocument() const
+{
+    Q_D(const XmlStreamReader);
+    return d->reader->isStandaloneDocument();
+}
+
+QStringRef XmlStreamReader::documentVersion() const
+{
+    Q_D(const XmlStreamReader);
+    return d->reader->documentVersion();
+}
+
+QStringRef XmlStreamReader::documentEncoding() const
+{
+    Q_D(const XmlStreamReader);
+    return d->reader->documentEncoding();
+}
+
+qint64 XmlStreamReader::lineNumber() const
+{
+    Q_D(const XmlStreamReader);
+    return d->reader->lineNumber();
+}
+
+qint64 XmlStreamReader::columnNumber() const
+{
+    Q_D(const XmlStreamReader);
+    return d->reader->columnNumber();
+}
+
+qint64 XmlStreamReader::characterOffset() const
+{
+    Q_D(const XmlStreamReader);
+    return d->reader->characterOffset();
+}
+
 QXmlStreamAttributes XmlStreamReader::attributes() const
 {
     Q_D(const XmlStreamReader);
@@ -701,6 +749,18 @@ QStringRef XmlStreamReader::prefix() const
     return d->reader->prefix();
 }
 
+QStringRef XmlStreamReader::processingInstructionData() const
+{
+    Q_D(const XmlStreamReader);
+    return d->reader->processingInstructionData();
+}
+
+QStringRef XmlStreamReader::processingInstructionTarget() const
+{
+    Q_D(const XmlStreamReader);
+    return d->reader->processingInstructionTarget();
+}
+
 QStringRef XmlStreamReader::text() const
 {
     Q_D(const XmlStreamReader);
@@ -739,6 +799,65 @@ QXmlStreamReader::Error XmlStreamReader::error() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->error();
+}
+
+/*!
+  Writes the current state of the \a reader. All possible valid
+  states are supported.
+
+  The purpose of this function is to support chained processing of XML data.
+
+  \sa XmlStreamReader::tokenType()
+ */
+void writeCurrentToken(QXmlStreamWriter &writer, const XmlStreamReader &reader)
+{
+    //Copy from the source code of Qt5's QXmlStreamWriter.
+    switch (reader.tokenType()) {
+    case QXmlStreamReader::NoToken:
+        break;
+    case QXmlStreamReader::StartDocument:
+        writer.writeStartDocument();
+        break;
+    case QXmlStreamReader::EndDocument:
+        writer.writeEndDocument();
+        break;
+    case QXmlStreamReader::StartElement: {
+        QXmlStreamNamespaceDeclarations namespaceDeclarations = reader.namespaceDeclarations();
+        for (int i = 0; i < namespaceDeclarations.size(); ++i) {
+            const QXmlStreamNamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.at(i);
+            writer.writeNamespace(namespaceDeclaration.namespaceUri().toString(),
+                           namespaceDeclaration.prefix().toString());
+        }
+        writer.writeStartElement(reader.namespaceUri().toString(), reader.name().toString());
+        writer.writeAttributes(reader.attributes());
+             } break;
+    case QXmlStreamReader::EndElement:
+        writer.writeEndElement();
+        break;
+    case QXmlStreamReader::Characters:
+        if (reader.isCDATA())
+            writer.writeCDATA(reader.text().toString());
+        else
+            writer.writeCharacters(reader.text().toString());
+        break;
+    case QXmlStreamReader::Comment:
+        writer.writeComment(reader.text().toString());
+        break;
+    case QXmlStreamReader::DTD:
+        writer.writeDTD(reader.text().toString());
+        break;
+    case QXmlStreamReader::EntityReference:
+        writer.writeEntityReference(reader.name().toString());
+        break;
+    case QXmlStreamReader::ProcessingInstruction:
+        writer.writeProcessingInstruction(reader.processingInstructionTarget().toString(),
+                                   reader.processingInstructionData().toString());
+        break;
+    default:
+        Q_ASSERT(reader.tokenType() != QXmlStreamReader::Invalid);
+        qWarning("Mce::writeCurrentToken() with invalid state.");
+        break;
+    }
 }
 
 } // namespace Mce

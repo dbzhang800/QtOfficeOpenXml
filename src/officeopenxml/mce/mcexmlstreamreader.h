@@ -26,6 +26,8 @@
 #include <QtCore/qhash.h>
 #include <QtCore/qset.h>
 
+class QXmlStreamWriter;
+
 namespace QtOfficeOpenXml {
 namespace Mce {
 
@@ -66,6 +68,20 @@ public:
     inline bool isStartElement() const { return tokenType() == QXmlStreamReader::StartElement; }
     inline bool isEndElement() const { return tokenType() == QXmlStreamReader::EndElement; }
     inline bool isCharacters() const { return tokenType() == QXmlStreamReader::Characters; }
+    bool isWhitespace() const;
+    bool isCDATA() const;
+    inline bool isComment() const { return tokenType() == QXmlStreamReader::Comment; }
+    inline bool isDTD() const { return tokenType() == QXmlStreamReader::DTD; }
+    inline bool isEntityReference() const { return tokenType() == QXmlStreamReader::EntityReference; }
+    inline bool isProcessingInstruction() const { return tokenType() == QXmlStreamReader::ProcessingInstruction; }
+
+    bool isStandaloneDocument() const;
+    QStringRef documentVersion() const;
+    QStringRef documentEncoding() const;
+
+    qint64 lineNumber() const;
+    qint64 columnNumber() const;
+    qint64 characterOffset() const;
 
     QXmlStreamAttributes attributes() const;
 
@@ -75,7 +91,8 @@ public:
     QStringRef namespaceUri() const;
     QStringRef qualifiedName() const;
     QStringRef prefix() const;
-
+    QStringRef processingInstructionTarget() const;
+    QStringRef processingInstructionData() const;
     QStringRef text() const;
 
     QXmlStreamNamespaceDeclarations namespaceDeclarations() const;
@@ -92,6 +109,8 @@ public:
 private:
     XmlStreamReaderPrivate *d_ptr;
 };
+
+void Q_OFFICEOPENXML_EXPORT writeCurrentToken(QXmlStreamWriter &writer, const XmlStreamReader &reader);
 
 } // namespace Mce
 } // namespace QtOfficeOpenXml
