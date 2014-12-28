@@ -39,7 +39,7 @@ private:
     void onOpen();
     void onAbout();
 
-    void onLoadButton();
+    void onUpdateButton();
 
 private:
     void doLoadOrignalFile(const QString &filePath);

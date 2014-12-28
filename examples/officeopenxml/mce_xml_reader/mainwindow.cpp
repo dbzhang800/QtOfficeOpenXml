@@ -25,6 +25,7 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 using namespace QtOfficeOpenXml;
 
@@ -36,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->action_Open, &QAction::triggered, this, &MainWindow::onOpen);
     connect(ui->action_About, &QAction::triggered, this, &MainWindow::onAbout);
-    connect(ui->mceLoadButton, &QPushButton::clicked, this, &MainWindow::onLoadButton);
+    connect(ui->mceUpdateButton, &QPushButton::clicked, this, &MainWindow::onUpdateButton);
 }
 
 MainWindow::~MainWindow()
@@ -54,7 +55,6 @@ void MainWindow::onOpen()
         return;
     settings.setValue("lastFile", fn);
 
-    ui->orignalTextEdit->clear();
     ui->normalXmlOutEdit->clear();
     ui->mceOutTextEdit->clear();
     ui->nsListWidget->clear();
@@ -67,7 +67,7 @@ void MainWindow::onAbout()
     QMessageBox::information(this, tr("About"), tr("This example is designed to show how to used Mce::XmlStreamReader class."));
 }
 
-void MainWindow::onLoadButton()
+void MainWindow::onUpdateButton()
 {
     ui->mceOutTextEdit->clear();
 
@@ -81,22 +81,18 @@ void MainWindow::onLoadButton()
     Mce::XmlStreamReader reader(fileContent);
     reader.setMceUnderstoodNamespaces(understoodNamespaces);
 
-    int depth = 0;
-    while (reader.readNext() != QXmlStreamReader::Invalid) {
-        if (reader.isEndElement()) {
-            --depth;
-        } else if (reader.isStartElement()) {
-            QStringList attributeNames;
-            foreach (QXmlStreamAttribute attrib, reader.attributes())
-                attributeNames.append(attrib.qualifiedName().toString());
+    //QXmlStreamWriter used here to format the xml file data.
+    QByteArray formattedData;
+    QXmlStreamWriter writer(&formattedData);
+    writer.setAutoFormatting(true);
 
-            ui->mceOutTextEdit->appendPlainText(QString("%1%2\t[%3]")
-                                                  .arg(QString(depth*2, ' '))
-                                                  .arg(reader.qualifiedName().toString())
-                                                  .arg(attributeNames.join(' ')));
-            ++depth;
-        }
+    while(!reader.atEnd()) {
+        reader.readNext();
+        if (!reader.isWhitespace() && reader.tokenType() != QXmlStreamReader::Invalid)
+            Mce::writeCurrentToken(writer, reader);
     }
+
+    ui->mceOutTextEdit->setPlainText(formattedData);
     if (reader.hasError() && reader.error()!=QXmlStreamReader::PrematureEndOfDocumentError)
         ui->mceOutTextEdit->appendHtml(QString("<font color=red>%1</font>").arg(reader.errorString()));
 }
@@ -107,22 +103,21 @@ void MainWindow::doLoadOrignalFile(const QString &filePath)
     f.open(QFile::ReadOnly);
     fileContent = f.readAll();
 
-    //Assume that the file encoded in UTF8
-    //Shown file contents in orignal text edit.
-    ui->orignalTextEdit->setPlainText(QString::fromUtf8(fileContent));
-
-    //Shown all the start element names and
-    //Find out all the namespaces used in this xml file.
-    QXmlStreamReader reader(fileContent);
+    //We need to find out all the namespaces used in this xml file.
     QStringList nsList;
-    int depth = 0;
-    while (reader.readNext() != QXmlStreamReader::Invalid) {
-        if (reader.isEndElement()) {
-            --depth;
-        } else if (reader.isStartElement()) {
-            QStringList attributeNames;
-            foreach (QXmlStreamAttribute attrib, reader.attributes())
-                attributeNames.append(attrib.qualifiedName().toString());
+
+    //QXmlStreamWriter used here to generate the formatted xml file data.
+    QByteArray formattedData;
+    QXmlStreamWriter writer(&formattedData);
+    writer.setAutoFormatting(true);
+
+    //Load the file content by QXmlStreamReader
+    QXmlStreamReader reader(fileContent);
+    while(!reader.atEnd()) {
+        reader.readNext();
+        if (!reader.isWhitespace() && reader.tokenType() != QXmlStreamReader::Invalid)
+            writer.writeCurrentToken(reader);
+        if (reader.isStartElement()) {
             foreach (QXmlStreamNamespaceDeclaration nsDecl, reader.namespaceDeclarations()) {
                 const QString ns = QString("[%1] %2")
                         .arg(nsDecl.prefix().toString())
@@ -130,17 +125,12 @@ void MainWindow::doLoadOrignalFile(const QString &filePath)
                 if (!nsList.contains(ns))
                     nsList.append(ns);
             }
-
-            ui->normalXmlOutEdit->appendPlainText(QString("%1%2\t[%3]")
-                                                  .arg(QString(depth*2, ' '))
-                                                  .arg(reader.qualifiedName().toString())
-                                                  .arg(attributeNames.join(' ')));
-            ++depth;
         }
     }
-    if (reader.hasError() && reader.error()!=QXmlStreamReader::PrematureEndOfDocumentError)
-        ui->mceOutTextEdit->appendHtml(QString("<font color=red>%1</font>").arg(reader.errorString()));
 
+    ui->normalXmlOutEdit->setPlainText(formattedData);
+    if (reader.hasError() && reader.error()!=QXmlStreamReader::PrematureEndOfDocumentError)
+        ui->normalXmlOutEdit->appendHtml(QString("<font color=red>%1</font>").arg(reader.errorString()));
 
     //Show all the namespaces
     foreach (QString ns, nsList) {
@@ -148,4 +138,7 @@ void MainWindow::doLoadOrignalFile(const QString &filePath)
         item->setFlags(item->flags()|Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Checked);
     }
+
+    //...
+    onUpdateButton();
 }
