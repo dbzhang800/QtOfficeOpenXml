@@ -23,10 +23,10 @@
 #include "opczippackagepart.h"
 #include "opczippackagepart_p.h"
 #include "opcutils_p.h"
+#include "mcexmlstreamreader.h"
 
 #include <kzip.h>
 
-#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QDebug>
 #include <QMap>
@@ -195,7 +195,10 @@ void ContentTypeHelper::loadFromStream(QIODevice *device)
     defaults.clear();
     overrides.clear();
 
-    QXmlStreamReader reader(device);
+    Mce::XmlStreamReader reader(device);
+    reader.addMceUnderstoodNamespace(QString::fromLatin1(NamespaceIds::contentTypes));
+    reader.setMceParseFlag(Mce::PF_SkipExtensionElements);
+
     while (!reader.atEnd()) {
         if (reader.readNextStartElement()) {
             if (reader.name() == QLatin1String("Default")) {
@@ -211,6 +214,8 @@ void ContentTypeHelper::loadFromStream(QIODevice *device)
             }
         }
     }
+    if (reader.hasError() && reader.error() != QXmlStreamReader::PrematureEndOfDocumentError)
+        qWarning()<<reader.errorString();
 }
 
 void ContentTypeHelper::saveToStream(QIODevice *device)
@@ -219,7 +224,7 @@ void ContentTypeHelper::saveToStream(QIODevice *device)
 
     writer.writeStartDocument(QStringLiteral("1.0"), true);
     writer.writeStartElement(QStringLiteral("Types"));
-    writer.writeAttribute(QStringLiteral("xmlns"), QString::fromLatin1(NamespaceIds::contentTypes));
+    writer.writeDefaultNamespace(QString::fromLatin1(NamespaceIds::contentTypes));
 
     foreach (DefaultData data, defaults) {
         writer.writeStartElement(QStringLiteral("Default"));

@@ -23,9 +23,9 @@
 #include "opcpackage.h"
 #include "opcpackagepart.h"
 #include "opcutils_p.h"
+#include "mcexmlstreamreader.h"
 
 #include <QDateTime>
-#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QDebug>
 
@@ -93,7 +93,15 @@ void PartBasedPackageProperties::readPropertiesFromPackage()
 
 void PartBasedPackageProperties::doLoadFromXml(QIODevice *device)
 {
-    QXmlStreamReader reader(device);
+    Mce::XmlStreamReader reader(device);
+    reader.setMceUnderstoodNamespaces(QSet<QString>()
+                                      << QString::fromLatin1(NamespaceIds::coreProperties)
+                                      << QString::fromLatin1(NamespaceIds::dc)
+                                      << QString::fromLatin1(NamespaceIds::dcterms)
+                                      << QString::fromLatin1(NamespaceIds::dcmitype)
+                                      << QString::fromLatin1(NamespaceIds::xsi));
+    reader.setMceParseFlag(Mce::PF_SkipExtensionElements);
+
     while (!reader.atEnd()) {
          if (reader.readNextStartElement()) {
              const QStringRef name = reader.name();
@@ -106,6 +114,8 @@ void PartBasedPackageProperties::doLoadFromXml(QIODevice *device)
              }
          }
     }
+    if (reader.hasError() && reader.error() != QXmlStreamReader::PrematureEndOfDocumentError)
+        qWarning()<<reader.errorString();
 }
 
 void PartBasedPackageProperties::doSaveToXml(QIODevice *device)

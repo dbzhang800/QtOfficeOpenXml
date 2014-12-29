@@ -25,7 +25,7 @@
 #include "opcpackage.h"
 #include "opcpackagepart.h"
 
-#include <QXmlStreamReader>
+#include "mcexmlstreamreader.h"
 #include <QXmlStreamWriter>
 
 namespace QtOfficeOpenXml {
@@ -156,7 +156,10 @@ void PackageRelationshipHelper::deleteRelationship(const QString &id)
 void PackageRelationshipHelper::doLoadFromXml(QIODevice *device)
 {
     m_relationships.clear();
-    QXmlStreamReader reader(device);
+    Mce::XmlStreamReader reader(device);
+    reader.addMceUnderstoodNamespace(QString::fromLatin1(NamespaceIds::relationships));
+    reader.setMceParseFlag(Mce::PF_SkipExtensionElements);
+
     while(!reader.atEnd()) {
         if (reader.readNextStartElement() && reader.name() == QLatin1String("Relationship")) {
             QXmlStreamAttributes attributes = reader.attributes();
@@ -170,6 +173,9 @@ void PackageRelationshipHelper::doLoadFromXml(QIODevice *device)
             m_relationships.insert(id, new PackageRelationship(id, type, m_sourcePartName, target, targetMode));
         }
     }
+
+    if (reader.hasError() && reader.error() != QXmlStreamReader::PrematureEndOfDocumentError)
+        qWarning()<<reader.errorString();
 }
 
 void PackageRelationshipHelper::doSaveToXml(QIODevice *device)
@@ -178,7 +184,7 @@ void PackageRelationshipHelper::doSaveToXml(QIODevice *device)
 
     writer.writeStartDocument(QStringLiteral("1.0"), true);
     writer.writeStartElement(QStringLiteral("Relationships"));
-    writer.writeAttribute(QStringLiteral("xmlns"), QString::fromLatin1(NamespaceIds::relationships));
+    writer.writeDefaultNamespace(QString::fromLatin1(NamespaceIds::relationships));
     foreach (PackageRelationship *relation, m_relationships) {
         writer.writeStartElement(QStringLiteral("Relationship"));
         writer.writeAttribute(QStringLiteral("Id"), relation->id());
