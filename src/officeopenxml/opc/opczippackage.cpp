@@ -34,6 +34,10 @@
 namespace QtOfficeOpenXml {
 namespace Opc {
 
+/*!
+ * \class QtOfficeOpenXml::Opc::ZipPackagePrivate
+ * \internal
+ */
 ZipPackagePrivate::ZipPackagePrivate(const QString &packageName, QIODevice *device, ZipPackage *q)
     :PackagePrivate(packageName, device, q), zipArchive(0)
 {
@@ -44,7 +48,8 @@ ZipPackagePrivate::~ZipPackagePrivate()
 }
 
 /*!
- * \class ZipPackage
+ * \class QtOfficeOpenXml::Opc::ZipPackage
+ * \inmodule QtOfficeOpenXml
  */
 ZipPackage::ZipPackage(const QString &fileName)
     :Package(new ZipPackagePrivate(fileName, 0, this))
@@ -180,10 +185,10 @@ bool ZipPackage::doDeletePart(const QString &partName)
 }
 
 /*!
- * \class ContentTypeHelper
- *
+ * \class QtOfficeOpenXml::Opc::ContentTypeHelper
  * \internal
- * Internal class used by ZipPackage
+ *
+ * \brief Internal class used by ZipPackage
  */
 ContentTypeHelper::ContentTypeHelper()
 {

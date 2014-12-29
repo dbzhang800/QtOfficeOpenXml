@@ -1,6 +1,6 @@
 TARGET = QtOfficeOpenXml
 
-#QMAKE_DOCS = $$PWD/doc/qtofficeopenxml.qdocconf
+QMAKE_DOCS = $$PWD/doc/qtofficeopenxml.qdocconf
 
 load(qt_module)
 

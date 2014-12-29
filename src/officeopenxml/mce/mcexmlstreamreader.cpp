@@ -28,6 +28,41 @@ namespace Mce {
 
 static const char * const mcNamespace = "http://schemas.openxmlformats.org/markup-compatibility/2006";
 
+/*!
+ * \class QtOfficeOpenXml::Mce::MceXmlElementState
+ * \internal
+ */
+
+/*!
+ * \class QtOfficeOpenXml::Mce::MceXmlElementStateData
+ * \internal
+ */
+
+/*!
+ * \class QtOfficeOpenXml::Mce::MceXmlElementName
+ * \internal
+ */
+
+/*!
+ * \class QtOfficeOpenXml::Mce::XmlStreamReaderPrivate
+ * \internal
+ */
+
+/*!
+ * \fn bool QtOfficeOpenXml::Mce::operator==(const MceXmlElementName &lhs, const MceXmlElementName &rhs)
+ * \internal
+ */
+
+/*!
+ * \fn bool QtOfficeOpenXml::Mce::operator!=(const MceXmlElementName &lhs, const MceXmlElementName &rhs)
+ * \internal
+ */
+
+/*!
+ * \fn uint QtOfficeOpenXml::Mce::qHash(const MceXmlElementName &key, uint seed)
+ * \internal
+ */
+
 MceXmlElementState::MceXmlElementState()
 {
     //The d pointer is initialized with a null pointer
@@ -252,44 +287,80 @@ void XmlStreamReaderPrivate::doSkipCurrentElemenet_1()
 }
 
 /*!
- * \class XmlStreamReader
+ * \enum QtOfficeOpenXml::Mce::ParseFlag
+ *
+ * \brief Behavior of the XmlStreamReader.
+ *
+ * \value PF_AllowNonUnderstoodNonIngorableNamespaces Don't report an error when non-understood and non-ignorable namespace encountered.
+ * \value PF_SkipExtensionElements Skip all the application defined extension elements.
  */
 
+/*!
+ * \class QtOfficeOpenXml::Mce::XmlStreamReader
+ * \inmodule QtOfficeOpenXml
+ *
+ * \brief XmlStreamReader works more or less like a QXmlStreamReader.
+ */
+
+/*! Creates a new stream reader that reads from \a device.
+ *
+ * \sa setDevice()
+ */
 XmlStreamReader::XmlStreamReader(QIODevice *device):
     d_ptr(new XmlStreamReaderPrivate(new QXmlStreamReader(device), this))
 {
 }
 
+/*!
+ * Creates a new stream reader that reads from \a data.
+ *
+ * \sa setDevice()
+ */
 XmlStreamReader::XmlStreamReader(const QByteArray &data):
     d_ptr(new XmlStreamReaderPrivate(new QXmlStreamReader(data), this))
 {
 
 }
 
+/*!
+ * Destructs the reader.
+ */
 XmlStreamReader::~XmlStreamReader()
 {
     delete d_ptr->reader;
     delete d_ptr;
 }
 
+/*!
+ * Returns understood namespaces.
+ */
 QSet<QString> XmlStreamReader::mceUnderstoodNamespaces() const
 {
     Q_D(const XmlStreamReader);
     return d->mceUnderstoodNamespaces;
 }
 
+/*!
+ * Set understood namespaces to \a nsList.
+ */
 void XmlStreamReader::setMceUnderstoodNamespaces(const QSet<QString> &nsList)
 {
     Q_D(XmlStreamReader);
     d->mceUnderstoodNamespaces = nsList;
 }
 
+/*!
+ * Add an understood namespace \a ns.
+ */
 void XmlStreamReader::addMceUnderstoodNamespace(const QString &ns)
 {
     Q_D(XmlStreamReader);
     d->mceUnderstoodNamespaces.insert(ns);
 }
 
+/*!
+ * Enabled or disable the \a flag. \a enabled default to true.
+ */
 void XmlStreamReader::setMceParseFlag(ParseFlag flag, bool enabled)
 {
     Q_D(XmlStreamReader);
@@ -299,6 +370,12 @@ void XmlStreamReader::setMceParseFlag(ParseFlag flag, bool enabled)
         d->mceParseFlags &= ~flag;
 }
 
+/*!
+    Sets the current device to \a device. Setting the device resets
+    the stream to its initial state.
+
+    \sa device()
+*/
 void XmlStreamReader::setDevice(QIODevice *device)
 {
     Q_D(XmlStreamReader);
@@ -312,18 +389,37 @@ void XmlStreamReader::setDevice(QIODevice *device)
     d->reader->setDevice(device);
 }
 
+/*!
+    Returns the current device associated with the QXmlStreamReader,
+    or 0 if no device has been assigned.
+
+    \sa setDevice()
+*/
 QIODevice *XmlStreamReader::device() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->device();
 }
 
+/*!
+    Returns \c true if the reader has read until the end of the XML
+    document, or if an error() has occurred and reading has been
+    aborted. Otherwise, it returns \c false.
+*/
 bool XmlStreamReader::atEnd() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->atEnd();
 }
 
+/*!
+  Reads the next token and returns its type.
+
+  With one exception, once an error() is reported by readNext(),
+  further reading of the XML stream is not possible. Then atEnd()
+  returns \c true, hasError() returns \c true, and this function returns
+  QXmlStreamReader::Invalid.
+*/
 QXmlStreamReader::TokenType XmlStreamReader::readNext()
 {
     Q_D(XmlStreamReader);
@@ -420,7 +516,7 @@ QXmlStreamReader::TokenType XmlStreamReaderPrivate::doReadNext_1()
 {
     while (reader->readNext() != QXmlStreamReader::Invalid) {
 
-        //When try to read next element just after one Extension Element, clear flags.
+        //When try to read next token just after one Extension Element's end token, clear flags.
         if (extensionElementState.inEE && extensionElementState.depth == 0)
             extensionElementState.clear();
 
@@ -591,6 +687,11 @@ QXmlStreamReader::TokenType XmlStreamReaderPrivate::doReadNext_1()
     return reader->tokenType();
 }
 
+/*!
+  Reads until the next start element within the current element. Returns \c true
+  when a start element was reached. When the end element was reached, or when
+  an error occurred, false is returned.
+*/
 bool XmlStreamReader::readNextStartElement()
 {
     //we can not call QXmlStreamReader::readNextStartElement() directly here.
@@ -604,6 +705,10 @@ bool XmlStreamReader::readNextStartElement()
     return false;
 }
 
+/*!
+  Reads until the end of the current element, skipping any child nodes.
+  This function is useful for skipping unknown elements.
+*/
 void XmlStreamReader::skipCurrentElement()
 {
     //we can not call QXmlStreamReader::skipCurrentElement() directly here.
@@ -617,60 +722,132 @@ void XmlStreamReader::skipCurrentElement()
     }
 }
 
+/*!
+  Returns the type of the current token.
+ */
 QXmlStreamReader::TokenType XmlStreamReader::tokenType() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->tokenType();
 }
 
+/*! \fn bool QtOfficeOpenXml::Mce::XmlStreamReader::isStartDocument() const
+  Returns \c true if tokenType() equals StartDocument; otherwise returns \c false.
+*/
+/*! \fn bool QtOfficeOpenXml::Mce::XmlStreamReader::isEndDocument() const
+  Returns \c true if tokenType() equals EndDocument; otherwise returns \c false.
+*/
+/*! \fn bool QtOfficeOpenXml::Mce::XmlStreamReader::isStartElement() const
+  Returns \c true if tokenType() equals StartElement; otherwise returns \c false.
+*/
+/*! \fn bool QtOfficeOpenXml::Mce::XmlStreamReader::isEndElement() const
+  Returns \c true if tokenType() equals EndElement; otherwise returns \c false.
+*/
+/*! \fn bool QtOfficeOpenXml::Mce::XmlStreamReader::isCharacters() const
+  Returns \c true if tokenType() equals Characters; otherwise returns \c false.
+
+  \sa isWhitespace(), isCDATA()
+*/
+/*! \fn bool QtOfficeOpenXml::Mce::XmlStreamReader::isComment() const
+  Returns \c true if tokenType() equals Comment; otherwise returns \c false.
+*/
+/*! \fn bool QtOfficeOpenXml::Mce::XmlStreamReader::isDTD() const
+  Returns \c true if tokenType() equals DTD; otherwise returns \c false.
+*/
+/*! \fn bool QtOfficeOpenXml::Mce::XmlStreamReader::isEntityReference() const
+  Returns \c true if tokenType() equals EntityReference; otherwise returns \c false.
+*/
+/*! \fn bool QtOfficeOpenXml::Mce::XmlStreamReader::isProcessingInstruction() const
+  Returns \c true if tokenType() equals ProcessingInstruction; otherwise returns \c false.
+*/
+
+/*!  Returns \c true if the reader reports characters that only consist
+  of white-space; otherwise returns \c false.
+
+  \sa isCharacters(), text()
+*/
 bool XmlStreamReader::isWhitespace() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->isWhitespace();
 }
 
+/*!  Returns \c true if the reader reports characters that stem from a
+  CDATA section; otherwise returns \c false.
+
+  \sa isCharacters(), text()
+*/
 bool XmlStreamReader::isCDATA() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->isCDATA();
 }
 
+/*!
+  Returns \c true if this document has been declared standalone in the
+  XML declaration; otherwise returns \c false.
+
+  If no XML declaration has been parsed, this function returns \c false.
+ */
 bool XmlStreamReader::isStandaloneDocument() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->isStandaloneDocument();
 }
 
+/*!  If the tokenType() is StartDocument, this function returns the
+     version string as specified in the XML declaration.
+     Otherwise an empty string is returned.
+ */
 QStringRef XmlStreamReader::documentVersion() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->documentVersion();
 }
 
+/*!  If the tokenType() is StartDocument, this function returns the
+     encoding string as specified in the XML declaration.
+     Otherwise an empty string is returned.
+ */
 QStringRef XmlStreamReader::documentEncoding() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->documentEncoding();
 }
 
+/*! Returns the current line number, starting with 1.
+
+\sa columnNumber(), characterOffset()
+ */
 qint64 XmlStreamReader::lineNumber() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->lineNumber();
 }
 
+/*! Returns the current column number, starting with 0.
+
+\sa lineNumber(), characterOffset()
+ */
 qint64 XmlStreamReader::columnNumber() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->columnNumber();
 }
 
+/*! Returns the current character offset, starting with 0.
+
+\sa lineNumber(), columnNumber()
+*/
 qint64 XmlStreamReader::characterOffset() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->characterOffset();
 }
 
+/*!
+  Returns the attributes of a StartElement.
+ */
 QXmlStreamAttributes XmlStreamReader::attributes() const
 {
     Q_D(const XmlStreamReader);
@@ -687,6 +864,15 @@ QXmlStreamAttributes XmlStreamReader::attributes() const
     return attributes;
 }
 
+/*!  Convenience function to be called in case a StartElement was
+  read. Reads until the corresponding EndElement and returns all text
+  in-between.
+
+  The \a behaviour defines what happens in case anything else is
+  read before reaching EndElement. The function can include the text from
+  child elements (useful for example for HTML), ignore child elements, or
+  raise an UnexpectedElementError and return what was read so far (default).
+ */
 QString XmlStreamReader::readElementText(QXmlStreamReader::ReadElementTextBehaviour behaviour)
 {
     //we can not call QXmlStreamReader::readElementText() directly here.
@@ -725,48 +911,78 @@ QString XmlStreamReader::readElementText(QXmlStreamReader::ReadElementTextBehavi
     return QString();
 }
 
+/*!
+  Returns the local name of a StartElement, EndElement, or an EntityReference.
+
+  \sa namespaceUri(), qualifiedName()
+ */
 QStringRef XmlStreamReader::name() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->name();
 }
 
+/*!
+  Returns the namespaceUri of a StartElement or EndElement.
+
+  \sa name(), qualifiedName()
+ */
 QStringRef XmlStreamReader::namespaceUri() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->namespaceUri();
 }
 
+/*!
+  Returns the qualified name of a StartElement or EndElement;
+*/
 QStringRef XmlStreamReader::qualifiedName() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->qualifiedName();
 }
 
+/*! Returns the prefix of a StartElement or EndElement.
+
+\sa name(), qualifiedName()
+*/
 QStringRef XmlStreamReader::prefix() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->prefix();
 }
 
+/*!
+  Returns the data of a ProcessingInstruction.
+ */
 QStringRef XmlStreamReader::processingInstructionData() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->processingInstructionData();
 }
 
+/*!
+  Returns the target of a ProcessingInstruction.
+ */
 QStringRef XmlStreamReader::processingInstructionTarget() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->processingInstructionTarget();
 }
 
+/*!  Returns the text of Characters, Comment, DTD, or
+  EntityReference.
+ */
 QStringRef XmlStreamReader::text() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->text();
 }
 
+/*!  If the tokenType() is StartElement, this function returns the
+  element's namespace declarations. Otherwise an empty vector is
+  returned.
+ */
 QXmlStreamNamespaceDeclarations XmlStreamReader::namespaceDeclarations() const
 {
     Q_D(const XmlStreamReader);
@@ -783,18 +999,38 @@ QXmlStreamNamespaceDeclarations XmlStreamReader::namespaceDeclarations() const
     return declarations;
 }
 
+
+/*! \fn bool QtOfficeOpenXml::Mce::XmlStreamReader::hasError() const
+    Returns \c true if an error has occurred, otherwise \c false.
+
+    \sa errorString(), error()
+ */
+
+/*!  Raises a custom error with an optional error \a message.
+
+  \sa error(), errorString()
+ */
 void XmlStreamReader::raiseError(const QString& message)
 {
     Q_D(XmlStreamReader);
     return d->reader->raiseError(message);
 }
 
+/*!
+  Returns the error message that was set with raiseError().
+
+  \sa error(), lineNumber(), columnNumber(), characterOffset()
+ */
 QString XmlStreamReader::errorString() const
 {
     Q_D(const XmlStreamReader);
     return d->reader->errorString();
 }
 
+/*!  Returns the type of the current error, or QXmlStreamReader::NoError if no error occurred.
+
+  \sa errorString(), raiseError()
+ */
 QXmlStreamReader::Error XmlStreamReader::error() const
 {
     Q_D(const XmlStreamReader);
@@ -802,6 +1038,8 @@ QXmlStreamReader::Error XmlStreamReader::error() const
 }
 
 /*!
+  \relates QtOfficeOpenXml::Mce::XmlStreamReader
+
   Writes the current state of the \a reader. All possible valid
   states are supported.
 

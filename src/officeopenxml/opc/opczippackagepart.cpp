@@ -31,6 +31,10 @@
 namespace QtOfficeOpenXml {
 namespace Opc {
 
+/*!
+ * \class QtOfficeOpenXml::Opc::ZipPackagePartPrivate
+ * \internal
+ */
 ZipPackagePartPrivate::ZipPackagePartPrivate(const QString &partName, const QString type, PackagePart *q, Package *package)
     :PackagePartPrivate(partName, type, q, package), zipFileEntry(0), device(0)
 {
@@ -77,7 +81,8 @@ void ZipPartWriteDevice::close()
 }
 
 /*!
- * \class ZipPackagePart
+ * \class QtOfficeOpenXml::Opc::ZipPackagePart
+ * \inmodule QtOfficeOpenXml
  */
 
 ZipPackagePart::ZipPackagePart(const QString &partName, const QString &contentType, Package *package)

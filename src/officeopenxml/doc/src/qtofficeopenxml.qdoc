@@ -19,15 +19,39 @@
 **
 ****************************************************************************/
 
-#include "opcpackageproperties.h"
+/*
+    The \module creates a page that lists the classes belonging to the module
+    specified by the command's argument. A class included in the module by
+    including the \inmodule command in the \class comment.
+*/
+/*!
+    \module QtOfficeOpenXml
+    \title Qt Office Open Xml C++ Classes
+    \ingroup modules
 
-namespace QtOfficeOpenXml {
-namespace Opc {
+    \brief The Qt Office Open Xml module provides functionality for handling opc
+    files such as .xlsx, .pptx, .docx.
+*/
 
 /*!
-  \class QtOfficeOpenXml::Opc::PackageProperties
-  \inmodule QtOfficeOpenXml
- */
+    \namespace QtOfficeOpenXml
+    \inmodule QtOfficeOpenXml
 
-} // namespace Opc
-} // namespace QtOfficeOpenXml
+    \brief Contains all the public classes and miscellaneous identifiers used
+    throughout the Qt Office Open Xml library.
+*/
+
+/*!
+    \namespace QtOfficeOpenXml::Mce
+    \inmodule QtOfficeOpenXml
+
+    \brief Contains all the public classes for MCE.
+*/
+
+/*!
+    \namespace QtOfficeOpenXml::Opc
+    \inmodule QtOfficeOpenXml
+
+    \brief Contains all the public classes for OPC.
+*/
+

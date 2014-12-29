@@ -40,10 +40,12 @@ class QStringList;
 namespace QtOfficeOpenXml {
 namespace Opc {
 
+#ifndef Q_QDOC
 QStringList splitPartName(const QString &partName);
 QString getAbsolutePartName(const QString &baseName, const QString &relativeName);
 QString getRelativePartName(const QString &baseName, const QString &absoluteName);
 QString getRelsPath(const QString &partName);
+#endif
 
 class ContentTypes
 {

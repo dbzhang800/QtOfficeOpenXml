@@ -30,6 +30,10 @@
 namespace QtOfficeOpenXml {
 namespace Opc {
 
+/*!
+ * \class QtOfficeOpenXml::Opc::PackagePrivate
+ * \internal
+ */
 PackagePrivate::PackagePrivate(const QString &packageName, QIODevice *device, Package *q)
     :q_ptr(q), fileName(packageName), device(device), mode(QIODevice::NotOpen),
      relationshipHelper(0), packageProperties(0)
@@ -50,7 +54,8 @@ void PackagePrivate::ensureRelationship() const
 }
 
 /*!
- * \class Package
+ * \class QtOfficeOpenXml::Opc::Package
+ * \inmodule QtOfficeOpenXml
  *
  *  Package is an abstract class that can be used to organize objects into a
  *  single entity of a defined physical format for portability and efficient access.

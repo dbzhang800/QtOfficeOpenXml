@@ -1,0 +1,75 @@
+include($QT_INSTALL_DOCS/global/qt-html-templates-offline.qdocconf)
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
+project                 = QtOfficeOpenXml
+description             = Qt Office Open Xml Reference Documentation
+url                     = http://qtofficeopenxml.debao.me
+version                 = $QT_VERSION
+
+qhp.projects            = QtOfficeOpenXml
+
+qhp.QtOfficeOpenXml.file                = qtofficeopenxml.qhp
+qhp.QtOfficeOpenXml.namespace           = me.debao.qtofficeopenxml.$QT_VERSION_TAG
+qhp.QtOfficeOpenXml.virtualFolder       = qtofficeopenxml
+qhp.QtOfficeOpenXml.indexTitle          = Qt Office Open Xml
+qhp.QtOfficeOpenXml.indexRoot           =
+
+qhp.QtOfficeOpenXml.filterAttributes    = qtofficeopenxml $QT_VERSION qtrefdoc
+qhp.QtOfficeOpenXml.customFilters.Qt.name = QtOfficeOpenXml $QT_VERSION
+qhp.QtOfficeOpenXml.customFilters.Qt.filterAttributes = qtofficeopenxml $QT_VERSION
+qhp.QtOfficeOpenXml.subprojects         = overviews classes qmltypes examples
+qhp.QtOfficeOpenXml.subprojects.overviews.title = Overview
+qhp.QtOfficeOpenXml.subprojects.overviews.indexTitle = Qt Office Open Xml
+qhp.QtOfficeOpenXml.subprojects.overviews.selectors = fake:page,group,module
+qhp.QtOfficeOpenXml.subprojects.classes.title = C++ Classes
+qhp.QtOfficeOpenXml.subprojects.classes.indexTitle = Qt Office Open Xml C++ Classes
+qhp.QtOfficeOpenXml.subprojects.classes.selectors = class fake:headerfile
+qhp.QtOfficeOpenXml.subprojects.classes.sortPages = true
+qhp.QtOfficeOpenXml.subprojects.examples.title = Examples
+qhp.QtOfficeOpenXml.subprojects.examples.indexTitle = Qt Office Open Xml Examples
+qhp.QtOfficeOpenXml.subprojects.examples.selectors = fake:example
+
+tagfile                 = ../../../doc/qtofficeopenxml/qtofficeopenxml.tags
+
+headerdirs  += .. 
+
+sourcedirs  += .. 
+
+exampledirs += ../../../examples/officeopenxml \
+               snippets/
+
+# Specify the install path under QT_INSTALL_EXAMPLES
+examplesinstallpath = officeopenxml
+
+imagedirs   += images
+
+depends += qtcore qtdoc qtgui
+
+HTML.footer = \
+    "        </div>\n" \
+    "       </div>\n" \
+    "   </div>\n" \
+    "   </div>\n" \
+    "</div>\n" \
+    "<div class=\"footer\">\n" \
+    "        <div class=\"qt13a-copyright\" id=\"copyright\">\n" \
+    "            <div class=\"qt13a-container\">\n" \
+    "            <p>\n" \
+    "              <acronym title=\"Copyright\">&copy;</acronym> 2014-2015 Debao Zhang. \n" \
+    "              Documentation contributions included herein are the copyrights of\n" \
+    "              their respective owners.</p>\n" \
+    "            <p>\n" \
+    "              The documentation provided herein is licensed under the terms of the\n" \
+    "              <a href=\"http://www.gnu.org/licenses/fdl.html\">GNU Free Documentation\n" \
+    "              License version 1.3</a> as published by the Free Software Foundation.</p>\n" \
+    "            <p>\n" \
+    "              Documentation sources may be obtained from <a href=\"https://github.com/dbzhang800/QtOfficeOpenXml\">\n" \
+    "              github.com/dbzhang800</a>.</p>\n" \
+    "            <p>\n" \
+    "              Qt and their respective logos are trademarks of Digia Plc \n" \
+    "              in Finland and/or other countries worldwide. All other trademarks are property\n" \
+    "              of their respective owners. <a title=\"Privacy Policy\"\n" \
+    "              href=\"http://en.gitorious.org/privacy_policy/\">Privacy Policy</a></p>\n" \
+    "            </div>\n" \
+    "        </div>\n" \
+    "</div>\n" \

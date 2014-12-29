@@ -26,6 +26,24 @@
 namespace QtOfficeOpenXml {
 namespace Opc {
 
+/*!
+  \class QtOfficeOpenXml::Opc::ContentTypes
+  \internal
+ */
+
+/*!
+  \class QtOfficeOpenXml::Opc::RelationshipTypes
+  \internal
+ */
+
+/*!
+  \class QtOfficeOpenXml::Opc::NamespaceIds
+  \internal
+ */
+
+/*!
+ * \internal
+ */
 QStringList splitPartName(const QString &partName)
 {
     int idx = partName.lastIndexOf(QLatin1Char('/'));
@@ -38,20 +56,27 @@ QStringList splitPartName(const QString &partName)
     return QStringList()<<partName.left(idx)<<partName.mid(idx+1);
 }
 
+/*!
+ * \internal
+ */
 QString getAbsolutePartName(const QString &baseName, const QString &relativeName)
 {
     QString path = QDir(splitPartName(baseName)[0]).absoluteFilePath(relativeName);
     return QDir::cleanPath(path);
 }
 
+/*!
+ * \internal
+ */
 QString getRelativePartName(const QString &baseName, const QString &absoluteName)
 {
     QString path = QDir(splitPartName(baseName)[0]).relativeFilePath(absoluteName);
     return QDir::cleanPath(path);
 }
 
-/*
- * Return the .rel file path based on partName
+/*!
+   \internal
+   Return the .rel file path based on partName
  */
 QString getRelsPath(const QString &partName)
 {

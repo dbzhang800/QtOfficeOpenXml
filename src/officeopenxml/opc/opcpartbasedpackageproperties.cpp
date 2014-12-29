@@ -52,6 +52,11 @@ static const char * propertiesNameTable[] = {
     "lastPrinted"
 };
 
+/*!
+ * \class QtOfficeOpenXml::Opc::PartBasedPackageProperties
+ * \internal
+ */
+
 PartBasedPackageProperties::PartBasedPackageProperties(Package *package)
     :m_package(package), m_propertyPart(0)
 {

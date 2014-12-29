@@ -19,15 +19,43 @@
 **
 ****************************************************************************/
 
-#include "opcpackageproperties.h"
-
-namespace QtOfficeOpenXml {
-namespace Opc {
-
 /*!
-  \class QtOfficeOpenXml::Opc::PackageProperties
-  \inmodule QtOfficeOpenXml
- */
+    \page building
+    \title Qt Office Open Xml Build
 
-} // namespace Opc
-} // namespace QtOfficeOpenXml
+    1. Download the source code from \l {https://github.com/dbzhang800/QtOfficeOpenXml/archive/master.zip} {github.com}.
+
+    2. Put the source code in any directory you like. At the toplevel directory run
+
+    \note Perl is needed in this step.
+
+    \code
+    qmake
+    make
+    make install
+    \endcode
+
+    The library, the header files, and others will be installed to your system.
+
+    3. Add following line to your qmake's project file:
+
+    \code
+    QT += officeopenxml
+    \endcode
+
+    4. Then, using Qt Office Open Xml in your code
+
+    \code
+    #include <QtOfficeOpenXml>
+
+    using namespace QtOfficeOpenXml;
+
+    int main()
+    {
+        Opc::Package *package = Opc::Package::open("tt.xlsx", QIODevice::ReadOnly);
+        //...
+        delete package;
+        return 0;
+    }
+    \endcode
+*/

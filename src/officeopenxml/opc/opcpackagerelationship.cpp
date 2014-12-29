@@ -32,7 +32,16 @@ namespace QtOfficeOpenXml {
 namespace Opc {
 
 /*!
- * \class PackageRelationship
+  \enum QtOfficeOpenXml::Opc::TargetMode
+
+  \value Internal
+  \value External
+
+ */
+
+/*!
+ * \class QtOfficeOpenXml::Opc::PackageRelationship
+ * \inmodule QtOfficeOpenXml
  *
  * Represents an association between a source Package or PackagePart, and a target
  * object which can be a PackagePart or external resource.
@@ -73,6 +82,15 @@ TargetMode PackageRelationship::targetMode() const
     return d_func()->targetMode;
 }
 
+/*!
+ * \class QtOfficeOpenXml::Opc::PackageRelationshipPrivate
+ * \internal
+ */
+
+/*!
+ * \class QtOfficeOpenXml::Opc::PackageRelationshipHelper
+ * \internal
+ */
 PackageRelationshipHelper::PackageRelationshipHelper(Package *package, const QString &sourcePartName)
     :m_package(package), m_relationshipsPart(0), m_sourcePartName(sourcePartName)
 {

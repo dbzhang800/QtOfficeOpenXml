@@ -28,6 +28,11 @@
 namespace QtOfficeOpenXml {
 namespace Opc {
 
+/*!
+ * \class QtOfficeOpenXml::Opc::PackagePartPrivate
+ * \internal
+ */
+
 PackagePartPrivate::PackagePartPrivate(const QString &partName, const QString type, PackagePart *q, Package *package)
     :q_ptr(q), package(package), partName(partName), contentType(type), relationshipHelper(0)
 {
@@ -60,6 +65,11 @@ void PackagePartPrivate::flushRelationships()
 
     relationshipHelper->flush();
 }
+
+/*!
+ * \class QtOfficeOpenXml::Opc::PackagePart
+ * \inmodule QtOfficeOpenXml
+ */
 
 PackagePart::PackagePart(PackagePartPrivate *d)
     :d_ptr(d)
