@@ -26,17 +26,23 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QSettings>
+#include <QPlainTextEdit>
+#include <QLabel>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow), m_package(0)
 {
     ui->setupUi(this);
+    ui->partContentSmartButton->hide();
 
     connect(ui->action_Open, SIGNAL(triggered()), SLOT(onOpen()));
     connect(ui->action_About, SIGNAL(triggered()), SLOT(onAbout()));
     connect(ui->partListWidget, SIGNAL(currentTextChanged(QString)), SLOT(onPartChanged(QString)));
     connect(ui->partContentButton, SIGNAL(clicked()), SLOT(onShowContentButtonClicked()));
+    connect(ui->partContentSmartButton, SIGNAL(clicked()), SLOT(onShowContentSmartButtonClicked()));
 }
 
 MainWindow::~MainWindow()
@@ -60,9 +66,11 @@ void MainWindow::onOpen()
     if (!m_package) {
         //Error occur.
         statusBar()->showMessage(tr("Fail to open the package %1").arg(fn));
+        setWindowTitle("Demo for Opc Package");
         return;
     }
     settings.setValue("lastFile", fn);
+    setWindowTitle(QString("%1 - Demo for Opc Package").arg(fn));
 
     ui->partListWidget->addItem("/");
     foreach (Opc::PackagePart *part, m_package->parts())
@@ -77,6 +85,7 @@ void MainWindow::onAbout()
 void MainWindow::onPartChanged(const QString &partName)
 {
     ui->partContentButton->setDisabled(true);
+    ui->partContentSmartButton->hide();
     ui->partRelationshipListWidget->clear();
     ui->partNameEdit->clear();
     ui->partContentTypeEdit->clear();
@@ -102,6 +111,22 @@ void MainWindow::onPartChanged(const QString &partName)
 
     foreach (Opc::PackageRelationship *relation, part->relationships())
         ui->partRelationshipListWidget->addItem(QString("%1: %2").arg(relation->id(), relation->target()));
+
+    //Figure out whether we can provide smart show for this part.
+    if (part->contentType().startsWith("image/")) {
+        ui->partContentSmartButton->setText("Show Image");
+        ui->partContentSmartButton->setProperty("smart", "image");
+        ui->partContentSmartButton->show();
+    } else if (part->contentType().endsWith("+xml")
+               || part->contentType() == "text/xml"
+               || part->contentType() == "application/xml"
+               || part->contentType() == "text/xml-external-parsed-entity"
+               || part->contentType() == "application/xml-external-parsed-entity"
+               || part->contentType() == "application/xml-dtd" ) {
+        ui->partContentSmartButton->setText("Show Formatted Xml");
+        ui->partContentSmartButton->setProperty("smart", "xml");
+        ui->partContentSmartButton->show();
+    }
 }
 
 void MainWindow::onShowContentButtonClicked()
@@ -127,4 +152,45 @@ void MainWindow::onShowContentButtonClicked()
     bEdit->resize(800, 600);
 
     bEdit->show();
+}
+
+void MainWindow::onShowContentSmartButtonClicked()
+{
+    Opc::PackagePart *part = m_package->part(ui->partNameEdit->text());
+    if (!part)
+        return;
+
+    if (ui->partContentSmartButton->property("smart") == "xml") {
+        //Show formatted xml file contents
+        QPlainTextEdit *edit = new QPlainTextEdit;
+        edit->setAttribute(Qt::WA_DeleteOnClose);
+        edit->setReadOnly(true);
+        edit->setWindowTitle(part->partName());
+
+        QString formattedData;
+
+        QXmlStreamReader reader(part->getDevice());
+        QXmlStreamWriter writer(&formattedData);
+        writer.setAutoFormatting(true);
+
+        while(!reader.atEnd()) {
+            reader.readNext();
+            if (!reader.isWhitespace() && reader.tokenType() != QXmlStreamReader::Invalid)
+                writer.writeCurrentToken(reader);
+        }
+        edit->setPlainText(formattedData);
+        part->releaseDevice();
+        edit->show();
+
+    } else if (ui->partContentSmartButton->property("smart") == "image") {
+        //Show image
+        QLabel *edit = new QLabel;
+        edit->setAttribute(Qt::WA_DeleteOnClose);
+        edit->setWindowTitle(part->partName());
+        QImage image = QImage::fromData(part->getDevice()->readAll());
+        part->releaseDevice();
+
+        edit->setPixmap(QPixmap::fromImage(image));
+        edit->show();
+    }
 }

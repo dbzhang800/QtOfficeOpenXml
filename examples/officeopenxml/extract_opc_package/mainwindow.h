@@ -45,6 +45,7 @@ private slots:
     void onAbout();
     void onPartChanged(const QString &partName);
     void onShowContentButtonClicked();
+    void onShowContentSmartButtonClicked();
 
 private:
     Ui::MainWindow *ui;

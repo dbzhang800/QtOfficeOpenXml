@@ -51,8 +51,11 @@ void MainWindow::onOpen()
     const QString path = settings.value("lastFile").toString();
 
     QString fn = QFileDialog::getOpenFileName( 0, tr("Open MCE Xml file"), path, "xml files (*.xml)");
-    if (fn.isEmpty())
+    if (fn.isEmpty()) {
+        setWindowTitle("Mce::XmlStreamReader Demo");
         return;
+    }
+    setWindowTitle(QString("%1 - Mce::XmlStreamReader Demo").arg(fn));
     settings.setValue("lastFile", fn);
 
     ui->normalXmlOutEdit->clear();
@@ -82,7 +85,7 @@ void MainWindow::onUpdateButton()
     reader.setMceUnderstoodNamespaces(understoodNamespaces);
 
     //QXmlStreamWriter used here to format the xml file data.
-    QByteArray formattedData;
+    QString formattedData;
     QXmlStreamWriter writer(&formattedData);
     writer.setAutoFormatting(true);
 
@@ -107,7 +110,7 @@ void MainWindow::doLoadOrignalFile(const QString &filePath)
     QStringList nsList;
 
     //QXmlStreamWriter used here to generate the formatted xml file data.
-    QByteArray formattedData;
+    QString formattedData;
     QXmlStreamWriter writer(&formattedData);
     writer.setAutoFormatting(true);
 
