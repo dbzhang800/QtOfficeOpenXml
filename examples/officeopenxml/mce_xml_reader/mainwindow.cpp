@@ -85,7 +85,7 @@ void MainWindow::onUpdateButton()
     reader.setMceUnderstoodNamespaces(understoodNamespaces);
 
     //QXmlStreamWriter used here to format the xml file data.
-    QString formattedData;
+    QByteArray formattedData;
     QXmlStreamWriter writer(&formattedData);
     writer.setAutoFormatting(true);
 
@@ -110,7 +110,7 @@ void MainWindow::doLoadOrignalFile(const QString &filePath)
     QStringList nsList;
 
     //QXmlStreamWriter used here to generate the formatted xml file data.
-    QString formattedData;
+    QByteArray formattedData;
     QXmlStreamWriter writer(&formattedData);
     writer.setAutoFormatting(true);
 
@@ -118,8 +118,9 @@ void MainWindow::doLoadOrignalFile(const QString &filePath)
     QXmlStreamReader reader(fileContent);
     while(!reader.atEnd()) {
         reader.readNext();
+        //Prefer Mce::writeCurrentToken() to QXmlStreamWriter::writeCurrentToken()
         if (!reader.isWhitespace() && reader.tokenType() != QXmlStreamReader::Invalid)
-            writer.writeCurrentToken(reader);
+            Mce::writeCurrentToken(writer, reader);
         if (reader.isStartElement()) {
             foreach (QXmlStreamNamespaceDeclaration nsDecl, reader.namespaceDeclarations()) {
                 const QString ns = QString("[%1] %2")

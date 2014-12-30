@@ -22,6 +22,8 @@
 #include "ui_mainwindow.h"
 #include "binedit.h"
 
+#include <mcexmlstreamreader.h>
+
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDebug>
@@ -167,7 +169,7 @@ void MainWindow::onShowContentSmartButtonClicked()
         edit->setReadOnly(true);
         edit->setWindowTitle(part->partName());
 
-        QString formattedData;
+        QByteArray formattedData;
 
         QXmlStreamReader reader(part->getDevice());
         QXmlStreamWriter writer(&formattedData);
@@ -175,8 +177,9 @@ void MainWindow::onShowContentSmartButtonClicked()
 
         while(!reader.atEnd()) {
             reader.readNext();
+            //Prefer Mce::writeCurrentToken() to QXmlStreamWriter::writeCurrentToken()
             if (!reader.isWhitespace() && reader.tokenType() != QXmlStreamReader::Invalid)
-                writer.writeCurrentToken(reader);
+                Mce::writeCurrentToken(writer, reader);
         }
         edit->setPlainText(formattedData);
         part->releaseDevice();

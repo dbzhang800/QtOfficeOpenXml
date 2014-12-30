@@ -1038,35 +1038,54 @@ QXmlStreamReader::Error XmlStreamReader::error() const
 }
 
 /*!
-  \relates QtOfficeOpenXml::Mce::XmlStreamReader
-
-  Writes the current state of the \a reader. All possible valid
-  states are supported.
-
-  The purpose of this function is to support chained processing of XML data.
-
-  \sa XmlStreamReader::tokenType()
+  \internal
  */
-void writeCurrentToken(QXmlStreamWriter &writer, const XmlStreamReader &reader)
+template<class Reader>
+void writeCurrentToken(QXmlStreamWriter &writer, const Reader &reader)
 {
     //Copy from the source code of Qt5's QXmlStreamWriter.
     switch (reader.tokenType()) {
     case QXmlStreamReader::NoToken:
         break;
     case QXmlStreamReader::StartDocument:
-        writer.writeStartDocument();
+        writer.writeStartDocument(reader.documentVersion().toString(), reader.isStandaloneDocument());
         break;
     case QXmlStreamReader::EndDocument:
         writer.writeEndDocument();
         break;
     case QXmlStreamReader::StartElement: {
+        //How to write start element ??
+        //1. First write Namespaces then write StartElement(with namespace) ?
+        //2. First write StartElement(with namespace) then write Namespaces ?
+        //3. First write StartElement(with qualified prefix) then write Namespaces ?
+        //4. ??
+        QString nsUri = reader.namespaceUri().toString();
         QXmlStreamNamespaceDeclarations namespaceDeclarations = reader.namespaceDeclarations();
+
+        bool nsDeclaredInCurrentElement = false;
         for (int i = 0; i < namespaceDeclarations.size(); ++i) {
             const QXmlStreamNamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.at(i);
-            writer.writeNamespace(namespaceDeclaration.namespaceUri().toString(),
-                           namespaceDeclaration.prefix().toString());
+            if (namespaceDeclaration.namespaceUri() == nsUri) {
+                QString prefix = namespaceDeclaration.prefix().toString();
+                if (prefix.isEmpty())
+                    writer.writeStartElement(reader.name().toString());
+                else
+                    writer.writeStartElement(QStringLiteral("%1:%2").arg(prefix, reader.name().toString()));
+                nsDeclaredInCurrentElement = true;
+                break;
+            }
         }
-        writer.writeStartElement(reader.namespaceUri().toString(), reader.name().toString());
+        if (!nsDeclaredInCurrentElement)
+            writer.writeStartElement(reader.namespaceUri().toString(), reader.name().toString());
+        for (int i = 0; i < namespaceDeclarations.size(); ++i) {
+            const QXmlStreamNamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.at(i);
+            if (namespaceDeclaration.prefix().isEmpty()) {
+                writer.writeDefaultNamespace(namespaceDeclaration.namespaceUri().toString());
+            } else {
+                writer.writeNamespace(namespaceDeclaration.namespaceUri().toString(),
+                                      namespaceDeclaration.prefix().toString());
+            }
+        }
         writer.writeAttributes(reader.attributes());
              } break;
     case QXmlStreamReader::EndElement:
@@ -1096,6 +1115,26 @@ void writeCurrentToken(QXmlStreamWriter &writer, const XmlStreamReader &reader)
         qWarning("Mce::writeCurrentToken() with invalid state.");
         break;
     }
+}
+
+/*!
+  \relates QtOfficeOpenXml::Mce::XmlStreamReader
+
+  Writes the current state of the \a reader. All possible valid
+  states are supported.
+
+  The purpose of this function is to support chained processing of XML data.
+
+  \sa XmlStreamReader::tokenType()
+ */
+void writeCurrentToken(QXmlStreamWriter &writer, const XmlStreamReader &reader)
+{
+    writeCurrentToken<>(writer, reader);
+}
+
+void writeCurrentToken(QXmlStreamWriter &writer, const QXmlStreamReader &reader)
+{
+    writeCurrentToken<>(writer, reader);
 }
 
 } // namespace Mce

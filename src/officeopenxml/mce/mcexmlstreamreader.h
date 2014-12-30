@@ -26,8 +26,6 @@
 #include <QtCore/qhash.h>
 #include <QtCore/qset.h>
 
-class QXmlStreamWriter;
-
 namespace QtOfficeOpenXml {
 namespace Mce {
 
@@ -111,6 +109,7 @@ private:
 };
 
 void Q_OFFICEOPENXML_EXPORT writeCurrentToken(QXmlStreamWriter &writer, const XmlStreamReader &reader);
+void Q_OFFICEOPENXML_EXPORT writeCurrentToken(QXmlStreamWriter &writer, const QXmlStreamReader &reader);
 
 } // namespace Mce
 } // namespace QtOfficeOpenXml
