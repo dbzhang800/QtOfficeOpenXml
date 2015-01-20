@@ -9,7 +9,7 @@ CONFIG += build_officeopenxml_lib
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
-HEADERS += $$PWD/ooxmlglobal.h
+include($$PWD/global/global.pri)
 include($$PWD/mce/mce.pri)
 include($$PWD/opc/opc.pri)
 

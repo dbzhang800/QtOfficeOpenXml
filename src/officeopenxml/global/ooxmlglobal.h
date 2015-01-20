@@ -20,7 +20,7 @@
 ****************************************************************************/
 #ifndef OFFICEOPENXMLGLOBAL_H
 #define OFFICEOPENXMLGLOBAL_H
-#include <QtGlobal>
+#include <QtCore/qglobal.h>
 
 #if !defined(QT_STATIC)
 #  if defined(QT_BUILD_OFFICEOPENXML_LIB)
