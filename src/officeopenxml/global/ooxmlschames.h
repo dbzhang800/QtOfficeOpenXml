@@ -34,9 +34,12 @@ enum NamespaceId
     NS_Spreadsheetml_Main,
     NS_Wordprocessingml_Main,
 
+    NS_Package_CoreProperties,
+
     NS_Dc_Dcmitype,
     NS_Dc_Elements,
     NS_Dc_Terms,
+    NS_Xml,
     NS_XmlSchema,
     NS_XmlSchemaInstance
 };
@@ -121,7 +124,12 @@ enum RelationshipId
     RS_OfficeDocument_VolatileDependencies,
     RS_OfficeDocument_WebSettings,
     RS_OfficeDocument_Worksheet,
-    RS_OfficeDocument_XmlMaps
+    RS_OfficeDocument_XmlMaps,
+
+    RS_Package_CoreProperties,
+    RS_Package_Thumbnail,
+    RS_Package_DigitalSignatureOrigin,
+    RS_Package_DigitalSignature
 };
 
 class SchamesPrivate;
@@ -133,6 +141,8 @@ public:
 
     QString namespaceUri(NamespaceId id, bool strict = false) const;
     QString namespaceUri(const QString &uri, bool strict = false) const;
+    QString namespacePrefix(NamespaceId id) const;
+    QString namespacePrefix(const QString &uri) const;
 
     bool isStrictNamespace(const QString &uri) const;
     bool isTransitionalNamespace(const QString &uri) const;

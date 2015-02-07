@@ -35,37 +35,44 @@ SchamesPrivate::SchamesPrivate()
                  QStringLiteral("http://purl.oclc.org/ooxml/descriptions/full"));
     addNamespace(NS_Drawingml_Chart,
                  QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/chart"),
-                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/chart"));
+                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/chart"),
+                 QStringLiteral("c"));
     addNamespace(NS_Drawingml_ChartDrawing,
                  QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/chartDrawing"),
-                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/chartDrawing"));
+                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/chartDrawing"),
+                 QStringLiteral("cdr"));
     addNamespace(NS_Drawingml_Diagram,
                  QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/diagram"),
-                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/diagram"));
+                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/diagram"),
+                 QStringLiteral("dgm"));
     addNamespace(NS_Drawingml_Main,
                  QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/main"),
-                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/main"));
+                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/main"),
+                 QStringLiteral("a"));
     addNamespace(NS_Drawingml_Picture,
                  QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/picture"),
-                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/picture"));
+                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/picture"),
+                 QStringLiteral("pic"));
     addNamespace(NS_Drawingml_SpreadsheetDrawing,
                  QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"),
-                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/spreadsheetDrawing"));
+                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/spreadsheetDrawing"),
+                 QStringLiteral("xdr"));
     addNamespace(NS_Drawingml_WordprocessingDrawing,
                  QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"),
-                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/wordprocessingDrawing"));
+                 QStringLiteral("http://purl.oclc.org/ooxml/drawingml/wordprocessingDrawing"),
+                 QStringLiteral("wp"));
     addNamespace(NS_OfficeDocument_Bibliography,
                  QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/bibliography"),
                  QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/bibliography"),
-                 QStringLiteral(""));
+                 QStringLiteral("b"));
     addNamespace(NS_OfficeDocument_CustomProperties,
                  QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"),
                  QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/customProperties"),
-                 QStringLiteral(""));
+                 QStringLiteral("op"));
     addNamespace(NS_OfficeDocument_CustomXml,
                  QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/customXml"),
                  QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/customXml"),
-                 QStringLiteral(""));
+                 QStringLiteral("ds"));
     addNamespace(NS_OfficeDocument_CustomXmlDataProps,
                  QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/customXmlDataProps"),
                  QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/customXmlDataProps"),
@@ -73,60 +80,60 @@ SchamesPrivate::SchamesPrivate()
     addNamespace(NS_OfficeDocument_DocPropsVTypes,
                  QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"),
                  QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/docPropsVTypes"),
-                 QStringLiteral(""));
+                 QStringLiteral("vt"));
     addNamespace(NS_OfficeDocument_ExtendedProperties,
                  QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"),
                  QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/extendedProperties"),
-                 QStringLiteral(""));
+                 QStringLiteral("ap"));
     addNamespace(NS_OfficeDocument_Math,
                  QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/math"),
                  QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/math"),
-                 QStringLiteral(""));
+                 QStringLiteral("m"));
     addNamespace(NS_OfficeDocument_Relationships,
                  QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/relationships"),
                  QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/relationships"),
-                 QStringLiteral(""));
+                 QStringLiteral("r"));
     addNamespace(NS_Presentationml_Main,
                  QStringLiteral("http://schemas.openxmlformats.org/presentationml/2006/main"),
                  QStringLiteral("http://purl.oclc.org/ooxml/presentationml/main"),
-                 QStringLiteral(""));
+                 QStringLiteral("p"));
     addNamespace(NS_SchemaLibrary_Main,
                  QStringLiteral("http://schemas.openxmlformats.org/schemaLibrary/2006/main"),
-                 QStringLiteral("http://purl.oclc.org/ooxml/schemaLibrary/main"),
-                 QStringLiteral(""));
+                 QStringLiteral("http://purl.oclc.org/ooxml/schemaLibrary/main"));
     addNamespace(NS_Spreadsheetml_Main,
                  QStringLiteral("http://schemas.openxmlformats.org/spreadsheetml/2006/main"),
                  QStringLiteral("http://purl.oclc.org/ooxml/spreadsheetml/main"),
-                 QStringLiteral(""));
+                 QStringLiteral("x"));
     addNamespace(NS_Wordprocessingml_Main,
                  QStringLiteral("http://schemas.openxmlformats.org/wordprocessingml/2006/main"),
                  QStringLiteral("http://purl.oclc.org/ooxml/wordprocessingml/main"),
-                 QStringLiteral(""));
+                 QStringLiteral("w"));
     addNamespace(NS_Drawingml_LockedCanvas,
                  QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/lockedCanvas"),
                  QStringLiteral("http://purl.oclc.org/ooxml/drawingml/lockedCanvas"),
-                 QStringLiteral(""));
+                 QStringLiteral("lc"));
     addNamespace(NS_Drawingml_Compatibility,
                  QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/compatibility"),
                  QStringLiteral("http://purl.oclc.org/ooxml/drawingml/compatibility"),
-                 QStringLiteral(""));
+                 QStringLiteral("comp"));
     addNamespace(NS_OfficeDocument_SharedTypes,
                  QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/sharedTypes"),
-                 QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/sharedTypes"),
-                 QStringLiteral(""));
+                 QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/sharedTypes"));
 
     // This is a namespace conversion. Workaround for a bug in ISO spec. https://www.assembla.com/code/IS29500/subversion/changesets/160
     QString customXmlNs_strict = QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/relationships/customXml");
     QString customXmlNs = QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/customXml");
-    QSharedPointer<OoxmlSchamesData> data = QSharedPointer<OoxmlSchamesData>(new OoxmlSchamesData(NS_OfficeDocument_CustomXml, customXmlNs, customXmlNs_strict));
+    QSharedPointer<OoxmlSchamesData> data = QSharedPointer<OoxmlSchamesData>(new OoxmlSchamesData(NS_OfficeDocument_CustomXml, customXmlNs, customXmlNs_strict, QStringLiteral("ds")));
     namespaceSchameHash_strict.insert(customXmlNs_strict, data);
 
     //Add normal namespaces.
-    addNamespace(NS_Dc_Dcmitype, QStringLiteral("http://purl.org/dc/dcmitype/"));
-    addNamespace(NS_Dc_Elements, QStringLiteral("http://purl.org/dc/elements/1.1/"));
-    addNamespace(NS_Dc_Terms, QStringLiteral("http://purl.org/dc/terms/"));
-    addNamespace(NS_XmlSchema, QStringLiteral("http://www.w3.org/2001/XMLSchema"));
-    addNamespace(NS_XmlSchemaInstance, QStringLiteral("http://www.w3.org/2001/XMLSchema-instance"));
+    addNamespace(NS_Package_CoreProperties, QStringLiteral("http://schemas.openxmlformats.org/package/2006/metadata/core-properties"), QString(), QStringLiteral("cp"));
+    addNamespace(NS_Dc_Dcmitype, QStringLiteral("http://purl.org/dc/dcmitype/"), QString(), QStringLiteral("demitype"));
+    addNamespace(NS_Dc_Elements, QStringLiteral("http://purl.org/dc/elements/1.1/"), QString(), QStringLiteral("dc"));
+    addNamespace(NS_Dc_Terms, QStringLiteral("http://purl.org/dc/terms/"), QString(), QStringLiteral("dcterms"));
+    addNamespace(NS_Xml, QStringLiteral("http://www.w3.org/XML/1998/namespace"), QString(), QStringLiteral("xml"));
+    addNamespace(NS_XmlSchema, QStringLiteral("http://www.w3.org/2001/XMLSchema"), QString(), QStringLiteral("xsd"));
+    addNamespace(NS_XmlSchemaInstance, QStringLiteral("http://www.w3.org/2001/XMLSchema-instance"), QString(), QStringLiteral("xsi"));
 
     //Add strict and transitional relationship pairs
     addRelationship(RS_OfficeDocument_AFChunk,
@@ -366,6 +373,12 @@ SchamesPrivate::SchamesPrivate()
     addRelationship(RS_OfficeDocument_XmlMaps,
             QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/relationships/xmlMaps"),
             QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/relationships/xmlMaps"));
+
+    //Add normal relationship uris
+    addRelationship(RS_Package_CoreProperties, QStringLiteral("http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties"));
+    addRelationship(RS_Package_Thumbnail, QStringLiteral("http://schemas.openxmlformats.org/package/2006/relationships/metadata/thumbnail"));
+    addRelationship(RS_Package_DigitalSignatureOrigin, QStringLiteral("http://schemas.openxmlformats.org/package/2006/relationships/digital-signature/origin"));
+    addRelationship(RS_Package_DigitalSignature, QStringLiteral("http://schemas.openxmlformats.org/package/2006/relationships/digital-signature/signature"));
 }
 
 
@@ -429,6 +442,24 @@ QString Schames::namespaceUri(const QString &uri, bool strict) const
     if (!strict && d->namespaceSchameHash_strict.contains(uri))
         return d->namespaceSchameHash_strict[uri]->transitional;
     return uri;
+}
+
+QString Schames::namespacePrefix(NamespaceId id) const
+{
+    if (d->namespaceSchameHash.contains(id))
+        return d->namespaceSchameHash[id]->prefix;
+    return QString();
+}
+
+QString Schames::namespacePrefix(const QString &uri) const
+{
+    if (d->namespaceSchameHash_normal.contains(uri))
+        return d->namespaceSchameHash_normal[uri]->prefix;
+    if (d->namespaceSchameHash_strict.contains(uri))
+        return d->namespaceSchameHash_strict[uri]->prefix;
+    if (d->namespaceSchameHash_transitional.contains(uri))
+        return d->namespaceSchameHash_transitional[uri]->prefix;
+    return QString();
 }
 
 bool Schames::isStrictNamespace(const QString &uri) const
