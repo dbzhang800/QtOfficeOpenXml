@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Debao Zhang <hello@debao.me>
+** Copyright (C) 2014-2015 Debao Zhang <hello@debao.me>
 **
 ** This library is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU Library General Public License version

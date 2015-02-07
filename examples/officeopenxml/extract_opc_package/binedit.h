@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Copyright (C) 2014 Debao Zhang <hello@debao.me>
+** Copyright (C) 2014-2015 Debao Zhang <hello@debao.me>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is extracted from Qt Creator.
