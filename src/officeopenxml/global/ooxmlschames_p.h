@@ -71,6 +71,8 @@ public:
     QHash<QString, QSharedPointer<OoxmlSchamesData> > relationshipSchameHash_normal;
 };
 
+Q_GLOBAL_STATIC(QtOfficeOpenXml::Ooxml::SchamesPrivate, schamesPrivateInstance)
+
 } // namespace Ooxml
 } // namespace QtOfficeOpenXml
 #endif // OOXMLSCHAMES_P_H

@@ -139,21 +139,22 @@ public:
     Schames();
     ~Schames();
 
-    QString namespaceUri(NamespaceId id, bool strict = false) const;
-    QString namespaceUri(const QString &uri, bool strict = false) const;
-    QString namespacePrefix(NamespaceId id) const;
-    QString namespacePrefix(const QString &uri) const;
+    static QString namespaceUri(NamespaceId id, bool strict = false);
+    static QString namespaceUri(const QString &uri, bool strict = false);
+    static QString namespacePrefix(NamespaceId id);
+    static QString namespacePrefix(const QString &uri);
 
-    bool isStrictNamespace(const QString &uri) const;
-    bool isTransitionalNamespace(const QString &uri) const;
+    static bool isStrictNamespace(const QString &uri);
+    static bool isTransitionalNamespace(const QString &uri);
 
-    QString relationshipUri(RelationshipId id, bool strict = false) const;
-    QString relationshipUri(const QString &uri, bool strict = false) const;
+    static QString relationshipUri(RelationshipId id, bool strict = false);
+    static QString relationshipUri(const QString &uri, bool strict = false);
 
-    bool isStrictRelationship(const QString &uri) const;
-    bool isTransitionalRelationship(const QString &uri) const;
+    static bool isStrictRelationship(const QString &uri);
+    static bool isTransitionalRelationship(const QString &uri);
+
 private:
-    SchamesPrivate *d;
+    static SchamesPrivate *d();
 };
 } // namespace Ooxml
 } // namespace QtOfficeOpenXml
