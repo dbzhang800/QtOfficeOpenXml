@@ -21,6 +21,12 @@ key features of MCE?
 * Namespace subsumption [Won't support, seems they will be dropped by next ISO/IEC 29500?]
 * ...
 
+### SML (SpreadsheetML)
+
+### WML (WordprocessingML)
+
+### PML (PresentionML)
+
 ## Getting Started
 
 ### Building the module
@@ -62,6 +68,16 @@ The library, the header files, and others will be installed to your system.
 
 * Then, using Qt Office Open XML in your code
 
+## Source code
+
+* global
+* opc
+* mce
+* ooxml
+* sml
+* wml
+* pml
+* dml
 
 ## References
 
