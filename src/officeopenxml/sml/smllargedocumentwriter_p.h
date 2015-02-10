@@ -23,6 +23,9 @@
 
 #include <QtOfficeOpenXml/smllargedocumentwriter.h>
 namespace QtOfficeOpenXml {
+namespace Opc {
+class Package;
+}
 namespace Sml {
 class LargeDocumentWriterPrivate
 {
@@ -30,7 +33,8 @@ class LargeDocumentWriterPrivate
 public:
     LargeDocumentWriterPrivate(LargeDocumentWriter *q);
     bool isClosed; //Once the document is closed, it can not be re-opened.
-    bool ooxmlSchameTye;
+    bool ooxmlSchameType;
+    Opc::Package *package;
     LargeDocumentWriter *q_ptr;
 };
 } //Sml

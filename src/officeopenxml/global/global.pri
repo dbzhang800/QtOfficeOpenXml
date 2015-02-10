@@ -1,1 +1,2 @@
-HEADERS += $$PWD/ooxmlglobal.h
+HEADERS += \
+    $$PWD/officeopenxmlglobal.h

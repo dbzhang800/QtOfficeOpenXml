@@ -189,6 +189,22 @@ QList<PackageRelationship *> Package::relationships() const
     return d->relationshipHelper->relationships();
 }
 
+/*!
+ * Get the relationship based on the \a type. 0 will be returned if this type doesn't
+ * exist. If more that one relationships share the same type, the returned
+ * relationship is random.
+ */
+PackageRelationship *Package::getRelationshipByType(const QString &type) const
+{
+    QList<PackageRelationship *> rels = getRelationshipsByType(type);
+    if (!rels.isEmpty())
+        return rels.first();
+    return 0;
+}
+
+/*!
+ * Get the relationships based on the \a type.
+ */
 QList<PackageRelationship *> Package::getRelationshipsByType(const QString &type) const
 {
     Q_D(const Package);

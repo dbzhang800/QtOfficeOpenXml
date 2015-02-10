@@ -32,7 +32,7 @@
 // We mean it.
 //
 
-#include <QtOfficeOpenXml/ooxmlglobal.h>
+#include <QtOfficeOpenXml/officeopenxmlglobal.h>
 
 class QString;
 class QStringList;

@@ -18,28 +18,35 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#ifndef SMLLARGEDOCUMENTREADER_P_H
-#define SMLLARGEDOCUMENTREADER_P_H
+#ifndef QTOFFICEOPENXML_OOXML_DOCUMENT_H
+#define QTOFFICEOPENXML_OOXML_DOCUMENT_H
 
-#include <QtOfficeOpenXml/smllargedocumentreader.h>
 #include <QtOfficeOpenXml/ooxmlschames.h>
+#include <QtCore/qobject.h>
+
+class QIODevice;
+
 namespace QtOfficeOpenXml {
-namespace Opc {
-class Package;
-}
+namespace Ooxml {
 
-namespace Sml {
-class LargeDocumentReaderPrivate
+class DocumentPrivate;
+class Q_OFFICEOPENXML_EXPORT Document : public QObject
 {
-    Q_DECLARE_PUBLIC(LargeDocumentReader)
+    Q_OBJECT
 public:
-    LargeDocumentReaderPrivate(LargeDocumentReader *q);
+    ~Document();
 
-    Ooxml::SchameType ooxmlSchameType;
-    Opc::Package *package;
-    LargeDocumentReader *q_ptr;
+    bool save(SchameType schameType=UnknownSchame) const;
+    bool saveAs(const QString &fileName, SchameType schameType=UnknownSchame) const;
+    bool saveAs(QIODevice *device, SchameType schameType=UnknownSchame) const;
+
+protected:
+    Q_DECLARE_PRIVATE(Document)
+    Document(DocumentPrivate *d, QObject *parent);
+    DocumentPrivate *d_ptr;
 };
 
-} //Sml
-} //QtOfficeOpenXml
-#endif // SMLLARGEDOCUMENTREADER_P_H
+} // namespace Ooxml
+} // namespace QtOfficeOpenXml
+
+#endif // QTOFFICEOPENXML_OOXML_DOCUMENT_H

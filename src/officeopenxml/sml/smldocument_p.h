@@ -22,18 +22,20 @@
 #define QTOFFICEOPENXML_SML_SMLDOCUMENT_P_H
 
 #include <QtOfficeOpenXml/smldocument.h>
-#include <QtOfficeOpenXml/ooxmlschames.h>
+#include <private/ooxmldocument_p.h>
 
 namespace QtOfficeOpenXml {
+namespace Opc {
+class Package;
+}
 namespace Sml {
-class DocumentPrivate
+class DocumentPrivate : public Ooxml::DocumentPrivate
 {
     Q_DECLARE_PUBLIC(Document)
 public:
     explicit DocumentPrivate(Document *q);
-    Ooxml::SchameType ooxmlSchame;
-
-    Document *q_ptr;
+    bool doLoadPackage(Opc::Package *package);
+    bool doSavePackage(Opc::Package *package, Ooxml::SchameType schame) const Q_DECL_OVERRIDE;
 };
 
 } // namespace Sml

@@ -20,14 +20,46 @@
 ****************************************************************************/
 #include "smldocument.h"
 #include "smldocument_p.h"
+#include "opcpackage.h"
+#include "opcpackagepart.h"
+
+#include <QtCore/qscopedpointer.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {
 
 DocumentPrivate::DocumentPrivate(Document *q) :
-    ooxmlSchame(Ooxml::TransitionalSchame),
-    q_ptr(q)
+    Ooxml::DocumentPrivate(q)
 {
+    if (packageName.isEmpty())
+        packageName = QStringLiteral("Book1.xlsx");
+}
+
+/*
+ * Load all the contents of the package into the memory.
+ * So, this method can not be used to load very large .xlsx file.
+ */
+bool DocumentPrivate::doLoadPackage(Opc::Package *package)
+{
+    Q_ASSERT(package);
+    Opc::PackagePart *mainPart = findMainPartFromPackage(package);
+    if (!mainPart)
+        return false;
+    if (detectedDocumentType(mainPart) != SpreadsheetDocumentType)
+        return false;
+    //Todo, load workbookPart now.
+
+    Ooxml::DocumentPrivate::doLoadPackage(package);
+    return true;
+}
+
+bool DocumentPrivate::doSavePackage(Opc::Package *package, Ooxml::SchameType schame) const
+{
+    Q_ASSERT(package);
+    //Todo, save workbook related parts.
+
+    Ooxml::DocumentPrivate::doSavePackage(package, schameType);
+    return true;
 }
 
 
@@ -37,38 +69,30 @@ DocumentPrivate::DocumentPrivate(Document *q) :
  */
 
 Document::Document(QObject *parent) :
-    QObject(parent), d_ptr(new DocumentPrivate(this))
+    Ooxml::Document(new DocumentPrivate(this), parent)
 {
 }
 
 Document::Document(const QString &fileName, QObject *parent) :
-    QObject(parent), d_ptr(new DocumentPrivate(this))
+    Ooxml::Document(new DocumentPrivate(this), parent)
 {
+    //Save this fileName, which will be used by save() member.
+    d_ptr->packageName = fileName;
+    QScopedPointer<Opc::Package> package(Opc::Package::open(fileName, QIODevice::ReadOnly));
+    if (package)
+        d_ptr->doLoadPackage(package.data());
 }
 
 Document::Document(QIODevice *device, QObject *parent) :
-    QObject(parent), d_ptr(new DocumentPrivate(this))
+    Ooxml::Document(new DocumentPrivate(this), parent)
 {
+    QScopedPointer<Opc::Package> package(Opc::Package::open(device, QIODevice::ReadOnly));
+    if (package)
+        d_ptr->doLoadPackage(package.data());
 }
 
 Document::~Document()
 {
-    delete d_ptr;
-}
-
-bool Document::save(Ooxml::SchameType schameType)
-{
-    return false;
-}
-
-bool Document::saveAs(const QString &fileName, Ooxml::SchameType schameType)
-{
-    return false;
-}
-
-bool Document::saveAs(QIODevice *device, Ooxml::SchameType schameType)
-{
-    return false;
 }
 
 } // namespace Sml

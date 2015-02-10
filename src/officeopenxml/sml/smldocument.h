@@ -21,7 +21,7 @@
 #ifndef QTOFFICEOPENXML_SML_SMLDOCUMENT_H
 #define QTOFFICEOPENXML_SML_SMLDOCUMENT_H
 
-#include <QtOfficeOpenXml/ooxmlschames.h>
+#include <QtOfficeOpenXml/ooxmldocument.h>
 #include <QtCore/qobject.h>
 
 class QIODevice;
@@ -29,7 +29,7 @@ class QIODevice;
 namespace QtOfficeOpenXml {
 namespace Sml {
 class DocumentPrivate;
-class Q_OFFICEOPENXML_EXPORT Document : public QObject
+class Q_OFFICEOPENXML_EXPORT Document : public Ooxml::Document
 {
     Q_OBJECT
 public:
@@ -38,9 +38,6 @@ public:
     explicit Document(QIODevice *device, QObject *parent = 0);
     ~Document();
 
-    bool save(Ooxml::SchameType schameType=Ooxml::UnknownSchame);
-    bool saveAs(const QString &fileName, Ooxml::SchameType schameType=Ooxml::UnknownSchame);
-    bool saveAs(QIODevice *device, Ooxml::SchameType schameType=Ooxml::UnknownSchame);
 private:
     Q_DECLARE_PRIVATE(Document)
     DocumentPrivate *d_ptr;

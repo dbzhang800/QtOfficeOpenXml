@@ -53,6 +53,7 @@ public:
 
     PackageRelationship *relationship(const QString &id) const;
     QList<PackageRelationship *> relationships() const;
+    PackageRelationship *getRelationshipByType(const QString &type) const;
     QList<PackageRelationship *> getRelationshipsByType(const QString &type) const;
     PackageRelationship *createRelationship(const QString &target, TargetMode mode, const QString &type, const QString &id=QString());
     void deleteRelationship(const QString &id);

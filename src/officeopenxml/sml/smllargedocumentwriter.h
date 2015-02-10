@@ -21,7 +21,7 @@
 #ifndef QTOFFICEOPENXML_SML_SMLLARGEDOCUMENTWRITER_H
 #define QTOFFICEOPENXML_SML_SMLLARGEDOCUMENTWRITER_H
 
-#include <QtOfficeOpenXml/ooxmlglobal.h>
+#include <QtOfficeOpenXml/officeopenxmlglobal.h>
 #include <QtOfficeOpenXml/ooxmlschames.h>
 #include <QtCore/qobject.h>
 

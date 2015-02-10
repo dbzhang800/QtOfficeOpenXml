@@ -20,12 +20,17 @@
 ****************************************************************************/
 #include "smllargedocumentreader.h"
 #include "smllargedocumentreader_p.h"
+#include "opcpackage.h"
+#include "opcpackagepart.h"
+
+#include <QtCore/qsharedpointer.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {
 
-LargeDocumentReaderPrivate::LargeDocumentReaderPrivate(LargeDocumentReader *q)
-    :q_ptr(q)
+LargeDocumentReaderPrivate::LargeDocumentReaderPrivate(LargeDocumentReader *q) :
+    ooxmlSchameType(Ooxml::TransitionalSchame),
+    q_ptr(q)
 {
 }
 
@@ -38,16 +43,26 @@ LargeDocumentReaderPrivate::LargeDocumentReaderPrivate(LargeDocumentReader *q)
 LargeDocumentReader::LargeDocumentReader(const QString &fileName, QObject *parent) :
     QObject(parent), d_ptr(new LargeDocumentReaderPrivate(this))
 {
+    d_ptr->package = Opc::Package::open(fileName, QIODevice::ReadOnly);
+    if (!d_ptr->package) {
+        qWarning("Can't open the package");
+    }
 }
 
 
 LargeDocumentReader::LargeDocumentReader(QIODevice *device, QObject *parent) :
     QObject(parent), d_ptr(new LargeDocumentReaderPrivate(this))
 {
+    d_ptr->package = Opc::Package::open(device, QIODevice::ReadOnly);
+    if (!d_ptr->package) {
+        qWarning("Can't open the package");
+    }
 }
 
 LargeDocumentReader::~LargeDocumentReader()
 {
+    if (d_ptr->package)
+        delete d_ptr->package;
     delete d_ptr;
 }
 

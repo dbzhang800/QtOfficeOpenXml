@@ -20,12 +20,14 @@
 ****************************************************************************/
 #include "smllargedocumentwriter.h"
 #include "smllargedocumentwriter_p.h"
+#include "opcpackage.h"
+#include "opcpackagepart.h"
 
 namespace QtOfficeOpenXml {
 namespace Sml {
 
 LargeDocumentWriterPrivate::LargeDocumentWriterPrivate(LargeDocumentWriter *q) :
-    isClosed(false), ooxmlSchameTye(Ooxml::TransitionalSchame),
+    isClosed(false), ooxmlSchameType(Ooxml::TransitionalSchame),
     q_ptr(q)
 {
 }
@@ -39,16 +41,28 @@ LargeDocumentWriterPrivate::LargeDocumentWriterPrivate(LargeDocumentWriter *q) :
 LargeDocumentWriter::LargeDocumentWriter(const QString &fileName, QObject *parent) :
     QObject(parent), d_ptr(new LargeDocumentWriterPrivate(this))
 {
+    d_ptr->package = Opc::Package::open(fileName, QIODevice::WriteOnly);
+    if (!d_ptr->package) {
+        qWarning("Can't open the package");
+        d_ptr->isClosed = true;
+    }
 }
 
 LargeDocumentWriter::LargeDocumentWriter(QIODevice *device, QObject *parent) :
     QObject(parent), d_ptr(new LargeDocumentWriterPrivate(this))
 {
+    d_ptr->package = Opc::Package::open(device, QIODevice::WriteOnly);
+    if (!d_ptr->package) {
+        qWarning("Can't open the package");
+        d_ptr->isClosed = true;
+    }
 }
 
 LargeDocumentWriter::~LargeDocumentWriter()
 {
     close();
+    if (d_ptr->package)
+        delete d_ptr->package;
     delete d_ptr;
 }
 
@@ -60,7 +74,7 @@ LargeDocumentWriter::~LargeDocumentWriter()
 bool LargeDocumentWriter::setOoxmlSchameType(Ooxml::SchameType type)
 {
     Q_D(LargeDocumentWriter);
-    d->ooxmlSchameTye = type;
+    d->ooxmlSchameType = type;
     return true;
 }
 
@@ -70,6 +84,7 @@ bool LargeDocumentWriter::close()
     if (d->isClosed)
         return true;
     //Todo.
+    d->package->close();
     d->isClosed = true;
     return true;
 }

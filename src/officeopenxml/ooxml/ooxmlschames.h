@@ -21,7 +21,7 @@
 #ifndef QTOFFICEOPENXML_NAMESPACEIDMAP_H
 #define QTOFFICEOPENXML_NAMESPACEIDMAP_H
 
-#include <QtOfficeOpenXml/ooxmlglobal.h>
+#include <QtOfficeOpenXml/officeopenxmlglobal.h>
 
 class QString;
 

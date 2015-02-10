@@ -18,28 +18,44 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#ifndef SMLLARGEDOCUMENTREADER_P_H
-#define SMLLARGEDOCUMENTREADER_P_H
+#ifndef QTOFFICEOPENXML_OOXML_DOCUMENT_P_H
+#define QTOFFICEOPENXML_OOXML_DOCUMENT_P_H
 
-#include <QtOfficeOpenXml/smllargedocumentreader.h>
+#include <QtOfficeOpenXml/ooxmldocument.h>
 #include <QtOfficeOpenXml/ooxmlschames.h>
+
 namespace QtOfficeOpenXml {
 namespace Opc {
 class Package;
+class PackagePart;
 }
-
-namespace Sml {
-class LargeDocumentReaderPrivate
+namespace Ooxml {
+class DocumentPrivate
 {
-    Q_DECLARE_PUBLIC(LargeDocumentReader)
+    Q_DECLARE_PUBLIC(Document)
 public:
-    LargeDocumentReaderPrivate(LargeDocumentReader *q);
+    enum DocumentType {
+        InvalidDocumentType,
+        SpreadsheetDocumentType,
+        WordprocessingDocumentType,
+        PresentationDocumentType
+    };
 
-    Ooxml::SchameType ooxmlSchameType;
-    Opc::Package *package;
-    LargeDocumentReader *q_ptr;
+    explicit DocumentPrivate(Document *q);
+    virtual ~DocumentPrivate();
+    virtual bool doLoadPackage(Opc::Package *package);
+    virtual bool doSavePackage(Opc::Package *package, SchameType schameType) const;
+
+    Opc::PackagePart *findMainPartFromPackage(Opc::Package *package);
+    DocumentType detectedDocumentType(Opc::PackagePart *mainPart);
+
+protected:
+    SchameType ooxmlSchame;
+    QString packageName;//Used by save()
+    Document *q_ptr;
 };
 
-} //Sml
-} //QtOfficeOpenXml
-#endif // SMLLARGEDOCUMENTREADER_P_H
+} // namespace Ooxml
+} // namespace QtOfficeOpenXml
+
+#endif // QTOFFICEOPENXML_OOXML_DOCUMENT_P_H

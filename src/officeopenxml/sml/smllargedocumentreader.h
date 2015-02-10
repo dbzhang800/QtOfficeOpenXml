@@ -21,7 +21,7 @@
 #ifndef QTOFFICEOPENXML_SML_SMLLARGEDOCUMENTREADER_H
 #define QTOFFICEOPENXML_SML_SMLLARGEDOCUMENTREADER_H
 
-#include <QtOfficeOpenXml/ooxmlglobal.h>
+#include <QtOfficeOpenXml/officeopenxmlglobal.h>
 #include <QtCore/qobject.h>
 
 class QIODevice;
