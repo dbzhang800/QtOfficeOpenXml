@@ -77,10 +77,10 @@ Document::Document(const QString &fileName, QObject *parent) :
     Ooxml::Document(new DocumentPrivate(this), parent)
 {
     //Save this fileName, which will be used by save() member.
-    d_ptr->packageName = fileName;
+    d_func()->packageName = fileName;
     QScopedPointer<Opc::Package> package(Opc::Package::open(fileName, QIODevice::ReadOnly));
     if (package)
-        d_ptr->doLoadPackage(package.data());
+        d_func()->doLoadPackage(package.data());
 }
 
 Document::Document(QIODevice *device, QObject *parent) :
@@ -88,7 +88,7 @@ Document::Document(QIODevice *device, QObject *parent) :
 {
     QScopedPointer<Opc::Package> package(Opc::Package::open(device, QIODevice::ReadOnly));
     if (package)
-        d_ptr->doLoadPackage(package.data());
+        d_func()->doLoadPackage(package.data());
 }
 
 Document::~Document()

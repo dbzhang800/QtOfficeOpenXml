@@ -33,7 +33,7 @@ class LargeDocumentWriterPrivate
 public:
     LargeDocumentWriterPrivate(LargeDocumentWriter *q);
     bool isClosed; //Once the document is closed, it can not be re-opened.
-    bool ooxmlSchameType;
+    Ooxml::SchameType ooxmlSchameType;
     Opc::Package *package;
     LargeDocumentWriter *q_ptr;
 };

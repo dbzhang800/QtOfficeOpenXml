@@ -40,7 +40,6 @@ public:
 
 private:
     Q_DECLARE_PRIVATE(Document)
-    DocumentPrivate *d_ptr;
 };
 
 } // namespace Sml
