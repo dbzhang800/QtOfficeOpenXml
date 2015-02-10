@@ -13,6 +13,7 @@ include($$PWD/global/global.pri)
 include($$PWD/mce/mce.pri)
 include($$PWD/opc/opc.pri)
 include($$PWD/ooxml/ooxml.pri)
+include($$PWD/sml/sml.pri)
 
 #Define this macro if you want to run tests, so more AIPs will get exported.
 DEFINES += OFFICEOPENXML_TEST

@@ -121,10 +121,7 @@ SchamesPrivate::SchamesPrivate()
                  QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/sharedTypes"));
 
     // This is a namespace conversion. Workaround for a bug in ISO spec. https://www.assembla.com/code/IS29500/subversion/changesets/160
-    QString customXmlNs_strict = QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/relationships/customXml");
-    QString customXmlNs = QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/customXml");
-    QSharedPointer<OoxmlSchamesData> data = QSharedPointer<OoxmlSchamesData>(new OoxmlSchamesData(NS_OfficeDocument_CustomXml, customXmlNs, customXmlNs_strict, QStringLiteral("ds")));
-    namespaceSchameHash_strict.insert(customXmlNs_strict, data);
+    namespaceSchameHash_strict.insert(QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/relationships/customXml"), namespaceSchameHash[NS_OfficeDocument_CustomXml]);
 
     //Add normal namespaces.
     addNamespace(NS_Package_CoreProperties, QStringLiteral("http://schemas.openxmlformats.org/package/2006/metadata/core-properties"), QString(), QStringLiteral("cp"));
