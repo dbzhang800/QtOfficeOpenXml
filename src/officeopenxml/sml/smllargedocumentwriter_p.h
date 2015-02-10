@@ -29,7 +29,8 @@ class LargeDocumentWriterPrivate
     Q_DECLARE_PUBLIC(LargeDocumentWriter)
 public:
     LargeDocumentWriterPrivate(LargeDocumentWriter *q);
-
+    bool isClosed; //Once the document is closed, it can not be re-opened.
+    bool ooxmlSchameTye;
     LargeDocumentWriter *q_ptr;
 };
 } //Sml

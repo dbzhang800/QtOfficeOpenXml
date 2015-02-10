@@ -24,8 +24,9 @@
 namespace QtOfficeOpenXml {
 namespace Sml {
 
-LargeDocumentWriterPrivate::LargeDocumentWriterPrivate(LargeDocumentWriter *q)
-    :q_ptr(q)
+LargeDocumentWriterPrivate::LargeDocumentWriterPrivate(LargeDocumentWriter *q) :
+    isClosed(false), ooxmlSchameTye(Ooxml::TransitionalSchame),
+    q_ptr(q)
 {
 }
 
@@ -47,7 +48,30 @@ LargeDocumentWriter::LargeDocumentWriter(QIODevice *device, QObject *parent) :
 
 LargeDocumentWriter::~LargeDocumentWriter()
 {
+    close();
     delete d_ptr;
+}
+
+/*!
+ * Must be called before anything is written.
+ *
+ * The default type is QtOfficeOpen::Ooxml::TransitionalSchame.
+ */
+bool LargeDocumentWriter::setOoxmlSchameType(Ooxml::SchameType type)
+{
+    Q_D(LargeDocumentWriter);
+    d->ooxmlSchameTye = type;
+    return true;
+}
+
+bool LargeDocumentWriter::close()
+{
+    Q_D(LargeDocumentWriter);
+    if (d->isClosed)
+        return true;
+    //Todo.
+    d->isClosed = true;
+    return true;
 }
 
 } // namespace Sml

@@ -27,6 +27,14 @@ class QString;
 
 namespace QtOfficeOpenXml {
 namespace Ooxml {
+
+enum SchameType
+{
+    UnknownSchame,
+    TransitionalSchame,
+    StrictSchame
+};
+
 enum NamespaceId
 {
     NS_Descriptions_Base,
@@ -159,19 +167,15 @@ public:
     Schames();
     ~Schames();
 
-    static QString namespaceUri(NamespaceId id, bool strict = false);
-    static QString namespaceUri(const QString &uri, bool strict = false);
+    static QString namespaceUri(NamespaceId id, SchameType type = TransitionalSchame);
+    static QString namespaceUri(const QString &uri, SchameType type = TransitionalSchame);
     static QString namespacePrefix(NamespaceId id);
     static QString namespacePrefix(const QString &uri);
+    static SchameType namespaceSchameType(const QString &uri);
 
-    static bool isStrictNamespace(const QString &uri);
-    static bool isTransitionalNamespace(const QString &uri);
-
-    static QString relationshipUri(RelationshipId id, bool strict = false);
-    static QString relationshipUri(const QString &uri, bool strict = false);
-
-    static bool isStrictRelationship(const QString &uri);
-    static bool isTransitionalRelationship(const QString &uri);
+    static QString relationshipUri(RelationshipId id, SchameType type = TransitionalSchame);
+    static QString relationshipUri(const QString &uri, SchameType type = TransitionalSchame);
+    static SchameType relationshipSchameType(const QString &uri);
 
 private:
     static SchamesPrivate *d();

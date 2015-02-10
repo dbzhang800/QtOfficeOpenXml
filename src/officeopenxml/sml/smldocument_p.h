@@ -22,6 +22,7 @@
 #define QTOFFICEOPENXML_SML_SMLDOCUMENT_P_H
 
 #include <QtOfficeOpenXml/smldocument.h>
+#include <QtOfficeOpenXml/ooxmlschames.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {
@@ -30,6 +31,7 @@ class DocumentPrivate
     Q_DECLARE_PUBLIC(Document)
 public:
     explicit DocumentPrivate(Document *q);
+    Ooxml::SchameType ooxmlSchame;
 
     Document *q_ptr;
 };

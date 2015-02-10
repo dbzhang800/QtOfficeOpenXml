@@ -21,7 +21,7 @@
 #ifndef QTOFFICEOPENXML_SML_SMLDOCUMENT_H
 #define QTOFFICEOPENXML_SML_SMLDOCUMENT_H
 
-#include <QtOfficeOpenXml/ooxmlglobal.h>
+#include <QtOfficeOpenXml/ooxmlschames.h>
 #include <QtCore/qobject.h>
 
 class QIODevice;
@@ -38,9 +38,9 @@ public:
     explicit Document(QIODevice *device, QObject *parent = 0);
     ~Document();
 
-    bool save();
-    bool saveAs(const QString &fileName);
-    bool saveAs(QIODevice *device);
+    bool save(Ooxml::SchameType schameType=Ooxml::UnknownSchame);
+    bool saveAs(const QString &fileName, Ooxml::SchameType schameType=Ooxml::UnknownSchame);
+    bool saveAs(QIODevice *device, Ooxml::SchameType schameType=Ooxml::UnknownSchame);
 private:
     Q_DECLARE_PRIVATE(Document)
     DocumentPrivate *d_ptr;

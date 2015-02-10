@@ -22,6 +22,7 @@
 #define QTOFFICEOPENXML_SML_SMLLARGEDOCUMENTWRITER_H
 
 #include <QtOfficeOpenXml/ooxmlglobal.h>
+#include <QtOfficeOpenXml/ooxmlschames.h>
 #include <QtCore/qobject.h>
 
 class QIODevice;
@@ -37,6 +38,9 @@ public:
     explicit LargeDocumentWriter(QIODevice *device, QObject *parent = 0);
     ~LargeDocumentWriter();
 
+    bool setOoxmlSchameType(Ooxml::SchameType type);
+
+    bool close();
 private:
     Q_DECLARE_PRIVATE(LargeDocumentWriter)
     LargeDocumentWriterPrivate *d_ptr;

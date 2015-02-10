@@ -24,8 +24,9 @@
 namespace QtOfficeOpenXml {
 namespace Sml {
 
-DocumentPrivate::DocumentPrivate(Document *q)
-    :q_ptr(q)
+DocumentPrivate::DocumentPrivate(Document *q) :
+    ooxmlSchame(Ooxml::TransitionalSchame),
+    q_ptr(q)
 {
 }
 
@@ -55,17 +56,17 @@ Document::~Document()
     delete d_ptr;
 }
 
-bool Document::save()
+bool Document::save(Ooxml::SchameType schameType)
 {
     return false;
 }
 
-bool Document::saveAs(const QString &fileName)
+bool Document::saveAs(const QString &fileName, Ooxml::SchameType schameType)
 {
     return false;
 }
 
-bool Document::saveAs(QIODevice *device)
+bool Document::saveAs(QIODevice *device, Ooxml::SchameType schameType)
 {
     return false;
 }

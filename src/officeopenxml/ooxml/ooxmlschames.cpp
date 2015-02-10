@@ -422,19 +422,19 @@ Schames::~Schames()
 {
 }
 
-QString Schames::namespaceUri(NamespaceId id, bool strict)
+QString Schames::namespaceUri(NamespaceId id, SchameType type)
 {
-    if (strict)
+    if (type == StrictSchame)
         return d()->namespaceSchameHash[id]->strict;
     return d()->namespaceSchameHash[id]->transitional;
 }
 
-QString Schames::namespaceUri(const QString &uri, bool strict)
+QString Schames::namespaceUri(const QString &uri, SchameType type)
 {
-    if (strict && d()->namespaceSchameHash_transitional.contains(uri))
+    if (type == TransitionalSchame && d()->namespaceSchameHash_transitional.contains(uri))
         return d()->namespaceSchameHash_transitional[uri]->strict;
 
-    if (!strict && d()->namespaceSchameHash_strict.contains(uri))
+    if (type == StrictSchame && d()->namespaceSchameHash_strict.contains(uri))
         return d()->namespaceSchameHash_strict[uri]->transitional;
     return uri;
 }
@@ -457,41 +457,39 @@ QString Schames::namespacePrefix(const QString &uri)
     return QString();
 }
 
-bool Schames::isStrictNamespace(const QString &uri)
+SchameType Schames::namespaceSchameType(const QString &uri)
 {
-    return d()->namespaceSchameHash_strict.contains(uri);
+    if (d()->namespaceSchameHash_strict.contains(uri))
+        return StrictSchame;
+    if (d()->namespaceSchameHash_transitional.contains(uri))
+        return TransitionalSchame;
+    return UnknownSchame;
 }
 
-bool Schames::isTransitionalNamespace(const QString &uri)
+QString Schames::relationshipUri(RelationshipId id, SchameType type)
 {
-    return d()->namespaceSchameHash_transitional.contains(uri);
-}
-
-QString Schames::relationshipUri(RelationshipId id, bool strict)
-{
-    if (strict)
+    if (type == StrictSchame)
         return d()->relationshipSchameHash[id]->strict;
     return d()->relationshipSchameHash[id]->transitional;
 }
 
-QString Schames::relationshipUri(const QString &uri, bool strict)
+QString Schames::relationshipUri(const QString &uri, SchameType type)
 {
-    if (strict && d()->relationshipSchameHash_transitional.contains(uri))
+    if (type == TransitionalSchame && d()->relationshipSchameHash_transitional.contains(uri))
         return d()->relationshipSchameHash_transitional[uri]->strict;
 
-    if (!strict && d()->relationshipSchameHash_strict.contains(uri))
+    if (type == StrictSchame && d()->relationshipSchameHash_strict.contains(uri))
         return d()->relationshipSchameHash_strict[uri]->transitional;
     return uri;
 }
 
-bool Schames::isStrictRelationship(const QString &uri)
+SchameType Schames::relationshipSchameType(const QString &uri)
 {
-    return d()->relationshipSchameHash_strict.contains(uri);
-}
-
-bool Schames::isTransitionalRelationship(const QString &uri)
-{
-    return d()->relationshipSchameHash_transitional.contains(uri);
+    if (d()->relationshipSchameHash_strict.contains(uri))
+        return StrictSchame;
+    if (d()->relationshipSchameHash_transitional.contains(uri))
+        return TransitionalSchame;
+    return UnknownSchame;
 }
 
 SchamesPrivate *Schames::d()
