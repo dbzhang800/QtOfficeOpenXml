@@ -19,7 +19,7 @@
 **
 ****************************************************************************/
 #include <private/ooxmlabstractdocument_p.h>
-#include <private/ooxmldocpropsapppart_p.h>
+#include <private/ooxmlextendedpropertiesxmlpart_p.h>
 #include <QtOfficeOpenXml/opcpackage.h>
 #include <QtOfficeOpenXml/opcpackagepart.h>
 #include <QtOfficeOpenXml/opcpackageproperties.h>
@@ -87,10 +87,10 @@ bool AbstractDocumentPrivate::doLoadPackage(Opc::Package *package)
 
     //-- Second step. --
     //Load app properties part if exists.
-    Opc::PackagePart *docPropsAppPackagePart = getPackageRootPart(package, RS_OfficeDocument_Extended);
-    if (docPropsAppPackagePart) {
-        DocPropsAppPart docPropsAppPart(this);
-        docPropsAppPart.loadFromPackagePart(docPropsAppPackagePart);
+    Opc::PackagePart *packagePart = getPackageRootPart(package, RS_OfficeDocument_Extended);
+    if (packagePart) {
+        ExtendedPropertiesXmlPart xmlPart(this);
+        xmlPart.loadFromPackagePart(packagePart);
     }
 
     return true;
@@ -135,11 +135,11 @@ bool AbstractDocumentPrivate::doSavePackage(Opc::Package *package, SchameType sc
 
     //-- Second step. --
     //Create app properties part.
-    Opc::PackagePart *docPropsAppPackagePart = package->createPart(QStringLiteral("/docProps/app.xml"),
-                                                                   QStringLiteral("application/vnd.openxmlformats-officedocument.extended-properties+xml"));
-    if (docPropsAppPackagePart) {
-        DocPropsAppPart docPropsAppPart(const_cast<AbstractDocumentPrivate*>(this));
-        docPropsAppPart.saveToPackagePart(docPropsAppPackagePart, schameType);
+    Opc::PackagePart *packagePart = package->createPart(QStringLiteral("/docProps/app.xml"),
+                                                        QStringLiteral("application/vnd.openxmlformats-officedocument.extended-properties+xml"));
+    if (packagePart) {
+        ExtendedPropertiesXmlPart xmlPart(const_cast<AbstractDocumentPrivate*>(this));
+        xmlPart.saveToPackagePart(packagePart, schameType);
     }
 
     return true;

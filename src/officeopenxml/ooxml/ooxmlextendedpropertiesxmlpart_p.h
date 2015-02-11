@@ -18,8 +18,8 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#ifndef SMLLARGEDOCUMENTWRITER_P_H
-#define SMLLARGEDOCUMENTWRITER_P_H
+#ifndef QTOFFICEOPENXML_OOXML_OOXMLDOCPROPSAPPPART_H
+#define QTOFFICEOPENXML_OOXML_OOXMLDOCPROPSAPPPART_H
 
 //
 //  W A R N I N G
@@ -32,22 +32,29 @@
 // We mean it.
 //
 
-#include <QtOfficeOpenXml/smllargedocumentwriter.h>
+#include <private/ooxmlabstractfixedtypexmlpart_p.h>
+
 namespace QtOfficeOpenXml {
-namespace Opc {
-class Package;
-}
-namespace Sml {
-class LargeDocumentWriterPrivate
+namespace Ooxml {
+class AbstractDocumentPrivate;
+class ExtendedPropertiesXmlPart : public AbstractFixedTypeXmlPart
 {
-    Q_DECLARE_PUBLIC(LargeDocumentWriter)
 public:
-    LargeDocumentWriterPrivate(LargeDocumentWriter *q);
-    bool isClosed; //Once the document is closed, it can not be re-opened.
-    Ooxml::SchameType ooxmlSchameType;
-    Opc::Package *package;
-    LargeDocumentWriter *q_ptr;
+    ExtendedPropertiesXmlPart(AbstractDocumentPrivate *documentData);
+
+    QString contentType() const Q_DECL_OVERRIDE;
+
+private:
+    bool doLoadFromXml(QIODevice *part) Q_DECL_OVERRIDE;
+    bool doSaveToXml(QIODevice *part, SchameType schameType) const Q_DECL_OVERRIDE;
+
+    QString getApplicationName() const;
+    QString getApplicationVersion() const;
+    QString getCompany() const;
+    AbstractDocumentPrivate *m_documentData;
 };
-} //Sml
-} //QtOfficeOpenXml
-#endif // SMLLARGEDOCUMENTWRITER_P_H
+
+} // namespace Ooxml
+} // namespace QtOfficeOpenXml
+
+#endif // QTOFFICEOPENXML_OOXML_OOXMLDOCPROPSAPPPART_H

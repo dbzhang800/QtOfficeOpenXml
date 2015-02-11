@@ -18,8 +18,8 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#ifndef SMLLARGEDOCUMENTWRITER_P_H
-#define SMLLARGEDOCUMENTWRITER_P_H
+#ifndef QTOFFICEOPENXML_SML_SMLWORKBOOKPART_P_H
+#define QTOFFICEOPENXML_SML_SMLWORKBOOKPART_P_H
 
 //
 //  W A R N I N G
@@ -32,22 +32,23 @@
 // We mean it.
 //
 
-#include <QtOfficeOpenXml/smllargedocumentwriter.h>
+#include <private/ooxmlabstractfixedtypexmlpart_p.h>
+
 namespace QtOfficeOpenXml {
-namespace Opc {
-class Package;
-}
 namespace Sml {
-class LargeDocumentWriterPrivate
+
+class WorkbookXmlPart : public Ooxml::AbstractFixedTypeXmlPart
 {
-    Q_DECLARE_PUBLIC(LargeDocumentWriter)
 public:
-    LargeDocumentWriterPrivate(LargeDocumentWriter *q);
-    bool isClosed; //Once the document is closed, it can not be re-opened.
-    Ooxml::SchameType ooxmlSchameType;
-    Opc::Package *package;
-    LargeDocumentWriter *q_ptr;
+    WorkbookXmlPart();
+    QString contentType() const Q_DECL_OVERRIDE;
+
+private:
+    bool doLoadFromXml(QIODevice *part) Q_DECL_OVERRIDE;
+    bool doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const Q_DECL_OVERRIDE;
 };
-} //Sml
-} //QtOfficeOpenXml
-#endif // SMLLARGEDOCUMENTWRITER_P_H
+
+} // namespace Sml
+} // namespace QtOfficeOpenXml
+
+#endif // QTOFFICEOPENXML_SML_SMLWORKBOOKPART_P_H

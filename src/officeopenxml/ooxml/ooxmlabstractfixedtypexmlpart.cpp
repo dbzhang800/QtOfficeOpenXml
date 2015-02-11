@@ -39,16 +39,6 @@ AbstractFixedTypeXmlPart::~AbstractFixedTypeXmlPart()
 {
 }
 
-QString AbstractFixedTypeXmlPart::partName() const
-{
-    return m_partName;
-}
-
-QString AbstractFixedTypeXmlPart::contentType() const
-{
-    return m_contentType;
-}
-
 bool AbstractFixedTypeXmlPart::loadFromPackagePart(Opc::PackagePart *part)
 {
     QIODevice *device = part->getDevice();

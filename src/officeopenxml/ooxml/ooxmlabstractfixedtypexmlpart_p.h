@@ -47,8 +47,7 @@ public:
     AbstractFixedTypeXmlPart();
     virtual ~AbstractFixedTypeXmlPart();
 
-    QString partName() const;
-    QString contentType() const;
+    virtual QString contentType() const = 0;
 
     bool loadFromPackagePart(Opc::PackagePart *part);
     bool saveToPackagePart(Opc::PackagePart *part, SchameType schameType) const;
@@ -56,9 +55,6 @@ public:
 protected:
     virtual bool doLoadFromXml(QIODevice *part) = 0;
     virtual bool doSaveToXml(QIODevice *part, SchameType schameType) const = 0;
-
-    QString m_partName;
-    QString m_contentType;
 };
 
 } // namespace Ooxml

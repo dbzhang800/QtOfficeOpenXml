@@ -18,7 +18,7 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#include <private/ooxmldocpropsapppart_p.h>
+#include <private/ooxmlextendedpropertiesxmlpart_p.h>
 #include <private/ooxmlabstractdocument_p.h>
 #include <QtOfficeOpenXml/ooxmlschames.h>
 #include <QtOfficeOpenXml/mcexmlstreamreader.h>
@@ -33,12 +33,17 @@ namespace Ooxml {
  * This class Operator on the AbstractDocument data directly.
  */
 
-DocPropsAppPart::DocPropsAppPart(AbstractDocumentPrivate *documentData) :
+ExtendedPropertiesXmlPart::ExtendedPropertiesXmlPart(AbstractDocumentPrivate *documentData) :
     m_documentData(documentData)
 {
 }
 
-bool DocPropsAppPart::doLoadFromXml(QIODevice *part)
+QString ExtendedPropertiesXmlPart::contentType() const
+{
+    return QStringLiteral("application/vnd.openxmlformats-officedocument.extended-properties+xml");
+}
+
+bool ExtendedPropertiesXmlPart::doLoadFromXml(QIODevice *part)
 {
     Mce::XmlStreamReader reader(part);
     //Todo, Add all the understood names used by this part here
@@ -69,7 +74,7 @@ bool DocPropsAppPart::doLoadFromXml(QIODevice *part)
     return true;
 }
 
-bool DocPropsAppPart::doSaveToXml(QIODevice *part, SchameType schameType) const
+bool ExtendedPropertiesXmlPart::doSaveToXml(QIODevice *part, SchameType schameType) const
 {
     QXmlStreamWriter writer(part);
     QString vt = Schames::namespaceUri(NS_OfficeDocument_DocPropsVTypes, schameType);
@@ -124,7 +129,7 @@ bool DocPropsAppPart::doSaveToXml(QIODevice *part, SchameType schameType) const
     return true;
 }
 
-QString DocPropsAppPart::getApplicationName() const
+QString ExtendedPropertiesXmlPart::getApplicationName() const
 {
     if (m_documentData->documentPropertyHash.contains(AbstractDocument::DP_Application))
         return m_documentData->documentPropertyHash[AbstractDocument::DP_Application].toString();
@@ -134,7 +139,7 @@ QString DocPropsAppPart::getApplicationName() const
 /*! \internal
  *  Must in the format XX.XXXX
  */
-QString DocPropsAppPart::getApplicationVersion() const
+QString ExtendedPropertiesXmlPart::getApplicationVersion() const
 {
     if (m_documentData->documentPropertyHash.contains(AbstractDocument::DP_AppVersion)) {
         QVariant v = m_documentData->documentPropertyHash[AbstractDocument::DP_AppVersion];
@@ -156,7 +161,7 @@ QString DocPropsAppPart::getApplicationVersion() const
     return QStringLiteral("00.0000");
 }
 
-QString DocPropsAppPart::getCompany() const
+QString ExtendedPropertiesXmlPart::getCompany() const
 {
     if (m_documentData->documentPropertyHash.contains(AbstractDocument::DP_Company))
         return m_documentData->documentPropertyHash[AbstractDocument::DP_Company].toString();

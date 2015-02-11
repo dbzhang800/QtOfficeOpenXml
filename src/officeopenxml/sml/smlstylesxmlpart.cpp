@@ -18,41 +18,29 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#ifndef QTOFFICEOPENXML_OOXML_OOXMLDOCPROPSAPPPART_H
-#define QTOFFICEOPENXML_OOXML_OOXMLDOCPROPSAPPPART_H
-
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt Office Open Xml API.  It exists for
-// the convenience of the Qt Office Open Xml.  This header file may
-// change from version to version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include <private/ooxmlabstractfixedtypexmlpart_p.h>
+#include "smlstylesxmlpart_p.h"
 
 namespace QtOfficeOpenXml {
-namespace Ooxml {
-class AbstractDocumentPrivate;
-class DocPropsAppPart : public AbstractFixedTypeXmlPart
+namespace Sml {
+
+StylesXmlPart::StylesXmlPart()
 {
-public:
-    DocPropsAppPart(AbstractDocumentPrivate *documentData);
+}
 
-private:
-    bool doLoadFromXml(QIODevice *part);
-    bool doSaveToXml(QIODevice *part, SchameType schameType) const;
+QString StylesXmlPart::contentType() const
+{
+    return QStringLiteral("application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml");
+}
 
-    QString getApplicationName() const;
-    QString getApplicationVersion() const;
-    QString getCompany() const;
-    AbstractDocumentPrivate *m_documentData;
-};
+bool StylesXmlPart::doLoadFromXml(QIODevice *part)
+{
+    return false;
+}
 
-} // namespace Ooxml
+bool StylesXmlPart::doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const
+{
+    return false;
+}
+
+} // namespace Sml
 } // namespace QtOfficeOpenXml
-
-#endif // QTOFFICEOPENXML_OOXML_OOXMLDOCPROPSAPPPART_H

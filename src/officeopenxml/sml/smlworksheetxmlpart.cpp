@@ -18,36 +18,29 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#ifndef SMLLARGEDOCUMENTWRITER_P_H
-#define SMLLARGEDOCUMENTWRITER_P_H
+#include "smlworksheetxmlpart_p.h"
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt Office Open Xml API.  It exists for
-// the convenience of the Qt Office Open Xml.  This header file may
-// change from version to version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include <QtOfficeOpenXml/smllargedocumentwriter.h>
 namespace QtOfficeOpenXml {
-namespace Opc {
-class Package;
-}
 namespace Sml {
-class LargeDocumentWriterPrivate
+
+WorksheetXmlPart::WorksheetXmlPart()
 {
-    Q_DECLARE_PUBLIC(LargeDocumentWriter)
-public:
-    LargeDocumentWriterPrivate(LargeDocumentWriter *q);
-    bool isClosed; //Once the document is closed, it can not be re-opened.
-    Ooxml::SchameType ooxmlSchameType;
-    Opc::Package *package;
-    LargeDocumentWriter *q_ptr;
-};
-} //Sml
-} //QtOfficeOpenXml
-#endif // SMLLARGEDOCUMENTWRITER_P_H
+}
+
+QString WorksheetXmlPart::contentType() const
+{
+    return QStringLiteral("application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
+}
+
+bool WorksheetXmlPart::doLoadFromXml(QIODevice *part)
+{
+    return false;
+}
+
+bool WorksheetXmlPart::doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const
+{
+    return false;
+}
+
+} // namespace Sml
+} // namespace QtOfficeOpenXml

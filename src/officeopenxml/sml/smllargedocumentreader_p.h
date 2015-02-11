@@ -21,6 +21,17 @@
 #ifndef SMLLARGEDOCUMENTREADER_P_H
 #define SMLLARGEDOCUMENTREADER_P_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt Office Open Xml API.  It exists for
+// the convenience of the Qt Office Open Xml.  This header file may
+// change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #include <QtOfficeOpenXml/smllargedocumentreader.h>
 #include <QtOfficeOpenXml/ooxmlschames.h>
 namespace QtOfficeOpenXml {

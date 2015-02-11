@@ -5,11 +5,11 @@ HEADERS += \
     $$PWD/ooxmlmediadatapart_p.h \
     $$PWD/ooxmlabstractdocument.h \
     $$PWD/ooxmlabstractdocument_p.h \
-    $$PWD/ooxmldocpropsapppart_p.h
+    $$PWD/ooxmlextendedpropertiesxmlpart_p.h
 
 SOURCES += \
     $$PWD/ooxmlschames.cpp \
     $$PWD/ooxmlabstractfixedtypexmlpart.cpp \
     $$PWD/ooxmlmediadatapart.cpp \
     $$PWD/ooxmlabstractdocument.cpp \
-    $$PWD/ooxmldocpropsapppart.cpp
+    $$PWD/ooxmlextendedpropertiesxmlpart.cpp
