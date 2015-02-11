@@ -18,27 +18,41 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#ifndef QTOFFICEOPENXML_SML_SMLDOCUMENT_P_H
-#define QTOFFICEOPENXML_SML_SMLDOCUMENT_P_H
+#ifndef QTOFFICEOPENXML_OOXML_OOXMLDOCPROPSAPPPART_H
+#define QTOFFICEOPENXML_OOXML_OOXMLDOCPROPSAPPPART_H
 
-#include <QtOfficeOpenXml/smldocument.h>
-#include <private/ooxmlabstractdocument_p.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt Office Open Xml API.  It exists for
+// the convenience of the Qt Office Open Xml.  This header file may
+// change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include <private/ooxmlabstractfixedtypexmlpart_p.h>
 
 namespace QtOfficeOpenXml {
-namespace Opc {
-class Package;
-}
-namespace Sml {
-class DocumentPrivate : public Ooxml::AbstractDocumentPrivate
+namespace Ooxml {
+class AbstractDocumentPrivate;
+class DocPropsAppPart : public AbstractFixedTypeXmlPart
 {
-    Q_DECLARE_PUBLIC(Document)
 public:
-    explicit DocumentPrivate(Document *q);
-    bool doLoadPackage(Opc::Package *package) Q_DECL_OVERRIDE;
-    bool doSavePackage(Opc::Package *package, Ooxml::SchameType schame) const Q_DECL_OVERRIDE;
+    DocPropsAppPart(AbstractDocumentPrivate *documentData);
+
+private:
+    bool doLoadFromXml(QIODevice *part);
+    bool doSaveToXml(QIODevice *part, SchameType schameType) const;
+
+    QString getApplicationName() const;
+    QString getApplicationVersion() const;
+    QString getCompany() const;
+    AbstractDocumentPrivate *m_documentData;
 };
 
-} // namespace Sml
+} // namespace Ooxml
 } // namespace QtOfficeOpenXml
 
-#endif // QTOFFICEOPENXML_SML_SMLDOCUMENT_P_H
+#endif // QTOFFICEOPENXML_OOXML_OOXMLDOCPROPSAPPPART_H

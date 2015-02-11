@@ -18,27 +18,52 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#ifndef QTOFFICEOPENXML_SML_SMLDOCUMENT_P_H
-#define QTOFFICEOPENXML_SML_SMLDOCUMENT_P_H
-
-#include <QtOfficeOpenXml/smldocument.h>
-#include <private/ooxmlabstractdocument_p.h>
+#include "ooxmlabstractfixedtypexmlpart_p.h"
+#include "opcpackagepart.h"
 
 namespace QtOfficeOpenXml {
-namespace Opc {
-class Package;
-}
-namespace Sml {
-class DocumentPrivate : public Ooxml::AbstractDocumentPrivate
+namespace Ooxml {
+
+/*!
+ * \internal
+ * \class QtOfficeOpenXml::Ooxml::AbstractFixedTypeXmlPart
+ *
+ * Interface class for all Known type xml parts in the opc package.
+ */
+
+AbstractFixedTypeXmlPart::AbstractFixedTypeXmlPart()
 {
-    Q_DECLARE_PUBLIC(Document)
-public:
-    explicit DocumentPrivate(Document *q);
-    bool doLoadPackage(Opc::Package *package) Q_DECL_OVERRIDE;
-    bool doSavePackage(Opc::Package *package, Ooxml::SchameType schame) const Q_DECL_OVERRIDE;
-};
+}
 
-} // namespace Sml
+AbstractFixedTypeXmlPart::~AbstractFixedTypeXmlPart()
+{
+}
+
+QString AbstractFixedTypeXmlPart::partName() const
+{
+    return m_partName;
+}
+
+QString AbstractFixedTypeXmlPart::contentType() const
+{
+    return m_contentType;
+}
+
+bool AbstractFixedTypeXmlPart::loadFromPackagePart(Opc::PackagePart *part)
+{
+    QIODevice *device = part->getDevice();
+    bool ret = doLoadFromXml(device);
+    part->releaseDevice();
+    return ret;
+}
+
+bool AbstractFixedTypeXmlPart::saveToPackagePart(Opc::PackagePart *part, SchameType schameType) const
+{
+    QIODevice *device = part->getDevice();
+    bool ret = doSaveToXml(device, schameType);
+    part->releaseDevice();
+    return ret;
+}
+
+} // namespace Ooxml
 } // namespace QtOfficeOpenXml
-
-#endif // QTOFFICEOPENXML_SML_SMLDOCUMENT_P_H

@@ -18,48 +18,32 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#ifndef QTOFFICEOPENXML_OOXML_DOCUMENT_P_H
-#define QTOFFICEOPENXML_OOXML_DOCUMENT_P_H
+#ifndef QTOFFICEOPENXML_OOXML_OOXMLMEDIADATAPART_H
+#define QTOFFICEOPENXML_OOXML_OOXMLMEDIADATAPART_H
 
-#include <QtOfficeOpenXml/ooxmldocument.h>
-#include <QtOfficeOpenXml/ooxmlschames.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt Office Open Xml API.  It exists for
+// the convenience of the Qt Office Open Xml.  This header file may
+// change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
 
-#include <QtCore/qhash.h>
+#include <QtOfficeOpenXml/officeopenxmlglobal.h>
 
 namespace QtOfficeOpenXml {
-namespace Opc {
-class Package;
-class PackagePart;
-}
 namespace Ooxml {
-class DocumentPrivate
+
+class MediaDataPart
 {
-    Q_DECLARE_PUBLIC(Document)
 public:
-    enum DocumentType {
-        InvalidDocumentType,
-        SpreadsheetDocumentType,
-        WordprocessingDocumentType,
-        PresentationDocumentType
-    };
-
-    explicit DocumentPrivate(Document *q);
-    virtual ~DocumentPrivate();
-    virtual bool doLoadPackage(Opc::Package *package);
-    virtual bool doSavePackage(Opc::Package *package, SchameType schameType) const;
-
-    Opc::PackagePart *findMainPartFromPackage(Opc::Package *package);
-    DocumentType detectedDocumentType(Opc::PackagePart *mainPart);
-
-protected:
-    SchameType ooxmlSchame;
-    QString packageName;//Used by save()
-    QHash<int, QVariant> documentPropertyHash;
-
-    Document *q_ptr;
+    MediaDataPart();
 };
 
 } // namespace Ooxml
 } // namespace QtOfficeOpenXml
 
-#endif // QTOFFICEOPENXML_OOXML_DOCUMENT_P_H
+#endif // QTOFFICEOPENXML_OOXML_OOXMLMEDIADATAPART_P_H

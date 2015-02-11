@@ -29,8 +29,8 @@ class QIODevice;
 namespace QtOfficeOpenXml {
 namespace Ooxml {
 
-class DocumentPrivate;
-class Q_OFFICEOPENXML_EXPORT Document : public QObject
+class AbstractDocumentPrivate;
+class Q_OFFICEOPENXML_EXPORT AbstractDocument : public QObject
 {
     Q_OBJECT
 public:
@@ -59,7 +59,7 @@ public:
         DP_AppVersion
     };
 
-    ~Document();
+    ~AbstractDocument();
 
     QVariant documentProperty(DocumentProperty name) const;
     void setDocumentProperty(DocumentProperty name, const QVariant &property);
@@ -69,9 +69,9 @@ public:
     bool saveAs(QIODevice *device, SchameType schameType=UnknownSchame) const;
 
 protected:
-    Q_DECLARE_PRIVATE(Document)
-    Document(DocumentPrivate *d, QObject *parent);
-    DocumentPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(AbstractDocument)
+    AbstractDocument(AbstractDocumentPrivate *d, QObject *parent);
+    AbstractDocumentPrivate *d_ptr;
 };
 
 } // namespace Ooxml

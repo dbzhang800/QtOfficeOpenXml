@@ -29,7 +29,7 @@ namespace QtOfficeOpenXml {
 namespace Sml {
 
 DocumentPrivate::DocumentPrivate(Document *q) :
-    Ooxml::DocumentPrivate(q)
+    Ooxml::AbstractDocumentPrivate(q)
 {
     if (packageName.isEmpty())
         packageName = QStringLiteral("Book1.xlsx");
@@ -42,14 +42,15 @@ DocumentPrivate::DocumentPrivate(Document *q) :
 bool DocumentPrivate::doLoadPackage(Opc::Package *package)
 {
     Q_ASSERT(package);
-    Opc::PackagePart *mainPart = findMainPartFromPackage(package);
+    Opc::PackagePart *mainPart = getPackageRootPart(package, Ooxml::RS_OfficeDocument_OfficeDocument);
     if (!mainPart)
         return false;
     if (detectedDocumentType(mainPart) != SpreadsheetDocumentType)
         return false;
     //Todo, load workbookPart now.
 
-    Ooxml::DocumentPrivate::doLoadPackage(package);
+    //Load common parts of the package.
+    Ooxml::AbstractDocumentPrivate::doLoadPackage(package);
     return true;
 }
 
@@ -58,7 +59,8 @@ bool DocumentPrivate::doSavePackage(Opc::Package *package, Ooxml::SchameType sch
     Q_ASSERT(package);
     //Todo, save workbook related parts.
 
-    Ooxml::DocumentPrivate::doSavePackage(package, schame);
+    //Save common parts of the package.
+    Ooxml::AbstractDocumentPrivate::doSavePackage(package, schame);
     return true;
 }
 
@@ -69,12 +71,12 @@ bool DocumentPrivate::doSavePackage(Opc::Package *package, Ooxml::SchameType sch
  */
 
 Document::Document(QObject *parent) :
-    Ooxml::Document(new DocumentPrivate(this), parent)
+    Ooxml::AbstractDocument(new DocumentPrivate(this), parent)
 {
 }
 
 Document::Document(const QString &fileName, QObject *parent) :
-    Ooxml::Document(new DocumentPrivate(this), parent)
+    Ooxml::AbstractDocument(new DocumentPrivate(this), parent)
 {
     //Save this fileName, which will be used by save() member.
     d_func()->packageName = fileName;
@@ -84,7 +86,7 @@ Document::Document(const QString &fileName, QObject *parent) :
 }
 
 Document::Document(QIODevice *device, QObject *parent) :
-    Ooxml::Document(new DocumentPrivate(this), parent)
+    Ooxml::AbstractDocument(new DocumentPrivate(this), parent)
 {
     QScopedPointer<Opc::Package> package(Opc::Package::open(device, QIODevice::ReadOnly));
     if (package)

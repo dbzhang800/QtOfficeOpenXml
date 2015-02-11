@@ -21,15 +21,14 @@
 #ifndef QTOFFICEOPENXML_SML_SMLDOCUMENT_H
 #define QTOFFICEOPENXML_SML_SMLDOCUMENT_H
 
-#include <QtOfficeOpenXml/ooxmldocument.h>
-#include <QtCore/qobject.h>
+#include <QtOfficeOpenXml/ooxmlabstractdocument.h>
 
 class QIODevice;
 
 namespace QtOfficeOpenXml {
 namespace Sml {
 class DocumentPrivate;
-class Q_OFFICEOPENXML_EXPORT Document : public Ooxml::Document
+class Q_OFFICEOPENXML_EXPORT Document : public Ooxml::AbstractDocument
 {
     Q_OBJECT
 public:

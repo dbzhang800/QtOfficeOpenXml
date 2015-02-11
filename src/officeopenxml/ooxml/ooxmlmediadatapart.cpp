@@ -18,27 +18,21 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#ifndef QTOFFICEOPENXML_SML_SMLDOCUMENT_P_H
-#define QTOFFICEOPENXML_SML_SMLDOCUMENT_P_H
-
-#include <QtOfficeOpenXml/smldocument.h>
-#include <private/ooxmlabstractdocument_p.h>
+#include "ooxmlmediadatapart_p.h"
 
 namespace QtOfficeOpenXml {
-namespace Opc {
-class Package;
-}
-namespace Sml {
-class DocumentPrivate : public Ooxml::AbstractDocumentPrivate
+namespace Ooxml {
+
+/*!
+ * \internal
+ * \class QtOfficeOpenXml::Ooxml::MediaDataPart
+ *
+ * Interface class for all media parts in the opc package.
+ */
+
+MediaDataPart::MediaDataPart()
 {
-    Q_DECLARE_PUBLIC(Document)
-public:
-    explicit DocumentPrivate(Document *q);
-    bool doLoadPackage(Opc::Package *package) Q_DECL_OVERRIDE;
-    bool doSavePackage(Opc::Package *package, Ooxml::SchameType schame) const Q_DECL_OVERRIDE;
-};
+}
 
-} // namespace Sml
+} // namespace Ooxml
 } // namespace QtOfficeOpenXml
-
-#endif // QTOFFICEOPENXML_SML_SMLDOCUMENT_P_H
