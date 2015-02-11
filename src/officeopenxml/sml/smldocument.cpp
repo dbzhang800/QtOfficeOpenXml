@@ -58,7 +58,7 @@ bool DocumentPrivate::doSavePackage(Opc::Package *package, Ooxml::SchameType sch
     Q_ASSERT(package);
     //Todo, save workbook related parts.
 
-    Ooxml::DocumentPrivate::doSavePackage(package, schameType);
+    Ooxml::DocumentPrivate::doSavePackage(package, schame);
     return true;
 }
 

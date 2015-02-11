@@ -24,6 +24,8 @@
 #include <QtOfficeOpenXml/ooxmldocument.h>
 #include <QtOfficeOpenXml/ooxmlschames.h>
 
+#include <QtCore/qhash.h>
+
 namespace QtOfficeOpenXml {
 namespace Opc {
 class Package;
@@ -52,6 +54,8 @@ public:
 protected:
     SchameType ooxmlSchame;
     QString packageName;//Used by save()
+    QHash<int, QVariant> documentPropertyHash;
+
     Document *q_ptr;
 };
 

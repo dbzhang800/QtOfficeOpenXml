@@ -34,7 +34,35 @@ class Q_OFFICEOPENXML_EXPORT Document : public QObject
 {
     Q_OBJECT
 public:
+    enum DocumentProperty {
+        //Core Property of the Opc Package
+        DP_Creator,
+        DP_Identifier,
+        DP_Title,
+        DP_Subject,
+        DP_Description,
+        DP_Language,
+        DP_Created,
+        DP_Modified,
+        DP_ContentType,
+        DP_Keywords,
+        DP_Category,
+        DP_Version,
+        DP_LastModifiedBy,
+        DP_ContentStatus,
+        DP_Revision,
+        DP_LastPrinted,
+        //App Property of the Office Document
+        DP_Manager = 0x0100,
+        DP_Company,
+        DP_Application,
+        DP_AppVersion
+    };
+
     ~Document();
+
+    QVariant documentProperty(DocumentProperty name) const;
+    void setDocumentProperty(DocumentProperty name, const QVariant &property);
 
     bool save(SchameType schameType=UnknownSchame) const;
     bool saveAs(const QString &fileName, SchameType schameType=UnknownSchame) const;
