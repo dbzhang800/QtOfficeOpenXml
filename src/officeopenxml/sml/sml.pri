@@ -9,7 +9,14 @@ HEADERS += \
     $$PWD/smlworkbookxmlpart_p.h \
     $$PWD/smlworksheetxmlpart_p.h \
     $$PWD/smlsharedstringtablexmlpart_p.h \
-    $$PWD/smlstylesxmlpart_p.h
+    $$PWD/smlstylesxmlpart_p.h \
+    $$PWD/smlworkbook_p.h \
+    $$PWD/smlworksheet.h \
+    $$PWD/smlworksheet_p.h \
+    $$PWD/smlabstractsheet.h \
+    $$PWD/smlabstractsheet_p.h \
+    $$PWD/smlchartsheet.h \
+    $$PWD/smlchartsheet_p.h
 
 SOURCES += \
     $$PWD/smllargedocumentreader.cpp \
@@ -19,4 +26,8 @@ SOURCES += \
     $$PWD/smlworkbookxmlpart.cpp \
     $$PWD/smlworksheetxmlpart.cpp \
     $$PWD/smlsharedstringtablexmlpart.cpp \
-    $$PWD/smlstylesxmlpart.cpp
+    $$PWD/smlstylesxmlpart.cpp \
+    $$PWD/smlworkbook.cpp \
+    $$PWD/smlworksheet.cpp \
+    $$PWD/smlabstractsheet.cpp \
+    $$PWD/smlchartsheet.cpp

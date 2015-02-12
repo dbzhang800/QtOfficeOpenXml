@@ -21,8 +21,24 @@
 #ifndef QTOFFICEOPENXML_SML_SMLGLOBAL_H
 #define QTOFFICEOPENXML_SML_SMLGLOBAL_H
 
+#include <QtOfficeOpenXml/officeopenxmlglobal.h>
+
 namespace QtOfficeOpenXml {
 namespace Sml {
+
+enum SheetType {
+    ST_Worksheet,
+    ST_Chartsheet
+    //ST_Dialogsheet,
+    //ST_Macrosheet
+};
+
+enum SheetState
+{
+    SS_Visible,
+    SS_Hidden,
+    SS_VeryHidden
+};
 
 } // namespace Sml
 } // namespace QtOfficeOpenXml

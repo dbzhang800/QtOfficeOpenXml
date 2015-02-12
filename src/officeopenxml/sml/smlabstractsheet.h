@@ -18,29 +18,38 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#include <private/smlworksheetxmlpart_p.h>
+#ifndef QTOFFICEOPENXML_SML_ABSTRACTSHEET_H
+#define QTOFFICEOPENXML_SML_ABSTRACTSHEET_H
+
+#include <QtOfficeOpenXml/smlglobal.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {
 
-WorksheetXmlPart::WorksheetXmlPart()
+class AbstractSheetPrivate;
+class Q_OFFICEOPENXML_EXPORT AbstractSheet
 {
-}
+public:
+    virtual ~AbstractSheet();
 
-QString WorksheetXmlPart::contentType() const
-{
-    return QStringLiteral("application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
-}
+    QString sheetName() const;
+    virtual SheetType sheetType() const = 0;
+    SheetState sheetState() const;
+    void setSheetState(SheetState ss);
+    bool isHidden() const;
+    bool isVisible() const;
+    void setHidden(bool hidden);
+    void setVisible(bool visible);
 
-bool WorksheetXmlPart::doLoadFromXml(QIODevice *part)
-{
-    return false;
-}
+    int sheetId() const;
 
-bool WorksheetXmlPart::doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const
-{
-    return false;
-}
+protected:
+    Q_DECLARE_PRIVATE(AbstractSheet)
+    AbstractSheet(AbstractSheetPrivate *d);
+    AbstractSheetPrivate *d_ptr;
+};
 
 } // namespace Sml
 } // namespace QtOfficeOpenXml
+
+#endif // QTOFFICEOPENXML_SML_ABSTRACTSHEET_H

@@ -18,7 +18,7 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#include "smlstylesxmlpart_p.h"
+#include <private/smlstylesxmlpart_p.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {

@@ -18,7 +18,7 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#include "smlglobal.h"
+#include <QtOfficeOpenXml/smlglobal.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {

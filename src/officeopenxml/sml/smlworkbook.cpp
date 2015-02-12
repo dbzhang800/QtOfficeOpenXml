@@ -18,28 +18,14 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#include <private/smlworksheetxmlpart_p.h>
+#include <private/smlworkbook_p.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {
 
-WorksheetXmlPart::WorksheetXmlPart()
+Workbook::Workbook()
 {
-}
 
-QString WorksheetXmlPart::contentType() const
-{
-    return QStringLiteral("application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
-}
-
-bool WorksheetXmlPart::doLoadFromXml(QIODevice *part)
-{
-    return false;
-}
-
-bool WorksheetXmlPart::doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const
-{
-    return false;
 }
 
 } // namespace Sml

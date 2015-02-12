@@ -18,29 +18,25 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#include <private/smlworksheetxmlpart_p.h>
+#ifndef QTOFFICEOPENXML_SML_SMLWORKSHEET_H
+#define QTOFFICEOPENXML_SML_SMLWORKSHEET_H
+
+#include <QtOfficeOpenXml/smlabstractsheet.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {
-
-WorksheetXmlPart::WorksheetXmlPart()
+class WorksheetPrivate;
+class Q_OFFICEOPENXML_EXPORT Worksheet : public AbstractSheet
 {
-}
+    Q_DECLARE_PRIVATE(Worksheet)
+public:
+    Worksheet(const QString &name, int id, SheetState state);
+    ~Worksheet();
 
-QString WorksheetXmlPart::contentType() const
-{
-    return QStringLiteral("application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
-}
-
-bool WorksheetXmlPart::doLoadFromXml(QIODevice *part)
-{
-    return false;
-}
-
-bool WorksheetXmlPart::doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const
-{
-    return false;
-}
+    SheetType sheetType() const Q_DECL_OVERRIDE;
+};
 
 } // namespace Sml
 } // namespace QtOfficeOpenXml
+
+#endif // QTOFFICEOPENXML_SML_SMLWORKSHEET_H

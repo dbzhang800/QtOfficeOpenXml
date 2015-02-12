@@ -33,19 +33,39 @@
 //
 
 #include <private/ooxmlabstractfixedtypexmlpart_p.h>
+#include <QtOfficeOpenXml/smlglobal.h>
+#include <QtCore/qhash.h>
+#include <QtCore/qlist.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {
-
+class Workbook;
 class WorkbookXmlPart : public Ooxml::AbstractFixedTypeXmlPart
 {
 public:
-    WorkbookXmlPart();
+    WorkbookXmlPart(Workbook *wb);
     QString contentType() const Q_DECL_OVERRIDE;
+
+    struct Sheet
+    {
+        Sheet() : state(SS_Visible) {}
+        Sheet(const QString &name, int sheetId, SheetState state, const QString &rId) :
+            name(name), sheetId(sheetId), state(state), rId(rId)
+        {}
+
+        QString name;
+        int sheetId;
+        SheetState state;
+        QString rId;
+    };
+    QList<Sheet> sheets;
+    QList<QString> externalReferences;
 
 private:
     bool doLoadFromXml(QIODevice *part) Q_DECL_OVERRIDE;
     bool doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const Q_DECL_OVERRIDE;
+
+    Workbook *wb;
 };
 
 } // namespace Sml

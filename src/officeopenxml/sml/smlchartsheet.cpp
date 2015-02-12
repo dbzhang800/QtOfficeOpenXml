@@ -18,28 +18,33 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#include <private/smlworksheetxmlpart_p.h>
+#include <private/smlchartsheet_p.h>
+#include <QtOfficeOpenXml/smlglobal.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {
 
-WorksheetXmlPart::WorksheetXmlPart()
+ChartsheetPrivate::ChartsheetPrivate(const QString &name, int id, QtOfficeOpenXml::Sml::SheetState state, Chartsheet *q) :
+    AbstractSheetPrivate(name, id, state, q)
 {
+
 }
 
-QString WorksheetXmlPart::contentType() const
+
+Chartsheet::Chartsheet(const QString &name, int id, QtOfficeOpenXml::Sml::SheetState state) :
+    AbstractSheet(new ChartsheetPrivate(name, id, state, this))
 {
-    return QStringLiteral("application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
+
 }
 
-bool WorksheetXmlPart::doLoadFromXml(QIODevice *part)
+Chartsheet::~Chartsheet()
 {
-    return false;
+
 }
 
-bool WorksheetXmlPart::doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const
+SheetType Chartsheet::sheetType() const
 {
-    return false;
+    return ST_Chartsheet;
 }
 
 } // namespace Sml

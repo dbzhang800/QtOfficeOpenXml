@@ -18,10 +18,10 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#include "smldocument.h"
-#include "smldocument_p.h"
-#include "opcpackage.h"
-#include "opcpackagepart.h"
+#include <private/smldocument_p.h>
+#include <QtOfficeOpenXml/smldocument.h>
+#include <QtOfficeOpenXml/opcpackage.h>
+#include <QtOfficeOpenXml/opcpackagepart.h>
 
 #include <QtCore/qscopedpointer.h>
 
@@ -47,7 +47,9 @@ bool DocumentPrivate::doLoadPackage(Opc::Package *package)
         return false;
     if (detectedDocumentType(mainPart) != SpreadsheetDocumentType)
         return false;
-    //Todo, load workbookPart now.
+
+    //OK, load workbookPart now.
+
 
     //Load common parts of the package.
     Ooxml::AbstractDocumentPrivate::doLoadPackage(package);

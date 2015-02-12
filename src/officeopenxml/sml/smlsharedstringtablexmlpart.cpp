@@ -18,7 +18,7 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#include "smlsharedstringtablexmlpart_p.h"
+#include <private/smlsharedstringtablexmlpart_p.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {

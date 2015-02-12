@@ -18,29 +18,34 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#include <private/smlworksheetxmlpart_p.h>
+#ifndef QTOFFICEOPENXML_SML_SMLWORKSHEET_P_H
+#define QTOFFICEOPENXML_SML_SMLWORKSHEET_P_H
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt Office Open Xml API.  It exists for
+// the convenience of the Qt Office Open Xml.  This header file may
+// change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include <private/smlabstractsheet_p.h>
+#include <QtOfficeOpenXml/smlworksheet.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {
 
-WorksheetXmlPart::WorksheetXmlPart()
+class WorksheetPrivate : public AbstractSheetPrivate
 {
-}
-
-QString WorksheetXmlPart::contentType() const
-{
-    return QStringLiteral("application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
-}
-
-bool WorksheetXmlPart::doLoadFromXml(QIODevice *part)
-{
-    return false;
-}
-
-bool WorksheetXmlPart::doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const
-{
-    return false;
-}
+    Q_DECLARE_PUBLIC(Worksheet)
+public:
+    WorksheetPrivate(const QString &name, int id, SheetState state, Worksheet *q);
+};
 
 } // namespace Sml
 } // namespace QtOfficeOpenXml
+
+#endif // QTOFFICEOPENXML_SML_SMLWORKSHEET_P_H
