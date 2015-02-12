@@ -140,6 +140,7 @@ bool AbstractDocumentPrivate::doSavePackage(Opc::Package *package, SchameType sc
     if (packagePart) {
         ExtendedPropertiesXmlPart xmlPart(const_cast<ExtendedProperties*>(&extendedProperties));
         xmlPart.saveToPackagePart(packagePart, schameType);
+        package->createRelationship(packagePart->partName(), Opc::Internal, Schames::relationshipUri(RS_OfficeDocument_Extended, schameType));
     }
 
     return true;
