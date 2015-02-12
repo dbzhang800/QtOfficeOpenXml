@@ -43,7 +43,7 @@ class Workbook;
 class WorkbookXmlPart : public Ooxml::AbstractFixedTypeXmlPart
 {
 public:
-    WorkbookXmlPart(Workbook *wb);
+    WorkbookXmlPart(Workbook *wb, const QString &partName, Opc::Package *package);
     QString contentType() const Q_DECL_OVERRIDE;
 
     struct Sheet

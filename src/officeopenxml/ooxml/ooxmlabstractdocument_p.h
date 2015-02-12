@@ -35,6 +35,7 @@
 #include <private/ooxmlextendedpropertiesxmlpart_p.h>
 #include <QtOfficeOpenXml/ooxmlabstractdocument.h>
 #include <QtOfficeOpenXml/ooxmlschames.h>
+#include <QtOfficeOpenXml/opcpackagerelationship.h>
 
 #include <QtCore/qhash.h>
 
@@ -61,7 +62,7 @@ public:
     virtual bool doSavePackage(Opc::Package *package, SchameType schameType) const;
 
     DocumentType detectedDocumentType(Opc::PackagePart *mainPart);
-    Opc::PackagePart *getPackageRootPart(Opc::Package *package, RelationshipId relationshipId);
+    Opc::PackageRelationship *getRootRelationship(Opc::Package *package, RelationshipId relationshipId);
     SchameType getFixedSaveAsSchame(SchameType schame) const;
 
     SchameType ooxmlSchame;

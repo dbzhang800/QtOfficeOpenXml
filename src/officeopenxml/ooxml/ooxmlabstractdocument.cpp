@@ -87,10 +87,10 @@ bool AbstractDocumentPrivate::doLoadPackage(Opc::Package *package)
 
     //-- Second step. --
     //Load app properties part if exists.
-    Opc::PackagePart *packagePart = getPackageRootPart(package, RS_OfficeDocument_Extended);
-    if (packagePart) {
-        ExtendedPropertiesXmlPart xmlPart(&extendedProperties);
-        xmlPart.loadFromPackagePart(packagePart);
+    Opc::PackageRelationship *appRelationship = getRootRelationship(package, RS_OfficeDocument_Extended);
+    if (appRelationship) {
+        ExtendedPropertiesXmlPart xmlPart(&extendedProperties, appRelationship->target(), package);
+        xmlPart.loadFromPackage();
     }
 
     return true;
@@ -135,20 +135,16 @@ bool AbstractDocumentPrivate::doSavePackage(Opc::Package *package, SchameType sc
 
     //-- Second step. --
     //Create app properties part.
-    Opc::PackagePart *packagePart = package->createPart(QStringLiteral("/docProps/app.xml"),
-                                                        QStringLiteral("application/vnd.openxmlformats-officedocument.extended-properties+xml"));
-    if (packagePart) {
-        ExtendedPropertiesXmlPart xmlPart(const_cast<ExtendedProperties*>(&extendedProperties));
-        xmlPart.saveToPackagePart(packagePart, schameType);
-        package->createRelationship(packagePart->partName(), Opc::Internal, Schames::relationshipUri(RS_OfficeDocument_Extended, schameType));
-    }
+    ExtendedPropertiesXmlPart appPart(const_cast<ExtendedProperties*>(&extendedProperties), QStringLiteral("/docProps/app.xml"), package);
+    if (appPart.saveToPackage(schameType))
+        package->createRelationship(appPart.partName(), Opc::Internal, Schames::relationshipUri(RS_OfficeDocument_Extended, schameType));
 
     return true;
 }
 
 /* Get package root part based on root relationship. If more that one parts exist, the return value is undefined.
  */
-Opc::PackagePart *AbstractDocumentPrivate::getPackageRootPart(Opc::Package *package, RelationshipId relationshipId)
+Opc::PackageRelationship *AbstractDocumentPrivate::getRootRelationship(Opc::Package *package, RelationshipId relationshipId)
 {
     Opc::PackageRelationship *relationship = 0;
     if (ooxmlSchame == UnknownSchame) {
@@ -162,10 +158,7 @@ Opc::PackagePart *AbstractDocumentPrivate::getPackageRootPart(Opc::Package *pack
         relationship = package->getRelationshipByType(Schames::relationshipUri(relationshipId, ooxmlSchame));
     }
 
-    if (!relationship)
-        return 0;
-
-    return package->part(relationship->target());
+    return relationship;
 }
 
 SchameType AbstractDocumentPrivate::getFixedSaveAsSchame(SchameType schame) const

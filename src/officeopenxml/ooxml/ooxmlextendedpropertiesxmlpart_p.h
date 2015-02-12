@@ -50,7 +50,7 @@ public:
 class ExtendedPropertiesXmlPart : public AbstractFixedTypeXmlPart
 {
 public:
-    ExtendedPropertiesXmlPart(ExtendedProperties *data);
+    ExtendedPropertiesXmlPart(ExtendedProperties *data, const QString &partName, Opc::Package *package);
 
     QString contentType() const Q_DECL_OVERRIDE;
 

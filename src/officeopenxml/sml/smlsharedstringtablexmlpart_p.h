@@ -40,7 +40,7 @@ namespace Sml {
 class SharedStringTableXmlPart : public Ooxml::AbstractFixedTypeXmlPart
 {
 public:
-    SharedStringTableXmlPart();
+    SharedStringTableXmlPart(const QString &partName, Opc::Package *package);
     QString contentType() const Q_DECL_OVERRIDE;
 
 private:

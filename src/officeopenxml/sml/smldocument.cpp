@@ -42,7 +42,10 @@ DocumentPrivate::DocumentPrivate(Document *q) :
 bool DocumentPrivate::doLoadPackage(Opc::Package *package)
 {
     Q_ASSERT(package);
-    Opc::PackagePart *mainPart = getPackageRootPart(package, Ooxml::RS_OfficeDocument_OfficeDocument);
+    Opc::PackageRelationship *mainRelationship = getRootRelationship(package, Ooxml::RS_OfficeDocument_OfficeDocument);
+    if (!mainRelationship)
+        return false;
+    Opc::PackagePart *mainPart = package->part(mainRelationship->target());
     if (!mainPart)
         return false;
     if (detectedDocumentType(mainPart) != SpreadsheetDocumentType)

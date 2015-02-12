@@ -23,7 +23,8 @@
 namespace QtOfficeOpenXml {
 namespace Sml {
 
-WorksheetXmlPart::WorksheetXmlPart()
+WorksheetXmlPart::WorksheetXmlPart(const QString &partName, QtOfficeOpenXml::Opc::Package *package) :
+    AbstractFixedTypeXmlPart(partName, package)
 {
 }
 

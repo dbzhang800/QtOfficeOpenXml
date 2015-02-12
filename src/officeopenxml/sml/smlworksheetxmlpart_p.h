@@ -40,7 +40,7 @@ namespace Sml {
 class WorksheetXmlPart : public Ooxml::AbstractFixedTypeXmlPart
 {
 public:
-    WorksheetXmlPart();
+    WorksheetXmlPart(const QString &partName, Opc::Package *package);
     QString contentType() const Q_DECL_OVERRIDE;
 
 private:

@@ -23,7 +23,8 @@
 namespace QtOfficeOpenXml {
 namespace Sml {
 
-SharedStringTableXmlPart::SharedStringTableXmlPart()
+SharedStringTableXmlPart::SharedStringTableXmlPart(const QString &partName, QtOfficeOpenXml::Opc::Package *package) :
+    AbstractFixedTypeXmlPart(partName, package)
 {
 }
 

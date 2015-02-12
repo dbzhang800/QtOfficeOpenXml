@@ -38,23 +38,30 @@ class QIODevice;
 
 namespace QtOfficeOpenXml {
 namespace Opc {
+class Package;
 class PackagePart;
 }
 namespace Ooxml {
 class AbstractFixedTypeXmlPart
 {
 public:
-    AbstractFixedTypeXmlPart();
+    AbstractFixedTypeXmlPart(const QString &partName, Opc::Package *package);
     virtual ~AbstractFixedTypeXmlPart();
 
     virtual QString contentType() const = 0;
+    QString partName() const;
+    Opc::PackagePart *packagePart() const;
 
-    bool loadFromPackagePart(Opc::PackagePart *part);
-    bool saveToPackagePart(Opc::PackagePart *part, SchameType schameType) const;
+    bool loadFromPackage();
+    bool saveToPackage(SchameType schameType) const;
 
 protected:
     virtual bool doLoadFromXml(QIODevice *part) = 0;
     virtual bool doSaveToXml(QIODevice *part, SchameType schameType) const = 0;
+
+    QString partUri;
+    Opc::Package *package;
+    Opc::PackagePart *part;
 };
 
 } // namespace Ooxml

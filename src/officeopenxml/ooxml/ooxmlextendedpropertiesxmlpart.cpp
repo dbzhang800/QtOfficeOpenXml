@@ -33,8 +33,8 @@ namespace Ooxml {
  * This class Operator on the AbstractDocument data directly.
  */
 
-ExtendedPropertiesXmlPart::ExtendedPropertiesXmlPart(ExtendedProperties *data) :
-    m_data(data)
+ExtendedPropertiesXmlPart::ExtendedPropertiesXmlPart(ExtendedProperties *data, const QString &partName, QtOfficeOpenXml::Opc::Package *package) :
+    AbstractFixedTypeXmlPart(partName, package), m_data(data)
 {
 }
 

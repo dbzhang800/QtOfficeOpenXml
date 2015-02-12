@@ -20,6 +20,7 @@
 ****************************************************************************/
 #include "ooxmlabstractfixedtypexmlpart_p.h"
 #include "opcpackagepart.h"
+#include "opcpackage.h"
 
 namespace QtOfficeOpenXml {
 namespace Ooxml {
@@ -31,7 +32,8 @@ namespace Ooxml {
  * Interface class for all Known type xml parts in the opc package.
  */
 
-AbstractFixedTypeXmlPart::AbstractFixedTypeXmlPart()
+AbstractFixedTypeXmlPart::AbstractFixedTypeXmlPart(const QString &partName, Opc::Package *package) :
+    partUri(partName), package(package), part(0)
 {
 }
 
@@ -39,16 +41,36 @@ AbstractFixedTypeXmlPart::~AbstractFixedTypeXmlPart()
 {
 }
 
-bool AbstractFixedTypeXmlPart::loadFromPackagePart(Opc::PackagePart *part)
+QString AbstractFixedTypeXmlPart::partName() const
 {
+    return partUri;
+}
+
+Opc::PackagePart *AbstractFixedTypeXmlPart::packagePart() const
+{
+    if (!part) {
+        if (package->mode() == QIODevice::WriteOnly)
+            const_cast<AbstractFixedTypeXmlPart *>(this)->part = package->createPart(partUri, contentType());
+        else
+            const_cast<AbstractFixedTypeXmlPart *>(this)->part = package->part(partUri);
+    }
+    return part;
+}
+
+bool AbstractFixedTypeXmlPart::loadFromPackage()
+{
+    if (!packagePart())
+        return false;
     QIODevice *device = part->getDevice();
     bool ret = doLoadFromXml(device);
     part->releaseDevice();
     return ret;
 }
 
-bool AbstractFixedTypeXmlPart::saveToPackagePart(Opc::PackagePart *part, SchameType schameType) const
+bool AbstractFixedTypeXmlPart::saveToPackage(SchameType schameType) const
 {
+    if (!packagePart())
+        return false;
     QIODevice *device = part->getDevice();
     bool ret = doSaveToXml(device, schameType);
     part->releaseDevice();

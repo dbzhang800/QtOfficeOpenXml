@@ -23,7 +23,8 @@
 namespace QtOfficeOpenXml {
 namespace Sml {
 
-StylesXmlPart::StylesXmlPart()
+StylesXmlPart::StylesXmlPart(const QString &partName, QtOfficeOpenXml::Opc::Package *package) :
+    AbstractFixedTypeXmlPart(partName, package)
 {
 }
 

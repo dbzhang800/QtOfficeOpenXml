@@ -40,7 +40,7 @@ namespace Sml {
 class StylesXmlPart : public Ooxml::AbstractFixedTypeXmlPart
 {
 public:
-    StylesXmlPart();
+    StylesXmlPart(const QString &partName, Opc::Package *package);
     QString contentType() const Q_DECL_OVERRIDE;
 
 private:
