@@ -19,8 +19,8 @@
 **
 ****************************************************************************/
 #include <private/ooxmlextendedpropertiesxmlpart_p.h>
-#include <private/ooxmlabstractdocument_p.h>
 #include <QtOfficeOpenXml/ooxmlschames.h>
+#include <QtOfficeOpenXml/ooxmlabstractdocument.h>
 #include <QtOfficeOpenXml/mcexmlstreamreader.h>
 
 #include <QtCore/qvariant.h>
@@ -33,8 +33,8 @@ namespace Ooxml {
  * This class Operator on the AbstractDocument data directly.
  */
 
-ExtendedPropertiesXmlPart::ExtendedPropertiesXmlPart(AbstractDocumentPrivate *documentData) :
-    m_documentData(documentData)
+ExtendedPropertiesXmlPart::ExtendedPropertiesXmlPart(ExtendedProperties *data) :
+    m_data(data)
 {
 }
 
@@ -57,13 +57,13 @@ bool ExtendedPropertiesXmlPart::doLoadFromXml(QIODevice *part)
                  continue;
 
              if (reader.name() == QLatin1String("Manager")) {
-                 m_documentData->documentPropertyHash[AbstractDocument::DP_Manager] = reader.readElementText();
+                 m_data->propertyHash[AbstractDocument::DP_Manager] = reader.readElementText();
              } else if (reader.name() == QLatin1String("Company")) {
-                 m_documentData->documentPropertyHash[AbstractDocument::DP_Company] = reader.readElementText();
+                 m_data->propertyHash[AbstractDocument::DP_Company] = reader.readElementText();
              } else if (reader.name() == QLatin1String("Application")) {
-                 m_documentData->documentPropertyHash[AbstractDocument::DP_Application] = reader.readElementText();
+                 m_data->propertyHash[AbstractDocument::DP_Application] = reader.readElementText();
              } else if (reader.name() == QLatin1String("AppVersion")) {
-                 m_documentData->documentPropertyHash[AbstractDocument::DP_AppVersion] = reader.readElementText();
+                 m_data->propertyHash[AbstractDocument::DP_AppVersion] = reader.readElementText();
              }
          }
 
@@ -88,7 +88,7 @@ bool ExtendedPropertiesXmlPart::doSaveToXml(QIODevice *part, SchameType schameTy
     writer.writeTextElement(QStringLiteral("ScaleCrop"), QStringLiteral("false"));
 
 #if 0
-    //Todo: We should make AbstractDocumentPrivate provides these information.
+    //Todo: We should make ExtendedProperties provides these information.
     writer.writeStartElement(QStringLiteral("HeadingPairs"));
     writer.writeStartElement(vt, QStringLiteral("vector"));
     writer.writeAttribute(QStringLiteral("size"), QString::number(m_headingPairsList.size()*2));
@@ -115,8 +115,8 @@ bool ExtendedPropertiesXmlPart::doSaveToXml(QIODevice *part, SchameType schameTy
     writer.writeEndElement();//TitlesOfParts
 #endif
 
-    if (m_documentData->documentPropertyHash.contains(AbstractDocument::DP_Manager))
-        writer.writeTextElement(QStringLiteral("Manager"), m_documentData->documentPropertyHash[AbstractDocument::DP_Manager].toString());
+    if (m_data->propertyHash.contains(AbstractDocument::DP_Manager))
+        writer.writeTextElement(QStringLiteral("Manager"), m_data->propertyHash[AbstractDocument::DP_Manager].toString());
     //Not like "manager", "company" always exists for Excel generated file.
     writer.writeTextElement(QStringLiteral("Company"), getCompany());
     writer.writeTextElement(QStringLiteral("LinksUpToDate"), QStringLiteral("false"));
@@ -131,8 +131,8 @@ bool ExtendedPropertiesXmlPart::doSaveToXml(QIODevice *part, SchameType schameTy
 
 QString ExtendedPropertiesXmlPart::getApplicationName() const
 {
-    if (m_documentData->documentPropertyHash.contains(AbstractDocument::DP_Application))
-        return m_documentData->documentPropertyHash[AbstractDocument::DP_Application].toString();
+    if (m_data->propertyHash.contains(AbstractDocument::DP_Application))
+        return m_data->propertyHash[AbstractDocument::DP_Application].toString();
     return QStringLiteral("QtOfficeOpenXml Library");
 }
 
@@ -141,8 +141,8 @@ QString ExtendedPropertiesXmlPart::getApplicationName() const
  */
 QString ExtendedPropertiesXmlPart::getApplicationVersion() const
 {
-    if (m_documentData->documentPropertyHash.contains(AbstractDocument::DP_AppVersion)) {
-        QVariant v = m_documentData->documentPropertyHash[AbstractDocument::DP_AppVersion];
+    if (m_data->propertyHash.contains(AbstractDocument::DP_AppVersion)) {
+        QVariant v = m_data->propertyHash[AbstractDocument::DP_AppVersion];
         if (v.userType() == QMetaType::QString) {
             QString s = v.toString();
             //For valid version in string format, return directly.
@@ -163,8 +163,8 @@ QString ExtendedPropertiesXmlPart::getApplicationVersion() const
 
 QString ExtendedPropertiesXmlPart::getCompany() const
 {
-    if (m_documentData->documentPropertyHash.contains(AbstractDocument::DP_Company))
-        return m_documentData->documentPropertyHash[AbstractDocument::DP_Company].toString();
+    if (m_data->propertyHash.contains(AbstractDocument::DP_Company))
+        return m_data->propertyHash[AbstractDocument::DP_Company].toString();
 
     return QString();
 }

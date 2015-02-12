@@ -32,6 +32,7 @@
 // We mean it.
 //
 
+#include <private/ooxmlextendedpropertiesxmlpart_p.h>
 #include <QtOfficeOpenXml/ooxmlabstractdocument.h>
 #include <QtOfficeOpenXml/ooxmlschames.h>
 
@@ -65,8 +66,8 @@ public:
 
     SchameType ooxmlSchame;
     QString packageName;//Used by save()
-    QHash<int, QVariant> documentPropertyHash;
-
+    QHash<int, QVariant> corePropertyHash;//Should we need a CoreProperties class?
+    ExtendedProperties extendedProperties;
     AbstractDocument *q_ptr;
 };
 

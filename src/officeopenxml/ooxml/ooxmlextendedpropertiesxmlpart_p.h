@@ -33,14 +33,24 @@
 //
 
 #include <private/ooxmlabstractfixedtypexmlpart_p.h>
+#include <QtCore/qhash.h>
+
+class QVariant;
 
 namespace QtOfficeOpenXml {
 namespace Ooxml {
-class AbstractDocumentPrivate;
+class ExtendedProperties
+{
+public:
+    ExtendedProperties(){}
+
+    QHash<int, QVariant> propertyHash;
+};
+
 class ExtendedPropertiesXmlPart : public AbstractFixedTypeXmlPart
 {
 public:
-    ExtendedPropertiesXmlPart(AbstractDocumentPrivate *documentData);
+    ExtendedPropertiesXmlPart(ExtendedProperties *data);
 
     QString contentType() const Q_DECL_OVERRIDE;
 
@@ -51,7 +61,7 @@ private:
     QString getApplicationName() const;
     QString getApplicationVersion() const;
     QString getCompany() const;
-    AbstractDocumentPrivate *m_documentData;
+    ExtendedProperties *m_data;
 };
 
 } // namespace Ooxml

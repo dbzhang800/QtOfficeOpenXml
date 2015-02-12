@@ -54,7 +54,7 @@ bool AbstractDocumentPrivate::doLoadPackage(Opc::Package *package)
 {
     //-- First step. --
     //Extract core properties from Opc::Package, or we can load the xml part directly here.
-    Opc::PackageProperties *coreProperties = package->packageProperties();
+    Opc::PackageProperties *cp = package->packageProperties();
 
     QMap<int, QString (Opc::PackageProperties::*)() const> dpFunctionMap;
     dpFunctionMap[AbstractDocument::DP_Creator] = &Opc::PackageProperties::creator;
@@ -73,23 +73,23 @@ bool AbstractDocumentPrivate::doLoadPackage(Opc::Package *package)
     QMapIterator<int, QString (Opc::PackageProperties::*)() const> it(dpFunctionMap);
     while(it.hasNext()) {
         it.next();
-        QString val = (coreProperties->*(it.value()))();
+        QString val = (cp->*(it.value()))();
         if (!val.isNull())
-            documentPropertyHash.insert(it.key(), val);
+            corePropertyHash.insert(it.key(), val);
     }
     //Three other members which returns QDateTime instead of QString.
-    if (!coreProperties->created().isNull())
-        documentPropertyHash.insert(AbstractDocument::DP_Created, coreProperties->created());
-    if (!coreProperties->modified().isNull())
-        documentPropertyHash.insert(AbstractDocument::DP_Modified, coreProperties->modified());
-    if (!coreProperties->lastPrinted().isNull())
-        documentPropertyHash.insert(AbstractDocument::DP_LastPrinted, coreProperties->lastPrinted());
+    if (!cp->created().isNull())
+        corePropertyHash.insert(AbstractDocument::DP_Created, cp->created());
+    if (!cp->modified().isNull())
+        corePropertyHash.insert(AbstractDocument::DP_Modified, cp->modified());
+    if (!cp->lastPrinted().isNull())
+        corePropertyHash.insert(AbstractDocument::DP_LastPrinted, cp->lastPrinted());
 
     //-- Second step. --
     //Load app properties part if exists.
     Opc::PackagePart *packagePart = getPackageRootPart(package, RS_OfficeDocument_Extended);
     if (packagePart) {
-        ExtendedPropertiesXmlPart xmlPart(this);
+        ExtendedPropertiesXmlPart xmlPart(&extendedProperties);
         xmlPart.loadFromPackagePart(packagePart);
     }
 
@@ -103,7 +103,7 @@ bool AbstractDocumentPrivate::doSavePackage(Opc::Package *package, SchameType sc
 {
     //-- First step. --
     //Write core properties to Opc::Package, or we can createPart directly here.
-    Opc::PackageProperties *coreProperties = package->packageProperties();
+    Opc::PackageProperties *cp = package->packageProperties();
     QMap<int, void (Opc::PackageProperties::*)(const QString &)> dpFunctionMap;
     dpFunctionMap[AbstractDocument::DP_Creator] = &Opc::PackageProperties::setCreator;
     dpFunctionMap[AbstractDocument::DP_Identifier] = &Opc::PackageProperties::setIdentifier;
@@ -122,23 +122,23 @@ bool AbstractDocumentPrivate::doSavePackage(Opc::Package *package, SchameType sc
     QMapIterator<int, void (Opc::PackageProperties::*)(const QString &)> it(dpFunctionMap);
     while(it.hasNext()) {
         it.next();
-        if (documentPropertyHash.contains(it.key()))
-            (coreProperties->*(it.value()))(documentPropertyHash[it.key()].toString());
+        if (corePropertyHash.contains(it.key()))
+            (cp->*(it.value()))(corePropertyHash[it.key()].toString());
     }
     //Three other members which returns QDateTime instead of QString.
-    if (documentPropertyHash.contains(AbstractDocument::DP_Created))
-        coreProperties->setCreated(documentPropertyHash[AbstractDocument::DP_Created].toDateTime());
-    if (documentPropertyHash.contains(AbstractDocument::DP_Modified))
-        coreProperties->setModified(documentPropertyHash[AbstractDocument::DP_Modified].toDateTime());
-    if (documentPropertyHash.contains(AbstractDocument::DP_LastPrinted))
-        coreProperties->setLastPrinted(documentPropertyHash[AbstractDocument::DP_LastPrinted].toDateTime());
+    if (corePropertyHash.contains(AbstractDocument::DP_Created))
+        cp->setCreated(corePropertyHash[AbstractDocument::DP_Created].toDateTime());
+    if (corePropertyHash.contains(AbstractDocument::DP_Modified))
+        cp->setModified(corePropertyHash[AbstractDocument::DP_Modified].toDateTime());
+    if (corePropertyHash.contains(AbstractDocument::DP_LastPrinted))
+        cp->setLastPrinted(corePropertyHash[AbstractDocument::DP_LastPrinted].toDateTime());
 
     //-- Second step. --
     //Create app properties part.
     Opc::PackagePart *packagePart = package->createPart(QStringLiteral("/docProps/app.xml"),
                                                         QStringLiteral("application/vnd.openxmlformats-officedocument.extended-properties+xml"));
     if (packagePart) {
-        ExtendedPropertiesXmlPart xmlPart(const_cast<AbstractDocumentPrivate*>(this));
+        ExtendedPropertiesXmlPart xmlPart(const_cast<ExtendedProperties*>(&extendedProperties));
         xmlPart.saveToPackagePart(packagePart, schameType);
     }
 
@@ -247,8 +247,10 @@ AbstractDocument::~AbstractDocument()
 QVariant AbstractDocument::documentProperty(AbstractDocument::DocumentProperty name) const
 {
     Q_D(const AbstractDocument);
-    if (d->documentPropertyHash.contains(name))
-        return d->documentPropertyHash[name];
+    if (d->corePropertyHash.contains(name))
+        return d->corePropertyHash[name];
+    if (d->extendedProperties.propertyHash.contains(name))
+        return d->extendedProperties.propertyHash[name];
     return QVariant();
 }
 
@@ -258,11 +260,13 @@ QVariant AbstractDocument::documentProperty(AbstractDocument::DocumentProperty n
 void AbstractDocument::setDocumentProperty(AbstractDocument::DocumentProperty name, const QVariant &property)
 {
     Q_D(AbstractDocument);
-    if (property.isNull() && d->documentPropertyHash.contains(name)) {
-        d->documentPropertyHash.remove(name);
+    QHash<int, QVariant> &propertyHash = (name >= DP_Manager) ? d->extendedProperties.propertyHash : d->corePropertyHash;
+
+    if (property.isNull() && propertyHash.contains(name)) {
+        propertyHash.remove(name);
         return;
     }
-    d->documentPropertyHash[name] = property;
+    propertyHash[name] = property;
 }
 
 /*!
