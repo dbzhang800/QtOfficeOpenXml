@@ -69,9 +69,11 @@ public:
     bool saveAs(QIODevice *device, SchameType schameType=UnknownSchame) const;
 
 protected:
-    Q_DECLARE_PRIVATE(AbstractDocument)
     AbstractDocument(AbstractDocumentPrivate *d, QObject *parent);
     AbstractDocumentPrivate *d_ptr;
+
+private:
+    Q_DECLARE_PRIVATE(AbstractDocument)
 };
 
 } // namespace Ooxml

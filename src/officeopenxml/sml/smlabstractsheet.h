@@ -29,6 +29,7 @@ namespace Sml {
 class AbstractSheetPrivate;
 class Q_OFFICEOPENXML_EXPORT AbstractSheet
 {
+    Q_DECLARE_PRIVATE(AbstractSheet)
 public:
     virtual ~AbstractSheet();
 
@@ -44,7 +45,6 @@ public:
     int sheetId() const;
 
 protected:
-    Q_DECLARE_PRIVATE(AbstractSheet)
     AbstractSheet(AbstractSheetPrivate *d);
     AbstractSheetPrivate *d_ptr;
 };
