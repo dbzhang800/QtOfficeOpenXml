@@ -4,14 +4,15 @@ Qt Office Open Xml is a library that can be used to read and write opc packages,
 such as .xlsx/.docx/.pptx files. It doesn't require
 Microsoft Office and can be used in any platform that Qt5 supported.
 
-* [Done]Classes in the namespace ```QtOfficeOpenXml::Opc``` is designed to read or write general OPC package.
-* [Wip]Classes in the namespace ```QtOfficeOpenXml::Sml``` is designed to read or write Spreadsheet docuements.
-* [Todo]Classes in the namespace ```QtOfficeOpenXml::Wml``` is designed to read or write Wordprocessing docuements.
-* [Todo]Classes in the namespace ```QtOfficeOpenXml::Pml``` is designed to read or write Presention docuements.
-* [Wip]Classes in the namespace ```QtOfficeOpenXml::Dml``` provide Drawing support for Sml, Wml and Pml.
-* [Wip]Classes in the namespace ```QtOfficeOpenXml::Ooxml``` are used by Dml, Sml, Wml and Pml.
-* [Done]Classes in the namespace ```QtOfficeOpenXml::Mce``` provide Markup Compatibility and
-Extensibility supports for all the library.
+|Status | Namespace                  |   ....                                                                        |
+|-------|----------------------------|------------------------------------------------------------------------------ |
+| [Done]|```QtOfficeOpenXml::Opc```  |is designed for general OPC package reading and writing.  |
+| [Wip ]|```QtOfficeOpenXml::Sml```  |is designed for Spreadsheet documents reading and writing.|
+| [Todo]|```QtOfficeOpenXml::Wml```  |is designed for Wordprocessing documents reading and writing.|
+| [Todo]|```QtOfficeOpenXml::Pml```  |is designed for Presention documents reading and writing.|
+| [Wip ]|```QtOfficeOpenXml::Dml```  |provides Drawing support for Sml, Wml and Pml.|
+| [Wip ]|```QtOfficeOpenXml::Ooxml```|is used by Dml, Sml, Wml and Pml.|
+| [Done]|```QtOfficeOpenXml::Mce```  |provides Markup Compatibility and Extensibility supports for all the library.|
 
 ## Getting Started
 
@@ -23,26 +24,15 @@ Extensibility supports for all the library.
 
 * Put the source code in any directory you like
 
-* Open the qtofficeopenxml.pro file using Qt Creator
-
- * Build the project.
-
-* Go to the build directory of the project in a terminal and run
+* Run following command at the toplevel directory of the project
 
 ```
-   make install
-```
-
-The library, the header files, and others will be installed to your system.
-
-> **Note**: If you don't want to use Qt Creator, you can run following command
- at the toplevel directory of the project
-
-> ```
     qmake
     make
     make install
 ```
+
+The library, the header files, and others will be installed to your system.
 
 ### Using the module
 
@@ -58,11 +48,11 @@ The library, the header files, and others will be installed to your system.
 
 Maybe useful for users and contributors.
 
-### ```global\```
+#### ```global\```
 
 Globals files requried by all over the library.
 
-### ```mce\```
+#### ```mce\```
 
 Depends on ```global``` only.
 
@@ -79,7 +69,7 @@ key features of MCE?
 * Namespace subsumption [Won't support, seems they will be dropped by next ISO/IEC 29500?]
 * ...
 
-### ```opc\```
+#### ```opc\```
 
 Depends on ```global``` and ```mce```.
 
@@ -87,7 +77,7 @@ OPC (Open Packaging Conventions)
 
 More information for opc can be found in ISO/IEC 29500:2.
 
-### ```ooxml\```
+#### ```ooxml\```
 
 Depends on ```global```, ```mce``` and ```opc```.
 
@@ -95,25 +85,25 @@ Shared files for Office Open XML Parts: ```dml```, ```wml```,```sml``` and ```pm
 
 More information can be found in ISO/IEC 29500:1 and ISO/IEC 29500:4.
 
-### ```dml\```
+#### ```dml\```
 
 Depends on ```global```, ```mce```, ```opc``` and ```ooxml```.
 
 DML (DrawingML)
 
-### ```sml\```
+#### ```sml\```
 
 Depends on ```global```, ```mce```, ```opc```, ```ooxml``` and ```dml```.
 
 SML (SpreadsheetML)
 
-### ```wml\```
+#### ```wml\```
 
 Depends on ```global```, ```mce```, ```opc```, ```ooxml``` and ```dml```.
 
 WML (WordprocessingML)
 
-### ```pml\```
+#### ```pml\```
 
 Depends on ```global```, ```mce```, ```opc```, ```ooxml``` and ```dml```.
 
