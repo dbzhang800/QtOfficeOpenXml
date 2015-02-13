@@ -4,28 +4,14 @@ Qt Office Open Xml is a library that can be used to read and write opc packages,
 such as .xlsx/.docx/.pptx files. It doesn't require
 Microsoft Office and can be used in any platform that Qt5 supported.
 
-### OPC (Open Packaging Conventions)
-
-More information for opc can be found in ISO/IEC 29500:2.
-
-### MCE (Markup Compatibility and Extensibility)
-
-More information for mce can be found in ISO/IEC 29500:3.
-
-key features of MCE?
-
-* Alternative Content Blocks [Done]
-* Ignorable and "must understand" namespaces [Done]
-* ProcessContents [Done]
-* Application-defined extension elements [Todo, wait for next version of ISO/IEC 29500?]
-* Namespace subsumption [Won't support, seems they will be dropped by next ISO/IEC 29500?]
-* ...
-
-### SML (SpreadsheetML)
-
-### WML (WordprocessingML)
-
-### PML (PresentionML)
+* [Done]Classes in the namespace ```QtOfficeOpenXml::Opc``` is designed to read or write general OPC package.
+* [Wip]Classes in the namespace ```QtOfficeOpenXml::Sml``` is designed to read or write Spreadsheet docuements.
+* [Todo]Classes in the namespace ```QtOfficeOpenXml::Wml``` is designed to read or write Wordprocessing docuements.
+* [Todo]Classes in the namespace ```QtOfficeOpenXml::Pml``` is designed to read or write Presention docuements.
+* [Wip]Classes in the namespace ```QtOfficeOpenXml::Dml``` provide Drawing support for Sml, Wml and Pml.
+* [Wip]Classes in the namespace ```QtOfficeOpenXml::Ooxml``` are used by Dml, Sml, Wml and Pml.
+* [Done]Classes in the namespace ```QtOfficeOpenXml::Mce``` provide Markup Compatibility and
+Extensibility supports for all the library.
 
 ## Getting Started
 
@@ -68,16 +54,70 @@ The library, the header files, and others will be installed to your system.
 
 * Then, using Qt Office Open XML in your code
 
-## Source code
+## Source code directories
 
-* global
-* opc
-* mce
-* ooxml
-* sml
-* wml
-* pml
-* dml
+Maybe useful for users and contributors.
+
+### ```global\```
+
+Globals files requried by all over the library.
+
+### ```mce\```
+
+Depends on ```global``` only.
+
+MCE (Markup Compatibility and Extensibility)
+
+More information for mce can be found in ISO/IEC 29500:3.
+
+key features of MCE?
+
+* Alternative Content Blocks [Done]
+* Ignorable and "must understand" namespaces [Done]
+* ProcessContents [Done]
+* Application-defined extension elements [Todo, wait for next version of ISO/IEC 29500?]
+* Namespace subsumption [Won't support, seems they will be dropped by next ISO/IEC 29500?]
+* ...
+
+### ```opc\```
+
+Depends on ```global``` and ```mce```.
+
+OPC (Open Packaging Conventions)
+
+More information for opc can be found in ISO/IEC 29500:2.
+
+### ```ooxml\```
+
+Depends on ```global```, ```mce``` and ```opc```.
+
+Shared files for Office Open XML Parts: ```dml```, ```wml```,```sml``` and ```pml```.
+
+More information can be found in ISO/IEC 29500:1 and ISO/IEC 29500:4.
+
+### ```dml\```
+
+Depends on ```global```, ```mce```, ```opc``` and ```ooxml```.
+
+DML (DrawingML)
+
+### ```sml\```
+
+Depends on ```global```, ```mce```, ```opc```, ```ooxml``` and ```dml```.
+
+SML (SpreadsheetML)
+
+### ```wml\```
+
+Depends on ```global```, ```mce```, ```opc```, ```ooxml``` and ```dml```.
+
+WML (WordprocessingML)
+
+### ```pml\```
+
+Depends on ```global```, ```mce```, ```opc```, ```ooxml``` and ```dml```.
+
+PML (PresentionML)
 
 ## References
 

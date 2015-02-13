@@ -55,8 +55,8 @@ public:
     QString contentType() const Q_DECL_OVERRIDE;
 
 private:
-    bool doLoadFromXml(QIODevice *part) Q_DECL_OVERRIDE;
-    bool doSaveToXml(QIODevice *part, SchameType schameType) const Q_DECL_OVERRIDE;
+    bool doLoadFromXml(QIODevice *part, SchameType schameType) Q_DECL_OVERRIDE;
+    bool doSaveToXml(QIODevice *device, SchameType schameType) const Q_DECL_OVERRIDE;
 
     QString getApplicationName() const;
     QString getApplicationVersion() const;

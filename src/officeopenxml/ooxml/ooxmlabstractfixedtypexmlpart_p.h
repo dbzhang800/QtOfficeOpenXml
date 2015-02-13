@@ -52,16 +52,17 @@ public:
     QString partName() const;
     Opc::PackagePart *packagePart() const;
 
-    bool loadFromPackage();
-    bool saveToPackage(SchameType schameType) const;
+    bool loadFromPackage(SchameType schameType);
+    bool saveToPackage(SchameType schameType);
 
 protected:
-    virtual bool doLoadFromXml(QIODevice *part) = 0;
-    virtual bool doSaveToXml(QIODevice *part, SchameType schameType) const = 0;
+    virtual bool doLoadFromXml(QIODevice *device, SchameType schameType) = 0;
+    virtual bool doSaveToXml(QIODevice *device, SchameType schameType) const = 0;
 
     QString partUri;
     Opc::Package *package;
     Opc::PackagePart *part;
+    bool hasCalled;
 };
 
 } // namespace Ooxml

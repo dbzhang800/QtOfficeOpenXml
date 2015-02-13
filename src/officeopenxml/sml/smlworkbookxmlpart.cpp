@@ -37,9 +37,9 @@ QString WorkbookXmlPart::contentType() const
     return QStringLiteral("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml");
 }
 
-bool WorkbookXmlPart::doLoadFromXml(QIODevice *part)
+bool WorkbookXmlPart::doLoadFromXml(QIODevice *device, Ooxml::SchameType /*schameType*/)
 {
-    Mce::XmlStreamReader reader(part);
+    Mce::XmlStreamReader reader(device);
     //Should we add all the understood names used by this part here?
     reader.setMceParseFlag(Mce::PF_AllowNonUnderstoodNonIngorableNamespaces);
     reader.setMceParseFlag(Mce::PF_SkipExtensionElements);
@@ -77,9 +77,9 @@ bool WorkbookXmlPart::doLoadFromXml(QIODevice *part)
     return true;
 }
 
-bool WorkbookXmlPart::doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const
+bool WorkbookXmlPart::doSaveToXml(QIODevice *device, Ooxml::SchameType schameType) const
 {
-    QXmlStreamWriter writer(part);
+    QXmlStreamWriter writer(device);
 
     writer.writeStartDocument(QStringLiteral("1.0"), true);
     writer.writeStartElement(QStringLiteral("workbook"));

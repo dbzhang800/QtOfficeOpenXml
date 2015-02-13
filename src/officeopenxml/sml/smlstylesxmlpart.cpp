@@ -33,12 +33,12 @@ QString StylesXmlPart::contentType() const
     return QStringLiteral("application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml");
 }
 
-bool StylesXmlPart::doLoadFromXml(QIODevice *part)
+bool StylesXmlPart::doLoadFromXml(QIODevice *device, Ooxml::SchameType schameType)
 {
     return false;
 }
 
-bool StylesXmlPart::doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const
+bool StylesXmlPart::doSaveToXml(QIODevice *device, Ooxml::SchameType schameType) const
 {
     return false;
 }

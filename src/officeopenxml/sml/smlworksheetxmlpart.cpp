@@ -33,12 +33,12 @@ QString WorksheetXmlPart::contentType() const
     return QStringLiteral("application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
 }
 
-bool WorksheetXmlPart::doLoadFromXml(QIODevice *part)
+bool WorksheetXmlPart::doLoadFromXml(QIODevice *device, Ooxml::SchameType schameType)
 {
     return false;
 }
 
-bool WorksheetXmlPart::doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const
+bool WorksheetXmlPart::doSaveToXml(QIODevice *device, Ooxml::SchameType schameType) const
 {
     return false;
 }

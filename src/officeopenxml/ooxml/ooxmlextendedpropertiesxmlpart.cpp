@@ -43,9 +43,9 @@ QString ExtendedPropertiesXmlPart::contentType() const
     return QStringLiteral("application/vnd.openxmlformats-officedocument.extended-properties+xml");
 }
 
-bool ExtendedPropertiesXmlPart::doLoadFromXml(QIODevice *part)
+bool ExtendedPropertiesXmlPart::doLoadFromXml(QIODevice *device, SchameType /*schameType*/)
 {
-    Mce::XmlStreamReader reader(part);
+    Mce::XmlStreamReader reader(device);
     //Todo, Add all the understood names used by this part here
     reader.setMceParseFlag(Mce::PF_AllowNonUnderstoodNonIngorableNamespaces);
     reader.setMceParseFlag(Mce::PF_SkipExtensionElements);
@@ -74,9 +74,9 @@ bool ExtendedPropertiesXmlPart::doLoadFromXml(QIODevice *part)
     return true;
 }
 
-bool ExtendedPropertiesXmlPart::doSaveToXml(QIODevice *part, SchameType schameType) const
+bool ExtendedPropertiesXmlPart::doSaveToXml(QIODevice *device, SchameType schameType) const
 {
-    QXmlStreamWriter writer(part);
+    QXmlStreamWriter writer(device);
     QString vt = Schames::namespaceUri(NS_OfficeDocument_DocPropsVTypes, schameType);
 
     writer.writeStartDocument(QStringLiteral("1.0"), true);

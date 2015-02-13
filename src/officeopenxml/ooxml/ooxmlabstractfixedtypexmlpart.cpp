@@ -33,7 +33,7 @@ namespace Ooxml {
  */
 
 AbstractFixedTypeXmlPart::AbstractFixedTypeXmlPart(const QString &partName, Opc::Package *package) :
-    partUri(partName), package(package), part(0)
+    partUri(partName), package(package), part(0), hasCalled(false)
 {
 }
 
@@ -57,23 +57,25 @@ Opc::PackagePart *AbstractFixedTypeXmlPart::packagePart() const
     return part;
 }
 
-bool AbstractFixedTypeXmlPart::loadFromPackage()
+bool AbstractFixedTypeXmlPart::loadFromPackage(SchameType schameType)
 {
-    if (!packagePart())
+    if (hasCalled || !packagePart())
         return false;
     QIODevice *device = part->getDevice();
-    bool ret = doLoadFromXml(device);
+    bool ret = doLoadFromXml(device, schameType);
     part->releaseDevice();
+    hasCalled = true;
     return ret;
 }
 
-bool AbstractFixedTypeXmlPart::saveToPackage(SchameType schameType) const
+bool AbstractFixedTypeXmlPart::saveToPackage(SchameType schameType)
 {
-    if (!packagePart())
+    if (hasCalled || !packagePart())
         return false;
     QIODevice *device = part->getDevice();
     bool ret = doSaveToXml(device, schameType);
     part->releaseDevice();
+    hasCalled = true;
     return ret;
 }
 

@@ -44,8 +44,8 @@ public:
     QString contentType() const Q_DECL_OVERRIDE;
 
 private:
-    bool doLoadFromXml(QIODevice *part) Q_DECL_OVERRIDE;
-    bool doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const Q_DECL_OVERRIDE;
+    bool doLoadFromXml(QIODevice *device, Ooxml::SchameType schameType) Q_DECL_OVERRIDE;
+    bool doSaveToXml(QIODevice *device, Ooxml::SchameType schameType) const Q_DECL_OVERRIDE;
 };
 
 } // namespace Sml

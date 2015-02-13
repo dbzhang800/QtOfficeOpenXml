@@ -33,12 +33,12 @@ QString SharedStringTableXmlPart::contentType() const
     return QStringLiteral("application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml");
 }
 
-bool SharedStringTableXmlPart::doLoadFromXml(QIODevice *part)
+bool SharedStringTableXmlPart::doLoadFromXml(QIODevice *device, Ooxml::SchameType schameType)
 {
     return false;
 }
 
-bool SharedStringTableXmlPart::doSaveToXml(QIODevice *part, Ooxml::SchameType schameType) const
+bool SharedStringTableXmlPart::doSaveToXml(QIODevice *device, Ooxml::SchameType schameType) const
 {
     return false;
 }

@@ -90,7 +90,7 @@ bool AbstractDocumentPrivate::doLoadPackage(Opc::Package *package)
     Opc::PackageRelationship *appRelationship = getRootRelationship(package, RS_OfficeDocument_Extended);
     if (appRelationship) {
         ExtendedPropertiesXmlPart xmlPart(&extendedProperties, appRelationship->target(), package);
-        xmlPart.loadFromPackage();
+        xmlPart.loadFromPackage(ooxmlSchame);
     }
 
     return true;
