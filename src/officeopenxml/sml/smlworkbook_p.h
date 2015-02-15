@@ -44,13 +44,13 @@ class DefinedName
 public:
     DefinedName() {}
     DefinedName(const QHash<QString, QString> &attrs, const QString &formula) :
-        attrs(attrs), formula(formula)
+        attrs_raw(attrs), formula(formula)
     {}
 
     //name, comment, customMenu, description, help, statusBar, localSheetId,
     //hidden, function, vbProcedure, xlm, functionGroupId, shortcutKey,
     //publishToServer, workbookParameter
-    QHash<QString, QString> attrs;
+    QHash<QString, QString> attrs_raw;
     QString formula;
 };
 
@@ -60,25 +60,25 @@ public:
     Workbook();
 
     //appName, lastEdited, lowestEdited, rupBuild, codeName
-    QHash<QString, QString> fileVersion;
+    QHash<QString, QString> fileVersion_raw;
 
     //readOnlyRecommended, userName, reservationPassword
-    QHash<QString, QString> fileSharing;
+    QHash<QString, QString> fileSharing_raw;
 
     //date1904, showObjects, showBorderUnselectedTables, filterPrivacy,
     //promptedSolutions, showInkAnnotation, backupFile, saveExternalLinkValues,
     //updateLinks, codeName, hidePivotFieldList, showPivotChartFilter,
     //allowRefreshQuery, publishItems, checkCompatibility, autoCompressPictures,
     //refreshAllConnections, defaultThemeVersion
-    QHash<QString, QString> workbookPr;
+    QHash<QString, QString> workbookPr_raw;
 
     //workbookPassword, revisionsPassword, lockStructure, lockWindows, lockRevision
-    QHash<QString, QString> workbookProtection;
+    QHash<QString, QString> workbookProtection_raw;
 
     //xWindow, yWindow, windowWidth, windowHeight,
     //visibility, minimized, showHorizontalScroll, showVerticalScroll,
     //showSheetTabs, tabRatio, firstSheet, activeTab, autoFilterDateGrouping,
-    QList<QHash<QString, QString> > bookViews;
+    QList<QHash<QString, QString> > bookViews_raw;
 
     QList<DefinedName> definedNames;
 };

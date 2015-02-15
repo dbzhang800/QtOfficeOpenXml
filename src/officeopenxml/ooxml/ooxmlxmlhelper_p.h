@@ -18,8 +18,8 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#ifndef QTOFFICEOPENXML_SML_SMLWORKBOOKPART_P_H
-#define QTOFFICEOPENXML_SML_SMLWORKBOOKPART_P_H
+#ifndef QTOFFICEOPENXML_OOXML_OOXMLXMLHELPER_P_H
+#define QTOFFICEOPENXML_OOXML_OOXMLXMLHELPER_P_H
 
 //
 //  W A R N I N G
@@ -32,32 +32,23 @@
 // We mean it.
 //
 
-#include <private/ooxmlabstractfixedtypexmlpart_p.h>
-#include <QtOfficeOpenXml/smlglobal.h>
 #include <QtCore/qhash.h>
-#include <QtCore/qlist.h>
+#include <QtCore/qstringlist.h>
+#include <QtCore/qxmlstream.h>
 
 namespace QtOfficeOpenXml {
-namespace Sml {
-class Workbook;
-class WorkbookXmlPart : public Ooxml::AbstractFixedTypeXmlPart
+namespace Ooxml {
+
+class XmlHelper
 {
 public:
-    WorkbookXmlPart(Workbook *wb, const QString &partName, Opc::Package *package);
-    QString contentType() const Q_DECL_OVERRIDE;
+    XmlHelper();
 
-    //Items contains "r:Id" attributes
-    QList<QHash<QString, QString> > sheets;
-    QList<QString> externalReferences;
-
-private:
-    bool doLoadFromXml(QIODevice *device, Ooxml::SchameType schameType) Q_DECL_OVERRIDE;
-    bool doSaveToXml(QIODevice *device, Ooxml::SchameType schameType) const Q_DECL_OVERRIDE;
-
-    Workbook *wb;
+    static QHash<QString, QString> xmlAttributesToHash(const QXmlStreamAttributes &attrs);
+    static QXmlStreamAttributes xmlAttributesFromHash(const QHash<QString, QString> &hash, const QStringList &orderedNames=QStringList());
 };
 
-} // namespace Sml
+} // namespace Ooxml
 } // namespace QtOfficeOpenXml
 
-#endif // QTOFFICEOPENXML_SML_SMLWORKBOOKPART_P_H
+#endif // QTOFFICEOPENXML_OOXML_OOXMLXMLHELPER_P_H
