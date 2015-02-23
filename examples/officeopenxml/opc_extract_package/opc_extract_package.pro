@@ -1,13 +1,7 @@
 QT += widgets officeopenxml
 
-SOURCES += \
-    main.cpp \
-    mainwindow.cpp \
-    binedit.cpp
+TARGET = opc_create_package
+CONFIG   += console
+CONFIG   -= app_bundle
 
-FORMS += \
-    mainwindow.ui
-
-HEADERS += \
-    mainwindow.h \
-    binedit.h
+SOURCES += main.cpp

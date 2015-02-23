@@ -21,41 +21,13 @@
 ** met: http://www.gnu.org/licenses/gpl-2.0.html.
 **
 ****************************************************************************/
-
-#include <QtOfficeOpenXml>
-#include <QtWidgets>
-#include <iostream>
-
-using namespace QtOfficeOpenXml;
+#include <QApplication>
+#include "mainwindow.h"
 
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
-
-    QString fileName = QFileDialog::getOpenFileName( 0, "Open OPC Package", "", "Office files (*.xlsx *.docx *.pptx);;All files(*.*)");
-    if (fileName.isEmpty())
-        return -1;
-
-    Opc::Package *package = Opc::Package::open(fileName, QIODevice::ReadOnly);
-    if (!package) {
-        std::cerr << qPrintable(QString("Fail to open the package %1").arg(fileName)) << std::endl;
-        return -2;
-    }
-
-    //print root relationships
-    foreach (Opc::PackageRelationship *relation, package->relationships()) {
-        std::cout << "\t" << qPrintable(relation->id()) << "\t"
-                  << qPrintable(relation->target()) << std::endl;
-    }
-
-    //print part and part relationships
-    foreach (Opc::PackagePart *part, package->parts()) {
-        std::cout << qPrintable(part->partName()) << std::endl;
-        foreach (Opc::PackageRelationship *relation, part->relationships()) {
-            std::cout << "\t" << qPrintable(relation->id()) << "\t"
-                      << qPrintable(relation->target()) << std::endl;
-        }
-    }
-
-    return 0;
+    MainWindow w;
+    w.show();
+    return app.exec();
 }

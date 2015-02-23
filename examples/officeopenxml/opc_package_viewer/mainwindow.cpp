@@ -24,6 +24,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "binedit.h"
+#include "imagewidget.h"
 
 #include <mcexmlstreamreader.h>
 
@@ -32,7 +33,6 @@
 #include <QDebug>
 #include <QSettings>
 #include <QPlainTextEdit>
-#include <QLabel>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -184,19 +184,22 @@ void MainWindow::onShowContentSmartButtonClicked()
             if (!reader.isWhitespace() && reader.tokenType() != QXmlStreamReader::Invalid)
                 Mce::writeCurrentToken(writer, reader);
         }
-        edit->setPlainText(formattedData);
         part->releaseDevice();
+
+        edit->setPlainText(formattedData);
+        edit->resize(800, 600);
         edit->show();
 
     } else if (ui->partContentSmartButton->property("smart") == "image") {
         //Show image
-        QLabel *edit = new QLabel;
+        ImageWidget *edit = new ImageWidget;
         edit->setAttribute(Qt::WA_DeleteOnClose);
         edit->setWindowTitle(part->partName());
         QImage image = QImage::fromData(part->getDevice()->readAll());
         part->releaseDevice();
 
         edit->setPixmap(QPixmap::fromImage(image));
+        edit->resize(800, 600);
         edit->show();
     }
 }
