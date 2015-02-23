@@ -35,14 +35,37 @@
 #include <private/smlabstractsheet_p.h>
 #include <QtOfficeOpenXml/smlworksheet.h>
 
+#include <QtCore/qhash.h>
+#include <QtCore/qmap.h>
+#include <QtCore/qsharedpointer.h>
+
 namespace QtOfficeOpenXml {
 namespace Sml {
-
+class Cell;
+class CellPrivate;
 class WorksheetPrivate : public AbstractSheetPrivate
 {
     Q_DECLARE_PUBLIC(Worksheet)
 public:
     WorksheetPrivate(const QString &name, int id, SheetState state, Worksheet *q);
+
+    Cell *createCell(int row, int column);
+    Cell *getCell(int row, int column) const;
+    static CellPrivate *getCellPrivate(Cell *cell);
+
+    //baseColWidth, defaultColWidth, defaultRowHeight, customHeight, zeroHeight,
+    //thickTop, thickBottom, outlineLevelRow, outlineLevelCol,
+    QHash<QString, QString> sheetFormatPr_raw;
+
+    //min, max, width, style, hidden, bestFit, customWidth,
+    //phonetic, outlineLevel, collapsed,
+    QMap<int, QHash<QString, QString> > cols_raw;
+
+    //r, spans, s, customFormat, ht, hidden, customHeight, outlineLevel,
+    //collapsed, thickTop, thickBot, ph,
+    QMap<int, QHash<QString, QString> > rows_raw;
+
+    QMap<int, QMap<int, QSharedPointer<Cell> > > cellTable;
 };
 
 } // namespace Sml

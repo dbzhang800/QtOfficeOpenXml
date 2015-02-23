@@ -18,41 +18,68 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#include <private/smlworkbook_p.h>
+
+#include <private/smlcell_p.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {
 
-Workbook::Workbook()
-{
+static const char * cellTypeNameTable[] = {
+    //Note, keep the save order as CellTypeEnum.
+    "b",
+    "n",
+    "e",
+    "s",
+    "str",
+    "inlineStr"
+};
 
+CellPrivate::CellPrivate(Cell *q) :
+    q_ptr(q)
+{
 }
 
-QString Workbook::bookView(const QString &attribute) const
+
+/*!
+ * \class QtOffcieOpenXml::Sml::Cell
+ *
+ */
+
+Cell::~Cell()
 {
-    if (bookViews_raw.isEmpty())
-        return QString();
-    if (!bookViews_raw[0].contains(attribute))
-        return QString();
-    return bookViews_raw[0][attribute].toInt();
+    delete d_ptr;
 }
 
-void Workbook::setBookView(const QString &attribute, const QString &val)
+Cell::CellType Cell::cellType() const
 {
-    if (bookViews_raw.isEmpty())
-        return bookViews_raw.append(QHash<QString, QString>());
-
-    bookViews_raw[0][attribute] = val;
+    Q_D(const Cell);
+    if (d->attrs_raw.contains(QStringLiteral("t"))) {
+        QString t = d->attrs_raw[QStringLiteral("t")];
+        for (int i=0; i<sizeof(cellTypeNameTable)/sizeof(cellTypeNameTable[0]); ++i) {
+            if (QLatin1String(cellTypeNameTable[i]) == t)
+                return (CellType)i;
+        }
+    }
+    return NumberType;
 }
 
-int Workbook::activeTab() const
+/*!
+ * \Return the value in Qt's value type.
+ */
+QVariant Cell::value() const
 {
-    return bookView(QStringLiteral("activeTab")).toInt();
+    return QVariant();
 }
 
-void Workbook::setActiveTab(int index)
+QString Cell::rawValue() const
 {
-    setBookView(QStringLiteral("activeTab"), QString::number(index));
+    Q_D(const Cell);
+    return d->v;
+}
+
+Cell::Cell() :
+    d_ptr(new CellPrivate(this))
+{
 }
 
 } // namespace Sml

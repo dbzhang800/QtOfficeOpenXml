@@ -25,6 +25,9 @@
 
 namespace QtOfficeOpenXml {
 namespace Sml {
+class Cell;
+class CellReference;
+class DocumentPrivate;
 class WorksheetPrivate;
 class Q_OFFICEOPENXML_EXPORT Worksheet : public AbstractSheet
 {
@@ -33,7 +36,14 @@ public:
     Worksheet(const QString &name, int id, SheetState state);
     ~Worksheet();
 
+    Cell *writeNumber(const CellReference &cellRef, double value);
+
+    Cell *cellAt(const CellReference &cellRef) const;
+
     SheetType sheetType() const Q_DECL_OVERRIDE;
+
+private:
+    friend class DocumentPrivate;
 };
 
 } // namespace Sml

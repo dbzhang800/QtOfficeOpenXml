@@ -19,7 +19,12 @@
 **
 ****************************************************************************/
 #include <private/smldocument_p.h>
-#include <QtOfficeOpenXml/smldocument.h>
+#include <private/smlworksheet_p.h>
+#include <private/smlworkbook_p.h>
+#include <private/smlworksheetxmlpart_p.h>
+#include <private/smlworkbookxmlpart_p.h>
+#include <QtOfficeOpenXml/smlcell.h>
+#include <QtOfficeOpenXml/smlcellreference.h>
 #include <QtOfficeOpenXml/opcpackage.h>
 #include <QtOfficeOpenXml/opcpackagepart.h>
 
@@ -33,6 +38,7 @@ DocumentPrivate::DocumentPrivate(Document *q) :
 {
     if (packageName.isEmpty())
         packageName = QStringLiteral("Book1.xlsx");
+    lastSheetId = 0;
 }
 
 /*
@@ -52,6 +58,39 @@ bool DocumentPrivate::doLoadPackage(Opc::Package *package)
         return false;
 
     //OK, load workbookPart now.
+    WorkbookXmlPart wbPart(&wb, mainPart->partName(), package);
+    wbPart.loadFromPackage(ooxmlSchame);
+
+    //Load sheets
+    for (int i=0; i < wbPart.sheets.size(); ++i) {
+        QHash<QString, QString> sheetInfo = wbPart.sheets[i];
+        const QString name = sheetInfo[QStringLiteral("name")];
+        int sheetId = sheetInfo[QStringLiteral("sheetId")].toInt();
+        SheetState ss = SS_Visible;
+        if (sheetInfo.contains(QStringLiteral("state"))) {
+            const QString state = sheetInfo[QStringLiteral("state")];
+            if (state == QLatin1String("hidden"))
+                ss = SS_Hidden;
+            else if (state == QLatin1String("veryHidden"))
+                ss = SS_VeryHidden;
+        }
+
+        if (sheetId > lastSheetId)
+            lastSheetId = sheetId;
+
+        Opc::PackageRelationship *relationship = wbPart.packagePart()->relationship(sheetInfo[QStringLiteral("r:id")]);
+
+        if (relationship->relationshipType() == Ooxml::Schames::relationshipUri(Ooxml::RS_OfficeDocument_Worksheet, ooxmlSchame)) {
+            Worksheet *sheet  = new Worksheet(name, sheetId, ss);
+            WorksheetXmlPart xmlPart(sheet->d_func(), relationship->target(), package);
+            xmlPart.loadFromPackage(ooxmlSchame);
+            sheets.append(QSharedPointer<AbstractSheet>(sheet));
+        } else if (relationship->relationshipType() == Ooxml::Schames::relationshipUri(Ooxml::RS_OfficeDocument_Chartsheet, ooxmlSchame)) {
+        } else {
+            //Unsupported relationship type.
+            continue;
+        }
+    }
 
 
     //Load common parts of the package.
@@ -62,13 +101,79 @@ bool DocumentPrivate::doLoadPackage(Opc::Package *package)
 bool DocumentPrivate::doSavePackage(Opc::Package *package, Ooxml::SchameType schame) const
 {
     Q_ASSERT(package);
-    //Todo, save workbook related parts.
+
+    //workbook part.
+    WorkbookXmlPart wbPart(&(const_cast<DocumentPrivate *>(this)->wb), QStringLiteral("/xl/workbook.xml"), package);
+    package->createRelationship(wbPart.partName(), Opc::Internal, Ooxml::Schames::relationshipUri(Ooxml::RS_OfficeDocument_OfficeDocument, schame));
+
+    //Save sheets part.
+    int worksheetIndex = 1;
+    int chartsheetIndex = 1;
+    for (int i=0; i<sheets.size(); ++i) {
+        AbstractSheet *sheet = sheets[i].data();
+        QString rId;
+        if (sheet->sheetType() == ST_Worksheet) {
+            QString partName = QStringLiteral("/xl/worksheets/sheet%1.xml").arg(worksheetIndex);
+            worksheetIndex++;
+            WorksheetXmlPart wsPart(static_cast<Worksheet *>(sheet)->d_func(), partName, package);
+            wsPart.saveToPackage(schame);
+
+            QString relationshipType = Ooxml::Schames::relationshipUri(Ooxml::RS_OfficeDocument_Worksheet, schame);
+            rId = wbPart.packagePart()->createRelationship(partName, Opc::Internal, relationshipType)->id();
+        } else if (sheet->sheetType() == ST_Chartsheet) {
+            //Todo.
+            chartsheetIndex++;
+        }
+
+        QHash<QString, QString> sheetInfo;
+        sheetInfo[QStringLiteral("name")] = sheet->sheetName();
+        sheetInfo[QStringLiteral("sheetId")] = QString::number(sheet->sheetId());
+        if (sheet->sheetState() == SS_Hidden)
+            sheetInfo[QStringLiteral("state")] = QStringLiteral("hidden");
+        else if (sheet->sheetState() == SS_VeryHidden)
+            sheetInfo[QStringLiteral("state")] = QStringLiteral("veryHidden");
+        sheetInfo[QStringLiteral("r:id")] = rId;
+        wbPart.sheets.append(sheetInfo);
+    }
+
+    //Save workbook part.
+    wbPart.saveToPackage(schame);
 
     //Save common parts of the package.
     Ooxml::AbstractDocumentPrivate::doSavePackage(package, schame);
     return true;
 }
 
+QStringList DocumentPrivate::sheetNames() const
+{
+    QStringList names;
+    for (int i=0; i<sheets.size(); ++i)
+        names.append(sheets.at(i)->sheetName());
+    return names;
+}
+
+Worksheet *DocumentPrivate::getWorksheetByName(const QString &sheetName) const
+{
+    AbstractSheet *sheet = 0;
+    for (int i=0; i<sheets.size(); ++i) {
+        if (sheets[i]->sheetName() == sheetName) {
+            sheet = sheets[i].data();
+            break;
+        }
+    }
+    if (sheet && sheet->sheetType() == ST_Worksheet)
+        return static_cast<Worksheet *>(sheet);
+    return 0;
+}
+
+QSharedPointer<AbstractSheet> DocumentPrivate::createSheet(const QString &sheetName, SheetType type)
+{
+    lastSheetId++;
+    if (type == ST_Worksheet) {
+        QSharedPointer<AbstractSheet> sheet(new Worksheet(sheetName, lastSheetId, SS_Visible));
+        return sheet;
+    }
+}
 
 /*! \class QtOfficeOpenXml::Sml::Document
  *
@@ -100,6 +205,78 @@ Document::Document(QIODevice *device, QObject *parent) :
 
 Document::~Document()
 {
+}
+
+Cell *Document::cellAt(const CellReference &cell) const
+{
+    Q_D(const Document);
+    if (cell.isNull())
+        return 0;
+    Worksheet *sheet = cell.sheetName().isEmpty() ? currentWorksheet() : d->getWorksheetByName(cell.sheetName());
+    if (sheet)
+        return sheet->cellAt(cell);
+    return 0;
+}
+
+bool Document::defineName(const QString &name, const QString &formula, const QString &comment, const QString &scope)
+{
+    return false;
+}
+
+int Document::sheetCount() const
+{
+    Q_D(const Document);
+    return d->sheets.count();
+}
+
+AbstractSheet *Document::addSheet(const QString &sheetName, SheetType type)
+{
+    return insertSheet(sheetCount(), sheetName, type);
+}
+
+AbstractSheet *Document::insertSheet(int index, const QString &sheetName, SheetType type)
+{
+    Q_D(Document);
+    if (d->sheetNames().contains(sheetName))
+        return 0;
+    QSharedPointer<AbstractSheet> sheet = d->createSheet(sheetName, type);
+    d->sheets.insert(index, sheet);
+
+    //Set as active sheet.
+    d->wb.setActiveTab(index);
+    return sheet.data();
+}
+
+bool Document::setCurrentSheet(int index)
+{
+    Q_D(Document);
+
+    if (index <0 || index >= d->sheets.size())
+        return false;
+    d->wb.setActiveTab(index);
+    return true;
+}
+
+AbstractSheet *Document::sheet(int index) const
+{
+    Q_D(const Document);
+    if (index <0 || index >= d->sheets.size())
+        return 0;
+    return d->sheets.at(index).data();
+}
+
+AbstractSheet *Document::currentSheet() const
+{
+    Q_D(const Document);
+    return sheet(d->wb.activeTab());
+}
+
+Worksheet *Document::currentWorksheet() const
+{
+    AbstractSheet *s = currentSheet();
+    if (s && s->sheetType() == ST_Worksheet)
+        return static_cast<Worksheet *>(s);
+    return 0;
 }
 
 } // namespace Sml

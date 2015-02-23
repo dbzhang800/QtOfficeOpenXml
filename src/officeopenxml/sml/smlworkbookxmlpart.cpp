@@ -50,25 +50,27 @@ bool WorkbookXmlPart::doLoadFromXml(QIODevice *device, Ooxml::SchameType schameT
     //It's not safe to used "r:Id", so we must use attribute name and attribute namespaceUri.
     QString r = Ooxml::Schames::namespaceUri(Ooxml::NS_OfficeDocument_Relationships, schameType);
 
-    while (reader.readNextStartElement()) {
-        if (reader.name() == QLatin1String("fileVersion")) {
-            wb->fileVersion_raw = Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes());
-        } else if (reader.name() == QLatin1String("fileSharing")) {
-            wb->fileSharing_raw = Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes());
-        } else if (reader.name() == QLatin1String("workbookPr")) {
-            wb->workbookPr_raw = Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes());
-        } else if (reader.name() == QLatin1String("workbookProtection")) {
-            wb->workbookProtection_raw = Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes());
-        } else if (reader.name() == QLatin1String("workbookView")) {
-            wb->bookViews_raw.append(Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes()));
-        } else if (reader.name() == QLatin1String("sheet")) {
-            //Elements contains "r:Id" is not saved in Workbook (wb).
-            sheets.append(Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes()));
-        } else if (reader.name() == QLatin1String("externalReference")) {
-            //Elements contains "r:Id" is not saved in Workbook (wb).
-            externalReferences.append(reader.attributes().value(r, QLatin1String("id")).toString());
-        } else if (reader.name() == QLatin1String("definedName")) {
-            wb->definedNames.append(DefinedName(Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes()), reader.readElementText()));
+    while (!reader.atEnd()) {
+        if (reader.readNextStartElement()) {
+            if (reader.name() == QLatin1String("fileVersion")) {
+                wb->fileVersion_raw = Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes());
+            } else if (reader.name() == QLatin1String("fileSharing")) {
+                wb->fileSharing_raw = Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes());
+            } else if (reader.name() == QLatin1String("workbookPr")) {
+                wb->workbookPr_raw = Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes());
+            } else if (reader.name() == QLatin1String("workbookProtection")) {
+                wb->workbookProtection_raw = Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes());
+            } else if (reader.name() == QLatin1String("workbookView")) {
+                wb->bookViews_raw.append(Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes()));
+            } else if (reader.name() == QLatin1String("sheet")) {
+                //Elements contains "r:Id" is not saved in Workbook (wb).
+                sheets.append(Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes()));
+            } else if (reader.name() == QLatin1String("externalReference")) {
+                //Elements contains "r:Id" is not saved in Workbook (wb).
+                externalReferences.append(reader.attributes().value(r, QLatin1String("id")).toString());
+            } else if (reader.name() == QLatin1String("definedName")) {
+                wb->definedNames.append(DefinedName(Ooxml::XmlHelper::xmlAttributesToHash(reader.attributes()), reader.readElementText()));
+            }
         }
     }
     return true;

@@ -32,8 +32,9 @@
 // We mean it.
 //
 
-#include <QtOfficeOpenXml/smldocument.h>
 #include <private/ooxmlabstractdocument_p.h>
+#include <private/smlworkbook_p.h>
+#include <QtOfficeOpenXml/smldocument.h>
 
 namespace QtOfficeOpenXml {
 namespace Opc {
@@ -47,6 +48,13 @@ public:
     explicit DocumentPrivate(Document *q);
     bool doLoadPackage(Opc::Package *package) Q_DECL_OVERRIDE;
     bool doSavePackage(Opc::Package *package, Ooxml::SchameType schame) const Q_DECL_OVERRIDE;
+    QStringList sheetNames() const;
+    Worksheet *getWorksheetByName(const QString &sheetName) const;
+    QSharedPointer<AbstractSheet> createSheet(const QString &sheetName, SheetType type);
+
+    Workbook wb;
+    QList<QSharedPointer<AbstractSheet> > sheets;
+    int lastSheetId;
 };
 
 } // namespace Sml

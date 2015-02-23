@@ -16,7 +16,10 @@ HEADERS += \
     $$PWD/smlabstractsheet.h \
     $$PWD/smlabstractsheet_p.h \
     $$PWD/smlchartsheet.h \
-    $$PWD/smlchartsheet_p.h
+    $$PWD/smlchartsheet_p.h \
+    $$PWD/smlcell.h \
+    $$PWD/smlcell_p.h \
+    $$PWD/smlcellreference.h
 
 SOURCES += \
     $$PWD/smllargedocumentreader.cpp \
@@ -30,4 +33,6 @@ SOURCES += \
     $$PWD/smlworkbook.cpp \
     $$PWD/smlworksheet.cpp \
     $$PWD/smlabstractsheet.cpp \
-    $$PWD/smlchartsheet.cpp
+    $$PWD/smlchartsheet.cpp \
+    $$PWD/smlcell.cpp \
+    $$PWD/smlcellreference.cpp

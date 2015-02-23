@@ -59,6 +59,11 @@ class Workbook
 public:
     Workbook();
 
+    QString bookView(const QString &attribute) const;
+    void setBookView(const QString &attribute, const QString &val);
+    int activeTab() const;
+    void setActiveTab(int index);
+
     //appName, lastEdited, lowestEdited, rupBuild, codeName
     QHash<QString, QString> fileVersion_raw;
 

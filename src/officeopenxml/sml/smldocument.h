@@ -22,11 +22,16 @@
 #define QTOFFICEOPENXML_SML_SMLDOCUMENT_H
 
 #include <QtOfficeOpenXml/ooxmlabstractdocument.h>
+#include <QtOfficeOpenXml/smlglobal.h>
 
 class QIODevice;
 
 namespace QtOfficeOpenXml {
 namespace Sml {
+class AbstractSheet;
+class Worksheet;
+class Cell;
+class CellReference;
 class DocumentPrivate;
 class Q_OFFICEOPENXML_EXPORT Document : public Ooxml::AbstractDocument
 {
@@ -36,6 +41,19 @@ public:
     explicit Document(const QString &fileName, QObject *parent = 0);
     explicit Document(QIODevice *device, QObject *parent = 0);
     ~Document();
+
+    Cell *cellAt(const CellReference &cell) const;
+
+    bool defineName(const QString &name, const QString &formula, const QString &comment=QString(), const QString &scope=QString());
+
+    int sheetCount() const;
+    AbstractSheet *addSheet(const QString &sheetName = QString(), SheetType type = ST_Worksheet);
+    AbstractSheet *insertSheet(int index, const QString &sheetName = QString(), SheetType type = ST_Worksheet);
+
+    bool setCurrentSheet(int index);
+    AbstractSheet *sheet(int index) const;
+    AbstractSheet *currentSheet() const;
+    Worksheet *currentWorksheet() const;
 
 private:
     Q_DECLARE_PRIVATE(Document)

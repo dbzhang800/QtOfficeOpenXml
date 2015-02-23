@@ -34,8 +34,55 @@
 
 #include <QtOfficeOpenXml/smlabstractsheet.h>
 
+#include <QtCore/qhash.h>
+
 namespace QtOfficeOpenXml {
 namespace Sml {
+
+class SheetPr
+{
+public:
+    SheetPr(){}
+
+    bool isEmpty() const {
+        return attrs_raw.isEmpty() && tabColor_raw.isEmpty()
+                && outlinePr_raw.isEmpty() && pageSetUpPr_raw.isEmpty();
+    }
+
+    //syncHorizontal, syncVertical, syncRef, transitionEvaluation, transitionEntry,
+    //published, codeName, filterMode, enableFormatConditionsCalculation
+    //Note, Chartsheet has only "published" and "codeName"
+    QHash<QString, QString> attrs_raw;
+
+    //auto, indexed, rgb, theme, tint
+    QHash<QString, QString> tabColor_raw;
+
+    //applyStyles, summaryBelow, summaryRight, showOutlineSymbols
+    //Note, Chartsheet doesn't have this element.
+    QHash<QString, QString> outlinePr_raw;
+
+    //autoPageBreaks, fitToPage
+    //Note, Chartsheet doesn't have this element.
+    QHash<QString, QString> pageSetUpPr_raw;
+};
+
+class SheetView
+{
+public:
+    SheetView(){}
+
+    //Worksheet:
+    //  windowProtection, showFormulas, showGridLines, showRowColHeaders, showZeros,
+    //  rightToLeft, tabSelected, showRuler, showOutlineSymbols, defaultGridColor,
+    //  showWhiteSpace, view, topLeftCell, colorId, zoomScale, zoomScaleNormal,
+    //  zoomScaleSheetLayoutView, zoomScalePageLayoutView, workbookViewId,
+    //Chartsheet:
+    //  tabSelected, zoomScale, workbookViewId, zoomToFit
+    QHash<QString, QString> attrs_raw;
+
+    //xSplit, ySplit, topLeftCell, activePane, state
+    QHash<QString, QString> pane_raw;
+};
 
 class AbstractSheetPrivate
 {
@@ -49,6 +96,9 @@ public:
     QString name;
     int id;
     SheetState sheetState;
+
+    SheetPr sheetPr;
+    QList<SheetView> sheetViews;
 
     AbstractSheet *q_ptr;
 };

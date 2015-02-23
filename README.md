@@ -2,7 +2,7 @@
 
 Qt Office Open Xml is a library that can be used to read and write opc packages,
 such as .xlsx/.docx/.pptx files. It doesn't require
-Microsoft Office and can be used in any platform that Qt5 supported.
+Microsoft Office and can be used in any platform that **Qt 5.2** or newer supported.
 
 |Status | Namespace                  |   ....                                                                        |
 |-------|----------------------------|------------------------------------------------------------------------------ |

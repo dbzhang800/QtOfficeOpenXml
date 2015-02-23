@@ -79,7 +79,7 @@ enum RelationshipId
     RS_OfficeDocument_Audio,
     RS_OfficeDocument_CalcChain,
     RS_OfficeDocument_Chart,
-    RS_OfficeDocument_ChartSheet,
+    RS_OfficeDocument_Chartsheet,
     RS_OfficeDocument_ChartUserShapes,
     RS_OfficeDocument_CommentAuthors,
     RS_OfficeDocument_Comments,

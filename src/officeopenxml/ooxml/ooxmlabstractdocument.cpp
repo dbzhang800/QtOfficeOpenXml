@@ -284,8 +284,10 @@ bool AbstractDocument::saveAs(const QString &fileName, SchameType schameType) co
     Q_D(const AbstractDocument);
     QScopedPointer<Opc::Package> package(Opc::Package::open(fileName, QIODevice::WriteOnly));
     bool ret = false;
-    if (package)
+    if (package) {
         ret = d->doSavePackage(package.data(), d->getFixedSaveAsSchame(schameType));
+        package->close();
+    }
     return ret;
 }
 

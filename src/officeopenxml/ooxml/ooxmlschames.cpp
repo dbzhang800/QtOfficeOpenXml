@@ -148,7 +148,7 @@ SchamesPrivate::SchamesPrivate()
     addRelationship(RS_OfficeDocument_Chart,
             QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"),
             QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/relationships/chart"));
-    addRelationship(RS_OfficeDocument_ChartSheet,
+    addRelationship(RS_OfficeDocument_Chartsheet,
             QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet"),
             QStringLiteral("http://purl.oclc.org/ooxml/officeDocument/relationships/chartsheet"));
     addRelationship(RS_OfficeDocument_ChartUserShapes,
@@ -386,7 +386,7 @@ SchamesPrivate::~SchamesPrivate()
 
 void SchamesPrivate::addNamespace(int id, const QString &transitional, const QString &strict, const QString &prefix)
 {
-    QSharedPointer<OoxmlSchamesData> data = QSharedPointer<OoxmlSchamesData>(new OoxmlSchamesData(id, prefix, strict, transitional));
+    QSharedPointer<OoxmlSchamesData> data = QSharedPointer<OoxmlSchamesData>(new OoxmlSchamesData(id, transitional, strict, prefix));
     namespaceSchameHash.insert(id, data);
 
     if (strict.isEmpty()) {
@@ -400,7 +400,7 @@ void SchamesPrivate::addNamespace(int id, const QString &transitional, const QSt
 
 void SchamesPrivate::addRelationship(int id, const QString &transitional, const QString &strict)
 {
-    QSharedPointer<OoxmlSchamesData> data = QSharedPointer<OoxmlSchamesData>(new OoxmlSchamesData(id, QString(), strict, transitional));
+    QSharedPointer<OoxmlSchamesData> data = QSharedPointer<OoxmlSchamesData>(new OoxmlSchamesData(id, transitional, strict));
     relationshipSchameHash.insert(id, data);
 
     if (strict.isEmpty()) {

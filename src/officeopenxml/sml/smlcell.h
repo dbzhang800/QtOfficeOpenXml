@@ -18,42 +18,53 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#include <private/smlworkbook_p.h>
+#ifndef QTOFFICEOPENXML_SML_SMLCELL_H
+#define QTOFFICEOPENXML_SML_SMLCELL_H
+
+#include <QtOfficeOpenXml/smlglobal.h>
+
+class QVariant;
 
 namespace QtOfficeOpenXml {
 namespace Sml {
 
-Workbook::Workbook()
+class WorksheetPrivate;
+class CellPrivate;
+class Q_OFFICEOPENXML_EXPORT Cell
 {
+public:
+    enum CellType {
+        BooleanType,      //t="b"
+        NumberType,       //t="n" (default)
+        ErrorType,        //t="e"
+        SharedStringType, //t="s"
+        StringType,       //t="str"
+        InlineStringType  //t="inlineStr"
+    };
 
-}
+    ~Cell();
 
-QString Workbook::bookView(const QString &attribute) const
-{
-    if (bookViews_raw.isEmpty())
-        return QString();
-    if (!bookViews_raw[0].contains(attribute))
-        return QString();
-    return bookViews_raw[0][attribute].toInt();
-}
+    CellType cellType() const;
+    QVariant value() const;
+    QString rawValue() const;
+    //Format format() const;
 
-void Workbook::setBookView(const QString &attribute, const QString &val)
-{
-    if (bookViews_raw.isEmpty())
-        return bookViews_raw.append(QHash<QString, QString>());
+    //bool hasFormula() const;
+    //CellFormula formula() const;
 
-    bookViews_raw[0][attribute] = val;
-}
+    //bool isDateTime() const;
+    //QDateTime dateTime() const;
 
-int Workbook::activeTab() const
-{
-    return bookView(QStringLiteral("activeTab")).toInt();
-}
+    //bool isRichString() const;
 
-void Workbook::setActiveTab(int index)
-{
-    setBookView(QStringLiteral("activeTab"), QString::number(index));
-}
+private:
+    Q_DECLARE_PRIVATE(Cell)
+    friend class WorksheetPrivate;
+    Cell();
+    CellPrivate *d_ptr;
+};
 
 } // namespace Sml
 } // namespace QtOfficeOpenXml
+
+#endif // QTOFFICEOPENXML_SML_SMLCELL_H

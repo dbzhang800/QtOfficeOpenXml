@@ -18,8 +18,8 @@
 ** 02110-1301, USA.
 **
 ****************************************************************************/
-#ifndef QTOFFICEOPENXML_SML_SMLWORKSHEETPART_P_H
-#define QTOFFICEOPENXML_SML_SMLWORKSHEETPART_P_H
+#ifndef SMLCELL_P_H
+#define SMLCELL_P_H
 
 //
 //  W A R N I N G
@@ -32,35 +32,30 @@
 // We mean it.
 //
 
-#include <private/ooxmlabstractfixedtypexmlpart_p.h>
+#include <QtOfficeOpenXml/smlcell.h>
+
+#include <QtCore/qhash.h>
 
 namespace QtOfficeOpenXml {
-namespace Mce {
-class XmlStreamReader;
-}
 namespace Sml {
-class WorksheetPrivate;
-class WorksheetXmlPart : public Ooxml::AbstractFixedTypeXmlPart
+
+class CellPrivate
 {
+    Q_DECLARE_PUBLIC(Cell)
+
 public:
-    WorksheetXmlPart(WorksheetPrivate *worksheet, const QString &partName, Opc::Package *package);
-    QString contentType() const Q_DECL_OVERRIDE;
+    CellPrivate(Cell *q);
 
-private:
-    bool doLoadFromXml(QIODevice *device, Ooxml::SchameType schameType) Q_DECL_OVERRIDE;
-    bool doSaveToXml(QIODevice *device, Ooxml::SchameType schameType) const Q_DECL_OVERRIDE;    
+    //r, s, t, cm, vm, ph
+    QHash<QString, QString> attrs_raw;
 
-    void loadXmlElement_sheetPr(Mce::XmlStreamReader &reader);
-    void loadXmlElement_sheetView(Mce::XmlStreamReader &reader);
-    void loadXmlElement_row(Mce::XmlStreamReader &reader);
-    void loadXmlElement_c(Mce::XmlStreamReader &reader);
-    void loadXmlElement_f(Mce::XmlStreamReader &reader);
-    void loadXmlElement_is(Mce::XmlStreamReader &reader);
+    QString v;
 
-    WorksheetPrivate *ws;
+    //Todo: inLineRichText and formula
+    Cell *q_ptr;
 };
 
 } // namespace Sml
 } // namespace QtOfficeOpenXml
 
-#endif // QTOFFICEOPENXML_SML_SMLWORKSHEETPART_P_H
+#endif // SMLCELL_P_H
