@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
-SUBDIRS = extract_opc_package \
-    create_opc_package \
+SUBDIRS = opc_extract_package \
+    opc_create_package \
     mce_xml_reader \
     sml_extract_document \
     sml_create_document

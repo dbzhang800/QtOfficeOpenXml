@@ -1,6 +1,6 @@
 QT       += officeopenxml
 
-TARGET = create_opc_package
+TARGET = opc_create_package
 CONFIG   += console
 CONFIG   -= app_bundle
 
