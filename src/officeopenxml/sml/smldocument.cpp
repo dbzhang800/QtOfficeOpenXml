@@ -173,6 +173,8 @@ QSharedPointer<AbstractSheet> DocumentPrivate::createSheet(const QString &sheetN
         QSharedPointer<AbstractSheet> sheet(new Worksheet(sheetName, lastSheetId, SS_Visible));
         return sheet;
     }
+
+    return QSharedPointer<AbstractSheet>();
 }
 
 /*! \class QtOfficeOpenXml::Sml::Document
