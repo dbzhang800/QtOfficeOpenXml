@@ -38,6 +38,7 @@
 #include <QtOfficeOpenXml/smlglobal.h>
 #include <QtCore/qhash.h>
 #include <QtCore/qlist.h>
+#include <QtCore/qstring.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {

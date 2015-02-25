@@ -32,6 +32,7 @@
 #include <QtOfficeOpenXml/opcpackagepart.h>
 
 #include <QtCore/qscopedpointer.h>
+#include <QtCore/qstringlist.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {

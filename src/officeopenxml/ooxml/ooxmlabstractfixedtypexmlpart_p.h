@@ -37,6 +37,7 @@
 
 #include <QtOfficeOpenXml/officeopenxmlglobal.h>
 #include <QtOfficeOpenXml/ooxmlschames.h>
+#include <QtCore/qstring.h>
 class QIODevice;
 
 namespace QtOfficeOpenXml {

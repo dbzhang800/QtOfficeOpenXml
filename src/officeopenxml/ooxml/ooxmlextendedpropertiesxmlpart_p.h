@@ -37,6 +37,7 @@
 
 #include <private/ooxmlabstractfixedtypexmlpart_p.h>
 #include <QtCore/qhash.h>
+#include <QtCore/qvariant.h>
 
 class QVariant;
 

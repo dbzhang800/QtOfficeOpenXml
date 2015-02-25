@@ -25,6 +25,7 @@
 #define SMLCELLREFERENCE_H
 
 #include <QtOfficeOpenXml/smlglobal.h>
+#include <QtCore/qstring.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {

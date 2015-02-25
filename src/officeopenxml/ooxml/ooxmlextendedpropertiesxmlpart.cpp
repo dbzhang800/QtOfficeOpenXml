@@ -157,7 +157,7 @@ QString ExtendedPropertiesXmlPart::getApplicationVersion() const
         bool ok = true;
         double dVal = v.toDouble(&ok);
         if (ok && (dVal >=0 && dVal < 100))
-            return QString("%1").arg(dVal, 7, 'f', 4, QLatin1Char('0'));
+            return QStringLiteral("%1").arg(dVal, 7, 'f', 4, QLatin1Char('0'));
     }
 
     //Should we return the current version of QtOfficeOpenXml here?

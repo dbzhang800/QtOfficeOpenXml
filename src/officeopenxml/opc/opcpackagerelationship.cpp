@@ -30,6 +30,7 @@
 
 #include "mcexmlstreamreader.h"
 #include <QXmlStreamWriter>
+#include <QDebug>
 
 namespace QtOfficeOpenXml {
 namespace Opc {

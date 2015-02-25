@@ -23,6 +23,7 @@
 ****************************************************************************/
 
 #include <private/smlcell_p.h>
+#include <QtCore/qvariant.h>
 
 namespace QtOfficeOpenXml {
 namespace Sml {
