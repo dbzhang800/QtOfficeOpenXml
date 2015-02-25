@@ -68,7 +68,7 @@ int col_from_name(const QString &col_str)
 
 QString getEscapedSheetName(const QString &name)
 {
-    if (name.contains(QRegularExpression("[\\+\\-%&=<>]#!")))
+    if (name.contains(QRegularExpression(QStringLiteral("[\\+\\-%&=<>]#!"))))
         return QStringLiteral("\'%1\'").arg(name);
     return name;
 }
