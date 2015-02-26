@@ -25,16 +25,14 @@
 #include "ui_mainwindow.h"
 #include "binedit.h"
 #include "imagewidget.h"
-
-#include <mcexmlstreamreader.h>
+#include "mcexmlwidget.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDebug>
 #include <QSettings>
-#include <QPlainTextEdit>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
+#include <QCloseEvent>
+#include <QFontMetrics>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -43,48 +41,93 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->partContentSmartButton->hide();
 
-    connect(ui->action_Open, SIGNAL(triggered()), SLOT(onOpen()));
-    connect(ui->action_About, SIGNAL(triggered()), SLOT(onAbout()));
+    createActions();
+    createMenuBar();
+
     connect(ui->partListWidget, SIGNAL(currentTextChanged(QString)), SLOT(onPartChanged(QString)));
     connect(ui->partContentButton, SIGNAL(clicked()), SLOT(onShowContentButtonClicked()));
     connect(ui->partContentSmartButton, SIGNAL(clicked()), SLOT(onShowContentSmartButtonClicked()));
+
+    loadSettings();
 }
 
 MainWindow::~MainWindow()
 {
-    delete m_package;
+    if (m_package)
+        closePackage();
     delete ui;
 }
 
-void MainWindow::onOpen()
+void MainWindow::onActionOpenTriggered()
 {
-    QSettings settings("opcpackagedemo.ini", QSettings::IniFormat);
-    const QString path = settings.value("lastFile").toString();
-
-    QString fn = QFileDialog::getOpenFileName( 0, tr("Open OPC Package"), path, "Office files (*.xlsx *.docx *.pptx);;All files(*.*)");
+    QString fn = QFileDialog::getOpenFileName( 0, tr("Open OPC Package"), m_recentFilesList.isEmpty() ? "" : m_recentFilesList[0], "Office files (*.xlsx *.docx *.pptx);;All files(*.*)");
     if (fn.isEmpty())
         return;
 
-    ui->partListWidget->clear();
+    openPackage(fn);
+}
 
-    m_package = Opc::Package::open(fn, QIODevice::ReadOnly);
+void MainWindow::onActionRecentFileTriggered()
+{
+    QAction *act = qobject_cast<QAction *>(sender());
+    QString fileName = act->data().toString();
+
+    if (!openPackage(fileName)) {
+        m_recentFilesList.removeOne(fileName);
+        updateRecentFilesMenu();
+    }
+}
+
+bool MainWindow::openPackage(const QString &name)
+{
+    if (m_package)
+        closePackage();
+
+    m_package = Opc::Package::open(name, QIODevice::ReadOnly);
     if (!m_package) {
         //Error occur.
-        statusBar()->showMessage(tr("Fail to open the package %1").arg(fn));
+        statusBar()->showMessage(tr("Fail to open the package %1").arg(name));
         setWindowTitle("Demo for Opc Package");
-        return;
+        return false;
     }
-    settings.setValue("lastFile", fn);
-    setWindowTitle(QString("%1 - Demo for Opc Package").arg(fn));
+
+    m_recentFilesList.removeOne(name);
+    m_recentFilesList.insert(0, name);
+    if (m_recentFilesList.size() > 50)
+        m_recentFilesList.removeLast();
+    updateRecentFilesMenu();
+
+    setWindowTitle(QString("%1 - Demo for Opc Package").arg(name));
 
     ui->partListWidget->addItem("/");
     foreach (Opc::PackagePart *part, m_package->parts())
         ui->partListWidget->addItem(part->partName());
+    return true;
 }
 
-void MainWindow::onAbout()
+void MainWindow::onActionCloseTriggered()
 {
-    QMessageBox::information(this, tr("About"), tr("This example is designed to show how to used Opc::Package class."));
+    if (!m_package)
+        return;
+    closePackage();
+}
+
+void MainWindow::closePackage()
+{
+    ui->partListWidget->clear();
+    ui->partContentButton->setDisabled(true);
+    ui->partContentSmartButton->hide();
+    ui->partRelationshipListWidget->clear();
+    ui->partNameEdit->clear();
+    ui->partContentTypeEdit->clear();
+
+    delete m_package;
+    m_package = 0;
+}
+
+void MainWindow::onActionAboutTriggered()
+{
+    QMessageBox::information(this, tr("About"), tr("This example is designed for ..."));
 }
 
 void MainWindow::onPartChanged(const QString &partName)
@@ -167,29 +210,13 @@ void MainWindow::onShowContentSmartButtonClicked()
 
     if (ui->partContentSmartButton->property("smart") == "xml") {
         //Show formatted xml file contents
-        QPlainTextEdit *edit = new QPlainTextEdit;
-        edit->setAttribute(Qt::WA_DeleteOnClose);
-        edit->setReadOnly(true);
-        edit->setWindowTitle(part->partName());
-
-        QByteArray formattedData;
-
-        QXmlStreamReader reader(part->getDevice());
-        QXmlStreamWriter writer(&formattedData);
-        writer.setAutoFormatting(true);
-
-        while(!reader.atEnd()) {
-            reader.readNext();
-            //Prefer Mce::writeCurrentToken() to QXmlStreamWriter::writeCurrentToken()
-            if (!reader.isWhitespace() && reader.tokenType() != QXmlStreamReader::Invalid)
-                Mce::writeCurrentToken(writer, reader);
-        }
+        MceXmlWidget *edit = new MceXmlWidget(part->getDevice()->readAll());
         part->releaseDevice();
 
-        edit->setPlainText(formattedData);
+        edit->setAttribute(Qt::WA_DeleteOnClose);
+        edit->setWindowTitle(part->partName());
         edit->resize(800, 600);
         edit->show();
-
     } else if (ui->partContentSmartButton->property("smart") == "image") {
         //Show image
         ImageWidget *edit = new ImageWidget;
@@ -202,4 +229,67 @@ void MainWindow::onShowContentSmartButtonClicked()
         edit->resize(800, 600);
         edit->show();
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent *evt)
+{
+    saveSettings();
+    evt->accept();
+}
+
+void MainWindow::createActions()
+{
+    m_actionOpen = new QAction(tr("&Open..."), this);
+    m_actionClose = new QAction(tr("Close"), this);
+    m_actionQuit = new QAction(tr("&Quit"), this);
+
+    m_menuRecentFiles = new QMenu(tr("Recent files"), this);
+
+    m_actionAbout = new QAction(tr("&About..."), this);
+
+    connect(m_actionOpen, SIGNAL(triggered()), SLOT(onActionOpenTriggered()));
+    connect(m_actionClose, SIGNAL(triggered()), SLOT(onActionCloseTriggered()));
+    connect(m_actionQuit, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(m_actionAbout, SIGNAL(triggered()), SLOT(onActionAboutTriggered()));
+}
+
+void MainWindow::createMenuBar()
+{
+    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(m_actionOpen);
+    fileMenu->addAction(m_menuRecentFiles->menuAction());
+    fileMenu->addAction(m_actionClose);
+    fileMenu->addSeparator();
+    fileMenu->addAction(m_actionQuit);
+
+    QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(m_actionAbout);
+}
+
+void MainWindow::updateRecentFilesMenu()
+{
+    m_menuRecentFiles->clear();
+    for (int i=0; i<m_recentFilesList.size(); ++i) {
+        QString title = QString("%1 %2").arg(i)
+                .arg(QFontMetrics(font()).elidedText(m_recentFilesList.at(i), Qt::ElideMiddle, 300));
+        QAction *act = new QAction(title, m_menuRecentFiles);
+        act->setData(m_recentFilesList.at(i));
+        m_menuRecentFiles->addAction(act);
+
+        connect(act, SIGNAL(triggered()), SLOT(onActionRecentFileTriggered()));
+    }
+}
+
+void MainWindow::loadSettings()
+{
+    QSettings settings("opcpackagedemo.ini", QSettings::IniFormat);
+    m_recentFilesList = settings.value("RecentFiles").toStringList();
+
+    updateRecentFilesMenu();
+}
+
+void MainWindow::saveSettings()
+{
+    QSettings settings("opcpackagedemo.ini", QSettings::IniFormat);
+    settings.setValue("RecentFiles", m_recentFilesList);
 }

@@ -4,12 +4,15 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     binedit.cpp \
-    imagewidget.cpp
+    imagewidget.cpp \
+    mcexmlwidget.cpp
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    mcexmlwidget.ui
 
 HEADERS += \
     mainwindow.h \
     binedit.h \
-    imagewidget.h
+    imagewidget.h \
+    mcexmlwidget.h

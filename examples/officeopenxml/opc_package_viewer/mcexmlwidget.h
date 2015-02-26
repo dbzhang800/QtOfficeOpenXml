@@ -21,59 +21,30 @@
 ** met: http://www.gnu.org/licenses/gpl-2.0.html.
 **
 ****************************************************************************/
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MCEXMLWIDGET_H
+#define MCEXMLWIDGET_H
 
-#include <opcpackage.h>
-#include <opcpackagepart.h>
-
-#include <QStringList>
 #include <QMainWindow>
 
-using namespace QtOfficeOpenXml;
-
 namespace Ui {
-class MainWindow;
+class MceXmlWidget;
 }
-class QTreeWidgetItem;
 
-class MainWindow : public QMainWindow
+class MceXmlWidget : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-
-private slots:
-    void onActionOpenTriggered();
-    void onActionRecentFileTriggered();
-    void onActionCloseTriggered();
-    void onActionAboutTriggered();
-    void onPartChanged(const QString &partName);
-    void onShowContentButtonClicked();
-    void onShowContentSmartButtonClicked();
+    explicit MceXmlWidget(const QByteArray &xmlData, QWidget *parent = 0);
+    ~MceXmlWidget();
 
 private:
-    void closeEvent(QCloseEvent *evt);
+    void onUpdateButton();
 
-    void createActions();
-    void createMenuBar();
-    void updateRecentFilesMenu();
-    void loadSettings();
-    void saveSettings();
-    bool openPackage(const QString &name);
-    void closePackage();
-
-    Ui::MainWindow *ui;
-    QAction *m_actionOpen;
-    QAction *m_actionClose;
-    QAction *m_actionQuit;
-    QAction *m_actionAbout;
-    QMenu *m_menuRecentFiles;
-    Opc::Package *m_package;
-
-    QStringList m_recentFilesList;
+private:
+    void doLoadOrignalXmlData();
+    Ui::MceXmlWidget *ui;
+    QByteArray fileContent;
 };
 
-#endif // MAINWINDOW_H
+#endif // MCEXMLWIDGET_H
