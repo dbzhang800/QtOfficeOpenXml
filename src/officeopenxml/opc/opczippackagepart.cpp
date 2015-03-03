@@ -49,10 +49,10 @@ ZipPackagePartPrivate::ZipPackagePartPrivate(const QString &partName, const QStr
 ZipPartWriteDevice::ZipPartWriteDevice(KZip *zip, const QString &partName)
     :archive(zip), partName(partName), dataLength(0)
 {
-    open(WriteOnly);
     //Note, The size doesn't used by Kzip, so we can assign any value such as 1024.
     //Note, Remove the start '/' from the partName
-    archive->prepareWriting(partName.mid(1), QStringLiteral("user"), QStringLiteral("group"), 1024);
+    if (archive->prepareWriting(partName.mid(1), QStringLiteral("user"), QStringLiteral("group"), 1024))
+        open(WriteOnly);
 }
 
 ZipPartWriteDevice::~ZipPartWriteDevice()
@@ -99,17 +99,23 @@ ZipPackagePart::~ZipPackagePart()
     doReleaseDevice();
 }
 
-QIODevice *ZipPackagePart::doGetDevice()
+QIODevice *ZipPackagePart::doGetDevice(QIODevice::OpenMode mode)
 {
     Q_D(ZipPackagePart);
-    if (d->device)
+    if (d->device) {
+        if (d->device->openMode() != mode) {
+            qWarning("Users must release last open part device.");
+            return 0;
+        }
         return d->device;
+    }
 
-    if (d->package->mode() == QIODevice::ReadOnly) {
+    if (mode == QIODevice::ReadOnly) {
         d->device = d->zipFileEntry->createDevice();
-    } else if (d->package->mode() == QIODevice::WriteOnly) {
+    } else if (mode == QIODevice::WriteOnly) {
         d->device = new ZipPartWriteDevice(d->zipArchive, d->partName);
     }
+
     return d->device;
 }
 

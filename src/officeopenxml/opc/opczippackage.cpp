@@ -42,7 +42,7 @@ namespace Opc {
  * \internal
  */
 ZipPackagePrivate::ZipPackagePrivate(const QString &packageName, QIODevice *device, ZipPackage *q)
-    :PackagePrivate(packageName, device, q), zipArchive(0)
+    :PackagePrivate(packageName, device, q), zipArchive(0), dirty(false)
 {
 }
 
@@ -74,26 +74,27 @@ ZipPackage::~ZipPackage()
 bool ZipPackage::doOpenPackage(QIODevice::OpenMode mode)
 {
     Q_D(ZipPackage);
-    //We only support readOnly and writeOnly at present.
-    if (mode != QIODevice::ReadOnly && mode != QIODevice::WriteOnly)
-        return false;
 
-    if (d->zipArchive->open(mode)) {
-        if (mode == QIODevice::ReadOnly && !d->doLoadPackage()) {
-            //Not a valid OPC package, return false.
-            d->zipArchive->close();
-            return false;
-        }
-        return true;
+    //Note that, KArchive has very limited readwrite support for zip package.
+    //So, be careful when use this.
+    if (!d->zipArchive->open(mode)) {
+        //Can not open the zip package.
+        return false;
     }
 
-    return false;
+    if ((mode & QIODevice::ReadOnly) && !d->doLoadPackage()) {
+        //Not a valid OPC package, return false.
+        d->zipArchive->close();
+        return false;
+    }
+
+    return true;
 }
 
 bool ZipPackage::doClosePackage()
 {
     Q_D(ZipPackage);
-    if (mode() == QIODevice::WriteOnly)
+    if (mode() & QIODevice::WriteOnly)
         d->doSavePackage();
     return d->zipArchive->close();
 }
@@ -161,13 +162,15 @@ bool ZipPackagePrivate::doLoadPackage()
 */
 bool ZipPackagePrivate::doSavePackage()
 {
-    //Generate the "[Content_Types].xml" file
-    ContentTypeHelper contentTypeHelper;
-    foreach (PackagePart *part, parts)
-        contentTypeHelper.addContentType(part->partName(), part->contentType());
-    ZipPartWriteDevice *contentTypeStream = new ZipPartWriteDevice(zipArchive, QStringLiteral("/[Content_Types].xml"));
-    contentTypeHelper.saveToStream(contentTypeStream);
-    delete contentTypeStream;
+    if (dirty) {
+        //Generate the "[Content_Types].xml" file
+        ContentTypeHelper contentTypeHelper;
+        foreach (PackagePart *part, parts)
+            contentTypeHelper.addContentType(part->partName(), part->contentType());
+        ZipPartWriteDevice *contentTypeStream = new ZipPartWriteDevice(zipArchive, QStringLiteral("/[Content_Types].xml"));
+        contentTypeHelper.saveToStream(contentTypeStream);
+        delete contentTypeStream;
+    }
 
     return true;
 }
@@ -177,14 +180,20 @@ PackagePart *ZipPackage::doCreatePart(const QString &partName, const QString &co
     Q_D(ZipPackage);
     ZipPackagePart *part = new ZipPackagePart(partName, contentType, this);
     part->d_func()->zipArchive = d->zipArchive;
+    d->dirty = true;
 
     return part;
 }
 
+/*!
+ * Note, KArchive has no support for delete file from zip package.
+ */
 bool ZipPackage::doDeletePart(const QString &partName)
 {
-    delete part(partName);
-    return true;
+    Q_D(ZipPackage);
+
+    d->dirty = true;
+    return false;
 }
 
 /*!
@@ -269,6 +278,8 @@ void ContentTypeHelper::addContentType(const QString &partName, const QString &c
        const QString ext = name.mid(idx+1);
        if (!defaults.contains(ext)) {
            defaults.insert(ext, DefaultData(partName.mid(idx+1), contentType));
+           return;
+       } else if (defaults[ext].contentType == contentType) {
            return;
        }
    }

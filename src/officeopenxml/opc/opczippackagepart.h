@@ -42,7 +42,7 @@ private:
     friend class ZipPackagePrivate;
 
     ZipPackagePart(const QString &partName, const QString &contentType, Package *package);
-    QIODevice *doGetDevice() Q_DECL_OVERRIDE;
+    QIODevice *doGetDevice(QIODevice::OpenMode mode) Q_DECL_OVERRIDE;
     void doReleaseDevice() Q_DECL_OVERRIDE;
 
     Q_DECLARE_PRIVATE(ZipPackagePart)

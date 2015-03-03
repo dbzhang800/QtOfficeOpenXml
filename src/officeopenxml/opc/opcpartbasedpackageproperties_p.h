@@ -119,6 +119,7 @@ private:
     Package *m_package;
     PackagePart *m_propertyPart;
     QMap<PropertyEnum, QString> m_properties;
+    bool dirty;
 };
 
 } // namespace Opc

@@ -96,13 +96,13 @@ TargetMode PackageRelationship::targetMode() const
  * \internal
  */
 PackageRelationshipHelper::PackageRelationshipHelper(Package *package, const QString &sourcePartName)
-    :m_package(package), m_relationshipsPart(0), m_sourcePartName(sourcePartName)
+    :m_package(package), m_relationshipsPart(0), m_sourcePartName(sourcePartName), m_dirty(false)
 {
     if (package->mode() & QIODevice::ReadOnly) {
         //Try Load from the part stream.
         m_relationshipsPart = m_package->part(getRelsPath(m_sourcePartName));
         if (m_relationshipsPart) {
-            doLoadFromXml(m_relationshipsPart->getDevice());
+            doLoadFromXml(m_relationshipsPart->getDevice(QIODevice::ReadOnly));
             m_relationshipsPart->releaseDevice();
         }
     }
@@ -115,13 +115,14 @@ PackageRelationshipHelper::~PackageRelationshipHelper()
 
 void PackageRelationshipHelper::flush()
 {
-    if (m_package->mode() == QIODevice::WriteOnly) {
+    if ((m_package->mode() & QIODevice::WriteOnly) && m_dirty) {
         if (!m_relationshipsPart) {
             m_relationshipsPart = m_package->createPart(getRelsPath(m_sourcePartName), QString::fromLatin1(ContentTypes::relationships));
             //relationshp part can not have relationships with other parts.
         }
-        doSaveToXml(m_relationshipsPart->getDevice());
+        doSaveToXml(m_relationshipsPart->getDevice(QIODevice::WriteOnly));
         m_relationshipsPart->releaseDevice();
+        m_dirty = false;
     }
 }
 
@@ -167,12 +168,14 @@ PackageRelationship *PackageRelationshipHelper::createRelationship(const QString
 
     PackageRelationship *rel = new PackageRelationship(realId, type, m_sourcePartName, target, mode);
     m_relationships.insert(realId, rel);
+    m_dirty = true;
     return rel;
 }
 
 void PackageRelationshipHelper::deleteRelationship(const QString &id)
 {
-    m_relationships.remove(id);
+    if (m_relationships.remove(id))
+        m_dirty = true;
 }
 
 void PackageRelationshipHelper::doLoadFromXml(QIODevice *device)

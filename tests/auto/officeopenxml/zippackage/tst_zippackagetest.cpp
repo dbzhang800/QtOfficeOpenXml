@@ -19,6 +19,7 @@ private Q_SLOTS:
     void testNonOpcPackageRead();
     void testPackageRead();
     void testPackageWrite();
+    void testPackageReadWrite();
 };
 
 ZippackageTest::ZippackageTest()
@@ -105,6 +106,31 @@ void ZippackageTest::testPackageWrite()
     QVERIFY(p2p2);
     QCOMPARE(p2p2->getDevice()->readAll(), QByteArray("Hi"));
     p2p2->releaseDevice();
+}
+
+void ZippackageTest::testPackageReadWrite()
+{
+    QString packageName = "opc_test_temp.xlsx";
+    QFile::remove(packageName);
+    QFile::copy(SRCDIR"test.xlsx", packageName);
+
+    Opc::ZipPackage package(packageName);
+    package.open(QIODevice::ReadWrite);
+
+    Opc::PackageProperties *properties = package.packageProperties();
+    QCOMPARE(properties->creator(), QStringLiteral("Debao Zhang"));
+    QCOMPARE(properties->created(), QDateTime(QDate(2006, 9, 16), QTime(), Qt::UTC));
+    properties->setLastModifiedBy("Unit Test");
+    package.close();
+
+    {
+        Opc::ZipPackage package(packageName);
+        package.open(QIODevice::ReadOnly);
+        Opc::PackageProperties *properties = package.packageProperties();
+        QCOMPARE(properties->creator(), QStringLiteral("Debao Zhang"));
+        QCOMPARE(properties->created(), QDateTime(QDate(2006, 9, 16), QTime(), Qt::UTC));
+        QCOMPARE(properties->lastModifiedBy(), QStringLiteral("Unit Test"));
+    }
 }
 
 QTEST_APPLESS_MAIN(ZippackageTest)

@@ -63,9 +63,10 @@ bool PackagePartPrivate::isRelationshipPart() const
 
 void PackagePartPrivate::flushRelationships()
 {
-    if (!relationshipHelper || relationshipHelper->relationships().isEmpty())
+    if (!relationshipHelper)
         return;
 
+    //Flush must be called even when the relationships is emtpy.
     relationshipHelper->flush();
 }
 
@@ -98,7 +99,13 @@ QString PackagePart::contentType() const
 
 QIODevice *PackagePart::getDevice()
 {
-    return doGetDevice();
+    Q_D(PackagePart);
+    return doGetDevice(d->package->mode());
+}
+
+QIODevice *PackagePart::getDevice(QIODevice::OpenMode mode)
+{
+    return doGetDevice(mode);
 }
 
 void PackagePart::releaseDevice()

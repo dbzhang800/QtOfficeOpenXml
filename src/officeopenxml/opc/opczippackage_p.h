@@ -54,6 +54,7 @@ public:
     bool doSavePackage();
 
     KZip *zipArchive;
+    bool dirty;
 };
 
 class ContentTypeHelper

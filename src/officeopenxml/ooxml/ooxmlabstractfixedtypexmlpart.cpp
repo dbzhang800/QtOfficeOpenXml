@@ -64,7 +64,7 @@ bool AbstractFixedTypeXmlPart::loadFromPackage(SchameType schameType)
 {
     if (hasCalled || !packagePart())
         return false;
-    QIODevice *device = part->getDevice();
+    QIODevice *device = part->getDevice(QIODevice::ReadOnly);
     bool ret = doLoadFromXml(device, schameType);
     part->releaseDevice();
     hasCalled = true;
@@ -75,7 +75,7 @@ bool AbstractFixedTypeXmlPart::saveToPackage(SchameType schameType)
 {
     if (hasCalled || !packagePart())
         return false;
-    QIODevice *device = part->getDevice();
+    QIODevice *device = part->getDevice(QIODevice::WriteOnly);
     bool ret = doSaveToXml(device, schameType);
     part->releaseDevice();
     hasCalled = true;

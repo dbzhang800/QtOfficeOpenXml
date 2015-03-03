@@ -80,6 +80,7 @@ private:
     Package *m_package;
     PackagePart *m_relationshipsPart;
     QString m_sourcePartName;
+    bool m_dirty;
 };
 
 

@@ -25,8 +25,7 @@
 #define QTOFFICEOPENXML_OPC_OPCPACKAGEPART_H
 
 #include <QtOfficeOpenXml/opcpackagerelationship.h>
-
-class QIODevice;
+#include <QtCore/qiodevice.h>
 
 namespace QtOfficeOpenXml {
 namespace Opc {
@@ -41,6 +40,7 @@ public:
     QString contentType() const;
 
     QIODevice *getDevice();
+    QIODevice *getDevice(QIODevice::OpenMode mode);
     void releaseDevice();
 
     PackageRelationship *relationship(const QString &id) const;
@@ -53,7 +53,7 @@ protected:
     friend class Package;
 
     PackagePart(PackagePartPrivate *d);
-    virtual QIODevice *doGetDevice() = 0;
+    virtual QIODevice *doGetDevice(QIODevice::OpenMode mode) = 0;
     virtual void doReleaseDevice() = 0;
 
     PackagePartPrivate *d_ptr;

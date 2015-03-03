@@ -61,7 +61,7 @@ static const char * propertiesNameTable[] = {
  */
 
 PartBasedPackageProperties::PartBasedPackageProperties(Package *package)
-    :m_package(package), m_propertyPart(0)
+    :m_package(package), m_propertyPart(0), dirty(false)
 {
     if (m_package->mode() & QIODevice::ReadOnly)
         readPropertiesFromPackage();
@@ -73,16 +73,18 @@ PartBasedPackageProperties::~PartBasedPackageProperties()
 
 void PartBasedPackageProperties::flush()
 {
-    if (m_package->mode() == QIODevice::WriteOnly) {
+    if ((m_package->mode() & QIODevice::WriteOnly) && dirty) {
         if (!m_propertyPart) {
             //create part if not exists.
             m_propertyPart = m_package->createPart(QStringLiteral("/docProps/core.xml"), QString::fromLatin1(ContentTypes::coreProperties));
             m_package->createRelationship(m_propertyPart->partName(), Internal, QString::fromLatin1(RelationshipTypes::coreProperties));
         }
 
-        QIODevice *stream = m_propertyPart->getDevice();
+        QIODevice *stream = m_propertyPart->getDevice(QIODevice::WriteOnly);
         doSaveToXml(stream);
         m_propertyPart->releaseDevice();
+
+        dirty = false;
     }
 }
 
@@ -94,7 +96,7 @@ void PartBasedPackageProperties::readPropertiesFromPackage()
     m_propertyPart = m_package->part(relationships[0]->target());
     if (!m_propertyPart)
         return;
-    QIODevice *corePropertyStream = m_propertyPart->getDevice();
+    QIODevice *corePropertyStream = m_propertyPart->getDevice(QIODevice::ReadOnly);
     doLoadFromXml(corePropertyStream);
     m_propertyPart->releaseDevice();
 }
@@ -210,6 +212,8 @@ void PartBasedPackageProperties::setStringProperty(PropertyEnum pe, const QStrin
         m_properties.remove(pe);
     else
         m_properties[pe] = value;
+
+    dirty = true;
 }
 
 void PartBasedPackageProperties::setDateTimeProperty(PropertyEnum pe, const QDateTime &value)
@@ -218,6 +222,8 @@ void PartBasedPackageProperties::setDateTimeProperty(PropertyEnum pe, const QDat
         m_properties.remove(pe);
     else
         m_properties[pe] = value.toString(Qt::ISODate);
+
+    dirty = true;
 }
 
 //Summary information properties
