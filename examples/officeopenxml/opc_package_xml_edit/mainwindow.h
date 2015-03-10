@@ -35,7 +35,7 @@
 using namespace QtOfficeOpenXml;
 
 class QTextDocument;
-
+class RecentFiles;
 namespace Ui {
 class MainWindow;
 }
@@ -50,7 +50,7 @@ public:
 
 private slots:
     void onActionOpenTriggered();
-    void onActionRecentFileTriggered();
+    void onRecentFileTriggered(const QString &fileName);
     void onActionCloseTriggered();
     void onActionSaveTriggered();
     void onActionSaveAsTriggered();
@@ -63,7 +63,6 @@ private:
 
     void createActions();
     void createMenuBar();
-    void updateRecentFilesMenu();
     void loadSettings();
     void saveSettings();
     bool openPackage(const QString &name);
@@ -78,12 +77,10 @@ private:
     QAction *m_actionSaveAs;
     QAction *m_actionQuit;
     QAction *m_actionAbout;
-    QMenu *m_menuRecentFiles;
+    RecentFiles *m_recentFiles;
 
     Opc::Package *m_package;
     QHash<QString, QTextDocument*> m_partDocumentHash;
-
-    QStringList m_recentFilesList;
 };
 
 #endif // MAINWINDOW_H

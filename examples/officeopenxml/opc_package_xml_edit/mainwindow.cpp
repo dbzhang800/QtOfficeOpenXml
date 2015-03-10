@@ -23,6 +23,7 @@
 ****************************************************************************/
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "recentfiles.h"
 #include <mcexmlstreamreader.h>
 
 #include <QFileInfo>
@@ -51,10 +52,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow), m_package(0)
 {
     ui->setupUi(this);
+    m_recentFiles = new RecentFiles(this);
 
     createActions();
     createMenuBar();
 
+    connect(m_recentFiles, SIGNAL(activated(QString)), SLOT(onRecentFileTriggered(QString)));
     connect(ui->partListWidget, SIGNAL(currentTextChanged(QString)), SLOT(onPartItemChanged(QString)));
     loadSettings();
 }
@@ -76,18 +79,15 @@ void MainWindow::onActionOpenTriggered()
             return;
     }
 
-    QString fn = QFileDialog::getOpenFileName( 0, tr("Open OPC Package"), m_recentFilesList.isEmpty() ? "" : m_recentFilesList[0], "Office files (*.xlsx *.docx *.pptx);;All files(*.*)");
+    QString fn = QFileDialog::getOpenFileName( 0, tr("Open OPC Package"), m_recentFiles->mostRecentFile(), "Office files (*.xlsx *.docx *.pptx);;All files(*.*)");
     if (fn.isEmpty())
         return;
 
     openPackage(fn);
 }
 
-void MainWindow::onActionRecentFileTriggered()
+void MainWindow::onRecentFileTriggered(const QString &fileName)
 {
-    QAction *act = qobject_cast<QAction *>(sender());
-    QString fileName = act->data().toString();
-
     if (m_package && m_package->packageName() == fileName)
         return;
 
@@ -99,10 +99,8 @@ void MainWindow::onActionRecentFileTriggered()
             return;
     }
 
-    if (!openPackage(fileName)) {
-        m_recentFilesList.removeOne(fileName);
-        updateRecentFilesMenu();
-    }
+    if (!openPackage(fileName))
+        m_recentFiles->remove(fileName);
 }
 
 bool MainWindow::openPackage(const QString &name)
@@ -118,11 +116,7 @@ bool MainWindow::openPackage(const QString &name)
         return false;
     }
 
-    m_recentFilesList.removeOne(name);
-    m_recentFilesList.insert(0, name);
-    if (m_recentFilesList.size() > 50)
-        m_recentFilesList.removeLast();
-    updateRecentFilesMenu();
+    m_recentFiles->add(name);
 
     setWindowTitle(QString("%1[*] - Edit for xml part of opc package").arg(name));
 
@@ -168,7 +162,7 @@ void MainWindow::onActionSaveTriggered()
 
 void MainWindow::onActionSaveAsTriggered()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, "Save package", m_recentFilesList.isEmpty() ? "" : m_recentFilesList[0], "Office files (*.xlsx *.docx *.pptx);;All files(*.*)");
+    QString fileName = QFileDialog::getSaveFileName(this, "Save package", m_recentFiles->mostRecentFile(), "Office files (*.xlsx *.docx *.pptx);;All files(*.*)");
     if (fileName.isEmpty())
         return;
     doSavePackage(fileName, true, true);
@@ -342,7 +336,6 @@ void MainWindow::createActions()
     m_actionSaveAs = new QAction(tr("Save as..."), this);
     m_actionSaveAs->setShortcut(QKeySequence::SaveAs);
     m_actionQuit = new QAction(tr("&Quit"), this);
-    m_menuRecentFiles = new QMenu(tr("Recent files"), this);
 
     m_actionAbout = new QAction(tr("&About..."), this);
 
@@ -358,7 +351,7 @@ void MainWindow::createMenuBar()
 {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(m_actionOpen);
-    fileMenu->addAction(m_menuRecentFiles->menuAction());
+    fileMenu->addAction(m_recentFiles->menu()->menuAction());
     fileMenu->addAction(m_actionClose);
     fileMenu->addAction(m_actionSave);
     fileMenu->addAction(m_actionSaveAs);
@@ -369,30 +362,14 @@ void MainWindow::createMenuBar()
     helpMenu->addAction(m_actionAbout);
 }
 
-void MainWindow::updateRecentFilesMenu()
-{
-    m_menuRecentFiles->clear();
-    for (int i=0; i<m_recentFilesList.size(); ++i) {
-        QString title = QString("%1 %2").arg(i)
-                .arg(QFontMetrics(font()).elidedText(m_recentFilesList.at(i), Qt::ElideMiddle, 300));
-        QAction *act = new QAction(title, m_menuRecentFiles);
-        act->setData(m_recentFilesList.at(i));
-        m_menuRecentFiles->addAction(act);
-
-        connect(act, SIGNAL(triggered()), SLOT(onActionRecentFileTriggered()));
-    }
-}
-
 void MainWindow::loadSettings()
 {
-    QSettings settings("opcpackagexmledit.ini", QSettings::IniFormat);
-    m_recentFilesList = settings.value("RecentFiles").toStringList();
-
-    updateRecentFilesMenu();
+    QSettings settings;
+    m_recentFiles->setFileList(settings.value("RecentFiles").toStringList());
 }
 
 void MainWindow::saveSettings()
 {
-    QSettings settings("opcpackagexmledit.ini", QSettings::IniFormat);
-    settings.setValue("RecentFiles", m_recentFilesList);
+    QSettings settings;
+    settings.setValue("RecentFiles", m_recentFiles->fileList());
 }

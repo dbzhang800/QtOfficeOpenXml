@@ -5,8 +5,10 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    recentfiles.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    recentfiles.h
 
 FORMS    += mainwindow.ui
