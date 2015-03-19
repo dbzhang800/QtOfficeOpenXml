@@ -1,34 +1,19 @@
-From 10ffd716fa81905ca22b721e47fcc777308e67dc Mon Sep 17 00:00:00 2001
+From 7e32541583ffec73c19094af187be43ce07b19e9 Mon Sep 17 00:00:00 2001
 From: Debao Zhang <hello@debao.me>
-Date: Thu, 11 Dec 2014 10:25:47 +0800
-Subject: [PATCH 3/3] Fix compile error with Qt5 bubbled zlib
+Date: Wed, 18 Mar 2015 11:00:38 +0800
+Subject: [PATCH 2/2] Fix compile error when Qt5 bubbled zlib is used.
 
-both compress and crc32 are macros used by zlib!!
 ---
- examples/helloworld/helloworld.pro | 3 ++-
- src/kcompressiondevice.cpp         | 4 ++--
- src/kfilterbase.h                  | 4 ++--
- src/kgzipfilter.cpp                | 4 ++--
- src/kgzipfilter.h                  | 4 ++--
- src/knonefilter.cpp                | 4 ++--
- src/knonefilter.h                  | 4 ++--
- src/kzip.cpp                       | 6 +++---
- src/kzipfileentry.h                | 2 +-
- 9 files changed, 18 insertions(+), 17 deletions(-)
+ src/kcompressiondevice.cpp | 4 ++--
+ src/kfilterbase.h          | 4 ++--
+ src/kgzipfilter.cpp        | 4 ++--
+ src/kgzipfilter.h          | 4 ++--
+ src/knonefilter.cpp        | 4 ++--
+ src/knonefilter.h          | 4 ++--
+ src/kzip.cpp               | 6 +++---
+ src/kzipfileentry.h        | 2 +-
+ 8 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/examples/helloworld/helloworld.pro b/examples/helloworld/helloworld.pro
-index cba4f7a..11abd06 100644
---- a/examples/helloworld/helloworld.pro
-+++ b/examples/helloworld/helloworld.pro
-@@ -1,6 +1,7 @@
- # Show how to use KArchive using qmake
- 
- # Set $QMAKEPATH to your KArchive install prefix if this is not found.
--QT += KArchive
-+#QT += KArchive
-+include (../../karchive.pri)
- 
- SOURCES += main.cpp
 diff --git a/src/kcompressiondevice.cpp b/src/kcompressiondevice.cpp
 index 05d6859..4f7bba0 100644
 --- a/src/kcompressiondevice.cpp
@@ -142,10 +127,10 @@ index 7113379..11e7a33 100644
  private:
      Result copyData();
 diff --git a/src/kzip.cpp b/src/kzip.cpp
-index fd9a5e0..6731e9a 100644
+index 4bbbcf5..c2d0d31 100644
 --- a/src/kzip.cpp
 +++ b/src/kzip.cpp
-@@ -793,7 +793,7 @@ bool KZip::closeArchive()
+@@ -829,7 +829,7 @@ bool KZip::closeArchive()
          //    << it.current()->path()
          //    << "encoding:" << it.current()->encoding();
  
@@ -154,7 +139,7 @@ index fd9a5e0..6731e9a 100644
          buffer[0] = char(mycrc); // crc checksum, at headerStart+14
          buffer[1] = char(mycrc >> 8);
          buffer[2] = char(mycrc >> 16);
-@@ -846,7 +846,7 @@ bool KZip::closeArchive()
+@@ -882,7 +882,7 @@ bool KZip::closeArchive()
  
          transformToMsDos(it.value()->date(), &buffer[ 12 ]);
  
@@ -163,7 +148,7 @@ index fd9a5e0..6731e9a 100644
          buffer[ 16 ] = char(mycrc); // crc checksum
          buffer[ 17 ] = char(mycrc >> 8);
          buffer[ 18 ] = char(mycrc >> 16);
-@@ -1316,7 +1316,7 @@ qint64 KZipFileEntry::headerStart() const
+@@ -1358,7 +1358,7 @@ qint64 KZipFileEntry::headerStart() const
      return d->headerStart;
  }
  

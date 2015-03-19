@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(KArchive)
 
-find_package(ECM 1.5.0 REQUIRED NO_MODULE)
+find_package(ECM 1.8.0 REQUIRED NO_MODULE)
 
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
 
@@ -45,7 +45,7 @@ include_directories(
 include(ECMSetupVersion)
 include(ECMGenerateHeaders)
 
-set(KF5_VERSION "5.5.0") # handled by release scripts
+set(KF5_VERSION "5.8.0") # handled by release scripts
 
 ecm_setup_version(${KF5_VERSION}
     VARIABLE_PREFIX KARCHIVE
@@ -59,7 +59,7 @@ add_subdirectory(tests)
 
 
 # create a Config.cmake and a ConfigVersion.cmake file and install them
-set(CMAKECONFIG_INSTALL_DIR "${CMAKECONFIG_INSTALL_PREFIX}/KF5Archive")
+set(CMAKECONFIG_INSTALL_DIR "${KDE_INSTALL_CMAKEPACKAGEDIR}/KF5Archive")
 
 include(ECMPackageConfigHelpers)
 
@@ -70,7 +70,7 @@ ecm_configure_package_config_file(
 )
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/karchive_version.h
-        DESTINATION ${KF5_INCLUDE_INSTALL_DIR}
+        DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF5}
         COMPONENT Devel)
 
 install(FILES

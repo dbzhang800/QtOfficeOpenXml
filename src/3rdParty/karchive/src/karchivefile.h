@@ -104,7 +104,7 @@ public:
     bool copyTo(const QString &dest) const;
 
 protected:
-    virtual void virtual_hook(int id, void *data);
+    void virtual_hook(int id, void *data) Q_DECL_OVERRIDE;
 private:
     KArchiveFilePrivate *const d;
 };

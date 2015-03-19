@@ -294,6 +294,88 @@ static bool parseExtraField(const char *buffer, int size, bool islocal,
     return true;
 }
 
+/**
+ * Checks if a token for a central or local header has been found and resets
+ * the device to the begin of the token. If a token for the data descriptor is
+ * found it is assumed there is a central or local header token starting right
+ * behind the data descriptor, and the device is set accordingly to the begin
+ * of that token.
+ * To be called when a 'P' has been found.
+ * @param buffer start of buffer with the 3 bytes behind 'P'
+ * @param dev device that is read from
+ * @return true if a local or central header begin is or could be reached
+ */
+static bool handlePossibleHeaderBegin(const char* buffer, QIODevice *dev)
+{
+    // we have to detect three magic tokens here:
+    // PK34 for the next local header in case there is no data descriptor
+    // PK12 for the central header in case there is no data descriptor
+    // PK78 for the data descriptor in case it is following the compressed data
+    // TODO: optimize using 32bit const data for comparison instead of byte-wise,
+    // given we run at least on 32bit CPUs
+
+    if (buffer[0] == 'K') {
+        if (buffer[1] == 7 && buffer[2] == 8) {
+            // data descriptor token found
+            dev->seek(dev->pos() + 12); // skip the 'data_descriptor'
+            return true;
+        }
+
+        if ((buffer[1] == 1 && buffer[2] == 2)
+            || (buffer[1] == 3 && buffer[2] == 4)) {
+            // central/local header token found
+            dev->seek(dev->pos() - 4);
+            // go back 4 bytes, so that the magic bytes can be found
+            // in the next cycle...
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Reads the device forwards from the current pos until a token for a central or
+ * local header has been found or is to be assumed.
+ * @param dev device that is read from
+ * @return true if a local or central header token could be reached, false on error
+ */
+static bool seekToNextHeaderToken(QIODevice *dev)
+{
+    bool headerTokenFound = false;
+    char buffer[3];
+
+    while (!headerTokenFound) {
+        int n = dev->read(buffer, 1);
+        if (n < 1) {
+            //qWarning() << "Invalid ZIP file. Unexpected end of file. (#2)";
+            return false;
+        }
+
+        if (buffer[0] != 'P') {
+            continue;
+        }
+
+        n = dev->read(buffer, 3);
+        if (n < 3) {
+            //qWarning() << "Invalid ZIP file. Unexpected end of file. (#3)";
+            return false;
+        }
+
+        if (handlePossibleHeaderBegin(buffer, dev)) {
+            headerTokenFound = true;
+        } else {
+            for (int i = 0; i < 3; ++i) {
+                if (buffer[i] == 'P') {
+                    // We have another P character so we must go back a little to check if it is a magic
+                    dev->seek(dev->pos() - 3 + i);
+                    break;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 ////////////////////////////////////////////////////////////////////////
 /////////////////////////// KZip ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
@@ -452,46 +534,13 @@ bool KZip::openArchive(QIODevice::OpenMode mode)
             if (gpf & 8) {
                 // here we have to read through the compressed data to find
                 // the next PKxx
-                //qDebug() << "trying to seek for next PK78";
-                bool foundSignature = false;
-
-                while (!foundSignature) {
-                    n = dev->read(buffer, 1);
-                    if (n < 1) {
-                        //qWarning() << "Invalid ZIP file. Unexpected end of file. (#2)";
-                        return false;
-                    }
-
-                    if (buffer[0] != 'P') {
-                        continue;
-                    }
-
-                    n = dev->read(buffer, 3);
-                    if (n < 3) {
-                        //qWarning() << "Invalid ZIP file. Unexpected end of file. (#3)";
-                        return false;
-                    }
-
-                    // we have to detect three magic tokens here:
-                    // PK34 for the next local header in case there is no data descriptor
-                    // PK12 for the central header in case there is no data descriptor
-                    // PK78 for the data descriptor in case it is following the compressed data
-
-                    if (buffer[0] == 'K' && buffer[1] == 7 && buffer[2] == 8) {
-                        foundSignature = true;
-                        dev->seek(dev->pos() + 12); // skip the 'data_descriptor'
-                    } else if ((buffer[0] == 'K' && buffer[1] == 1 && buffer[2] == 2)
-                               || (buffer[0] == 'K' && buffer[1] == 3 && buffer[2] == 4)) {
-                        foundSignature = true;
-                        dev->seek(dev->pos() - 4); // go back 4 bytes, so that the magic bytes can be found...
-                    } else if (buffer[0] == 'P' || buffer[1] == 'P' || buffer[2] == 'P') {
-                        // We have another P character so we must go back a little to check if it is a magic
-                        dev->seek(dev->pos() - 3);
-                    }
+                if (!seekToNextHeaderToken(dev)) {
+                    return false;
                 }
             } else {
                 // here we skip the compressed data and jump to the next header
                 //qDebug() << "general purpose bit flag indicates, that local file header contains valid size";
+                bool foundSignature = false;
                 // check if this could be a symbolic link
                 if (compression_mode == NoCompression
                         && uncomp_size <= max_path_len
@@ -507,43 +556,10 @@ bool KZip::openArchive(QIODevice::OpenMode mode)
                     if (compr_size > dev->size()) {
                         // here we cannot trust the compressed size, so scan through the compressed
                         // data to find the next header
-                        bool foundSignature = false;
-
-                        while (!foundSignature) {
-                            n = dev->read(buffer, 1);
-                            if (n < 1) {
-                                //qWarning() << "Invalid ZIP file. Unexpected end of file. (#2)";
-                                return false;
-                            }
-
-                            if (buffer[0] != 'P') {
-                                continue;
-                            }
-
-                            n = dev->read(buffer, 3);
-                            if (n < 3) {
-                                //qWarning() << "Invalid ZIP file. Unexpected end of file. (#3)";
-                                return false;
-                            }
-
-                            // we have to detect three magic tokens here:
-                            // PK34 for the next local header in case there is no data descriptor
-                            // PK12 for the central header in case there is no data descriptor
-                            // PK78 for the data descriptor in case it is following the compressed data
-
-                            if (buffer[0] == 'K' && buffer[1] == 7 && buffer[2] == 8) {
-                                foundSignature = true;
-                                dev->seek(dev->pos() + 12); // skip the 'data_descriptor'
-                            }
-
-                            if ((buffer[0] == 'K' && buffer[1] == 1 && buffer[2] == 2)
-                                    || (buffer[0] == 'K' && buffer[1] == 3 && buffer[2] == 4)) {
-                                foundSignature = true;
-                                dev->seek(dev->pos() - 4);
-                                // go back 4 bytes, so that the magic bytes can be found
-                                // in the next cycle...
-                            }
+                        if (!seekToNextHeaderToken(dev)) {
+                            return false;
                         }
+                        foundSignature = true;
                     } else {
 //          qDebug() << "before interesting dev->pos(): " << dev->pos();
                         bool success = dev->seek(dev->pos() + compr_size); // can this fail ???
@@ -556,6 +572,21 @@ bool KZip::openArchive(QIODevice::OpenMode mode)
                                                 qDebug() << "dev->at failed... ";*/
                     }
 
+                }
+                // test for optional data descriptor
+                if (!foundSignature) {
+//                     qDebug() << "Testing for optional data descriptor";
+                    // read static data descriptor
+                    n = dev->read(buffer, 4);
+                    if (n < 4) {
+//                         qWarning() << "Invalid ZIP file. Unexpected end of file. (#1)";
+                        return false;
+                    }
+
+                    if (buffer[0] != 'P' || !handlePossibleHeaderBegin(buffer+1, dev)) {
+                        // assume data descriptor without signature
+                        dev->seek(dev->pos() + 8); // skip rest of the 'data_descriptor'
+                    }
                 }
 
 // not needed any more
@@ -749,9 +780,14 @@ bool KZip::openArchive(QIODevice::OpenMode mode)
                 if (buffer[0] == 'K' && buffer[1] == 3 && buffer[2] == 4) {
                     foundSignature = true;
                     dev->seek(dev->pos() - 4); // go back 4 bytes, so that the magic bytes can be found...
-                } else if (buffer[0] == 'P' || buffer[1] == 'P' || buffer[2] == 'P') {
-                    // We have another P character so we must go back a little to check if it is a magic
-                    dev->seek(dev->pos() - 3);
+                } else {
+                    for (int i = 0; i < 3; ++i) {
+                        if (buffer[i] == 'P') {
+                            // We have another P character so we must go back a little to check if it is a magic
+                            dev->seek(dev->pos() - 3 + i);
+                            break;
+                        }
+                    }
                 }
             }
         } else {
@@ -825,8 +861,8 @@ bool KZip::closeArchive()
 
         QByteArray path = QFile::encodeName(it.value()->path());
 
-        const int extra_field_len = 9;
-        int bufferSize = extra_field_len + path.length() + 46;
+        const int extra_field_len = (d->m_extraField == ModificationTime) ? 9 : 0;
+        const int bufferSize = extra_field_len + path.length() + 46;
         char *buffer = new char[ bufferSize ];
 
         memset(buffer, 0, 46); // zero is a nice default for most header fields
@@ -884,19 +920,22 @@ bool KZip::closeArchive()
         //qDebug() << "closearchive length to write: " << bufferSize;
 
         // extra field
-        char *extfield = buffer + 46 + path.length();
-        extfield[0] = 'U';
-        extfield[1] = 'T';
-        extfield[2] = 5;
-        extfield[3] = 0;
-        extfield[4] = 1 | 2 | 4;    // specify flags from local field
-        // (unless I misread the spec)
-        // provide only modification time
-        unsigned long time = (unsigned long)it.value()->date().toTime_t();
-        extfield[5] = char(time);
-        extfield[6] = char(time >> 8);
-        extfield[7] = char(time >> 16);
-        extfield[8] = char(time >> 24);
+        if (d->m_extraField == ModificationTime) {
+            char *extfield = buffer + 46 + path.length();
+            // "Extended timestamp" header (0x5455)
+            extfield[0] = 'U';
+            extfield[1] = 'T';
+            extfield[2] = 5; // data size
+            extfield[3] = 0;
+            extfield[4] = 1 | 2 | 4;    // specify flags from local field
+            // (unless I misread the spec)
+            // provide only modification time
+            unsigned long time = (unsigned long)it.value()->date().toTime_t();
+            extfield[5] = char(time);
+            extfield[6] = char(time >> 8);
+            extfield[7] = char(time >> 16);
+            extfield[8] = char(time >> 24);
+        }
 
         crc = crc32(crc, (Bytef *)buffer, bufferSize);
         bool ok = (device()->write(buffer, bufferSize) == bufferSize);
@@ -982,7 +1021,10 @@ bool KZip::doPrepareWriting(const QString &name, const QString &user,
         return false;
     }
 
-    Q_ASSERT(device());
+    if (!device()) {
+        //qWarning("doPrepareWriting: cannot create a device. Disk full?")
+        return false;
+    }
 
     // set right offset in zip.
     if (!device()->seek(d->m_offset)) {
@@ -1117,8 +1159,8 @@ bool KZip::doPrepareWriting(const QString &name, const QString &user,
     d->m_crc = 0;
     delete[] buffer;
 
-    Q_ASSERT(b);
     if (!b) {
+        // qWarning("doPrepareWriting: Could not write to the archive. Disk full?");
         return false;
     }
 

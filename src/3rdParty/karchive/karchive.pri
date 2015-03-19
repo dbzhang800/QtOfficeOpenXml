@@ -1,11 +1,11 @@
 DEPENDPATH += $$PWD/src
 INCLUDEPATH += $$PWD/src
 
-HEADERS += \
+KARCHIVE_PUBLIC_HEADERS = \
+           $$PWD/src/karchive_export.h \
            #$$PWD/src/k7zip.h \
            #$$PWD/src/kar.h \
            $$PWD/src/karchive.h \
-           $$PWD/src/karchive_p.h \
            $$PWD/src/karchivedirectory.h \
            $$PWD/src/karchiveentry.h \
            $$PWD/src/karchivefile.h \
@@ -14,12 +14,15 @@ HEADERS += \
            $$PWD/src/kfilterbase.h \
            $$PWD/src/kfilterdev.h \
            $$PWD/src/kgzipfilter.h \
-           $$PWD/src/klimitediodevice_p.h \
            $$PWD/src/knonefilter.h \
            $$PWD/src/ktar.h \
            #$$PWD/src/kxzfilter.h \
            $$PWD/src/kzip.h \
            $$PWD/src/kzipfileentry.h
+
+HEADERS += $$KARCHIVE_PUBLIC_HEADERS\
+           $$PWD/src/karchive_p.h \
+           $$PWD/src/klimitediodevice_p.h \
 
 SOURCES += \
            #$$PWD/src/k7zip.cpp \
@@ -37,6 +40,7 @@ SOURCES += \
            $$PWD/src/kzip.cpp
 
 win32: LIBS += -ladvapi32
+msvc*: DEFINES += _CRT_SECURE_NO_WARNINGS
 
 contains(QT_CONFIG, system-zlib) {
     if(unix|win32-g++*):     LIBS_PRIVATE += -lz
@@ -46,4 +50,10 @@ contains(QT_CONFIG, system-zlib) {
     p2 = $$[QT_INSTALL_HEADERS/src]/QtZlib
     exists($$p1): INCLUDEPATH += $$p1
     else: INCLUDEPATH += $$p2
+}
+
+debao_building_kde5tier1 {
+    karchive_headers.files = $$KARCHIVE_PUBLIC_HEADERS
+    karchive_headers.path = $$[QT_INSTALL_HEADERS]/Kde5Tier1
+    INSTALLS += karchive_headers
 }

@@ -1020,6 +1020,45 @@ void KArchiveTest::testZipAddLocalDirectory()
     }
 }
 
+void KArchiveTest::testZipReadRedundantDataDescriptor_data()
+{
+    QTest::addColumn<QString>("fileName");
+    QTest::newRow("noSignature") << "data/redundantDataDescriptorsNoSignature.zip";
+    QTest::newRow("withSignature") << "data/redundantDataDescriptorsWithSignature.zip";
+}
+
+/**
+ * @dataProvider testZipReadRedundantDataDescriptor_data
+ */
+void KArchiveTest::testZipReadRedundantDataDescriptor()
+{
+    QFETCH(QString, fileName);
+
+    const QString redundantDataDescriptorZipFileName = QFINDTESTDATA(fileName);
+    QVERIFY(!redundantDataDescriptorZipFileName.isEmpty());
+
+    KZip zip(redundantDataDescriptorZipFileName);
+
+    QVERIFY(zip.open(QIODevice::ReadOnly));
+
+    const KArchiveDirectory *dir = zip.directory();
+    QVERIFY(dir != 0);
+
+    const QByteArray fileData("aaaaaaaaaaaaaaa");
+
+    // ZIP has no support for per-file user/group, so omit them from the listing
+    const QStringList listing = recursiveListEntries(dir, "", 0);
+
+    QCOMPARE(listing.count(), 2);
+    QCOMPARE(listing[0], QString::fromUtf8("mode=100644 path=compressed type=file size=%2").arg(fileData.size()));
+    QCOMPARE(listing[1], QString::fromUtf8("mode=100644 path=uncompressed type=file size=%2").arg(fileData.size()));
+
+    const KArchiveFile *fileEntry = static_cast< const KArchiveFile * >(dir->entry(dir->entries()[0]));
+    QCOMPARE(fileEntry->data(), fileData);
+    fileEntry = static_cast< const KArchiveFile * >(dir->entry(dir->entries()[1]));
+    QCOMPARE(fileEntry->data(), fileData);
+}
+
 void KArchiveTest::testRcc()
 {
     const QString rccFile = QFINDTESTDATA("runtime_resource.rcc"); // was copied from qtbase/tests/auto/corelib/io/qresourceengine

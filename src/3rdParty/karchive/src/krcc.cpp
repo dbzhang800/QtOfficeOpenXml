@@ -50,7 +50,7 @@ public:
           m_resourcePath(resourcePath)
     {}
 
-    virtual QByteArray data() const Q_DECL_OVERRIDE
+    QByteArray data() const Q_DECL_OVERRIDE
     {
          QFile f(m_resourcePath);
          if (f.open(QIODevice::ReadOnly)) {
@@ -59,7 +59,7 @@ public:
          qWarning() << "Couldn't open" << m_resourcePath;
          return QByteArray();
     }
-    virtual QIODevice *createDevice() const Q_DECL_OVERRIDE
+    QIODevice *createDevice() const Q_DECL_OVERRIDE
     {
         return new QFile(m_resourcePath);
     }

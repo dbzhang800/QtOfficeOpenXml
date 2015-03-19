@@ -46,7 +46,7 @@
 #include <unistd.h>
 #endif
 #ifdef Q_OS_WIN
-#include <Windows.h> // DWORD, GetUserNameW
+#include <windows.h> // DWORD, GetUserNameW
 #endif // Q_OS_WIN
 
 ////////////////////////////////////////////////////////////////////////

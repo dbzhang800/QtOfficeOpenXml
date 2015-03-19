@@ -40,7 +40,7 @@ generate_export_header(KF5Archive BASE_NAME KArchive)
 add_library(KF5::Archive ALIAS KF5Archive)
 
 target_include_directories(KF5Archive
-    INTERFACE "$<INSTALL_INTERFACE:${KF5_INCLUDE_INSTALL_DIR}/KArchive>"
+    INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF5}/KArchive>"
 )
 
 target_link_libraries(KF5Archive
@@ -89,11 +89,11 @@ endif()
 install(FILES
             ${CMAKE_CURRENT_BINARY_DIR}/karchive_export.h
             ${KArchive_HEADERS}
-        DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KArchive
+        DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF5}/KArchive
         COMPONENT Devel)
 
 include(ECMGeneratePriFile)
-ecm_generate_pri_file(BASE_NAME KArchive LIB_NAME KF5Archive DEPS "core" FILENAME_VAR PRI_FILENAME INCLUDE_INSTALL_DIR ${KF5_INCLUDE_INSTALL_DIR}/KArchive)
+ecm_generate_pri_file(BASE_NAME KArchive LIB_NAME KF5Archive DEPS "core" FILENAME_VAR PRI_FILENAME INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR_KF5}/KArchive)
 install(FILES ${PRI_FILENAME}
         DESTINATION ${ECM_MKSPECS_INSTALL_DIR})
 

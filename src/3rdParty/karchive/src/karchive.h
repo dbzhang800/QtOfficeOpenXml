@@ -28,6 +28,7 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QHash>
+#include <QtCore/QIODevice>
 
 #include <karchive_export.h>
 
