@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QSharedPointer>
+#include <QList>
 
 class QProcess;
 class QFile;
@@ -24,6 +25,11 @@ private slots:
     void onFileOpenActionTriggered();
     void onAboutActionTriggered();
     void onFileOpenButtonClicked();
+    void onDiffFileOpenButtonClicked();
+    void onDiffAddButtonClicked();
+    void onDiffRemoveButtonClicked();
+    void onDiffConfigChanged(int index);
+    void onDiffConfigEditedByUser();
     void onRunButtonClicked();
     void onRunProcessFinished();
     void onRunProcessError();

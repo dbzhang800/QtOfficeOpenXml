@@ -17,6 +17,7 @@
 #include <QDebug>
 #include <QTemporaryDir>
 #include <QMessageBox>
+#include <QInputDialog>
 
 using namespace QtOfficeOpenXml;
 
@@ -31,6 +32,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionAbout, SIGNAL(triggered()), SLOT(onAboutActionTriggered()));
     connect(ui->file1Button, SIGNAL(clicked()), SLOT(onFileOpenButtonClicked()));
     connect(ui->file2Button, SIGNAL(clicked()), SLOT(onFileOpenButtonClicked()));
+    connect(ui->diffExceuableFileButton, SIGNAL(clicked()), SLOT(onDiffFileOpenButtonClicked()));
+    connect(ui->diffCommandAddButton, SIGNAL(clicked()), SLOT(onDiffAddButtonClicked()));
+    connect(ui->diffCommandRemoveButton, SIGNAL(clicked()), SLOT(onDiffRemoveButtonClicked()));
+    connect(ui->diffConfigComboBox, SIGNAL(currentIndexChanged(int)), SLOT(onDiffConfigChanged(int)));
+    connect(ui->diffCommandEdit, SIGNAL(editingFinished()), SLOT(onDiffConfigEditedByUser()));
+    connect(ui->diffArgumentsEdit, SIGNAL(editingFinished()), SLOT(onDiffConfigEditedByUser()));
     connect(ui->diffRunButton, SIGNAL(clicked()), SLOT(onRunButtonClicked()));
     loadSettings();
 }
@@ -53,6 +60,50 @@ void MainWindow::onFileOpenButtonClicked()
         ui->fileName2Edit->setText(fileName);
 
     ui->outputEdit->clear();
+}
+
+void MainWindow::onDiffFileOpenButtonClicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Select Diff Excutable"), m_lastPath);
+    if (fileName.isEmpty())
+        return;
+    ui->diffCommandEdit->setText(fileName);
+
+    onDiffConfigEditedByUser();
+}
+
+void MainWindow::onDiffAddButtonClicked()
+{
+    QString name = QInputDialog::getText(this, "Diff Config", "New diff config name", QLineEdit::Normal);
+    if (name.isEmpty())
+        return;
+    ui->diffConfigComboBox->addItem(name, QStringList()<<name<<QString()<<"%1 %2");
+    ui->diffConfigComboBox->setCurrentIndex(ui->diffConfigComboBox->count()-1);
+}
+
+void MainWindow::onDiffRemoveButtonClicked()
+{
+    ui->diffConfigComboBox->removeItem(ui->diffConfigComboBox->currentIndex());
+}
+
+void MainWindow::onDiffConfigChanged(int /*index*/)
+{
+    QStringList data = ui->diffConfigComboBox->currentData().toStringList();
+    if (data.isEmpty()) {
+        ui->diffCommandEdit->clear();
+        ui->diffArgumentsEdit->clear();
+        return;
+    }
+    ui->diffCommandEdit->setText(data[1]);
+    ui->diffArgumentsEdit->setText(data[2]);
+}
+
+void MainWindow::onDiffConfigEditedByUser()
+{
+    ui->diffConfigComboBox->setItemData(ui->diffConfigComboBox->currentIndex(),
+                                        QStringList() << ui->diffConfigComboBox->currentText()
+                                        << ui->diffCommandEdit->text()
+                                        << ui->diffArgumentsEdit->text());
 }
 
 void MainWindow::onFileOpenActionTriggered()
@@ -141,22 +192,37 @@ void MainWindow::closeEvent(QCloseEvent *evt)
 
 void MainWindow::loadSettings()
 {
-    QSettings settings("opcpackagesdiff.ini", QSettings::IniFormat);
+    QSettings settings;
     m_lastPath = settings.value("lastPath").toString();
 
     ui->diffCommandEdit->setText(settings.value("diff", QString("diff")).toString());
     ui->diffArgumentsEdit->setText(settings.value("diffArgs", QString("-r -c3 %1 %2")).toString());
+
+    QList<QVariant> diffs = settings.value("diffs").toList();
+    int diffIndex = settings.value("diffIndex", 0).toInt();
+    if (diffs.isEmpty()) {
+        diffs.append(QStringList()<<"Gun Diff"<<"diff"<<"-r -c3 %1 %2");
+        diffs.append(QStringList()<<"Kde Kompare"<<"kompare"<<"%1 %2");
+        diffs.append(QStringList()<<"Gnome Meld"<<"meld"<<"%1 %2");
+    }
+    foreach (QVariant diff, diffs)
+        ui->diffConfigComboBox->addItem(diff.toStringList()[0], diff);
+    if (diffIndex >= 0 && diffIndex < diffs.count())
+        ui->diffConfigComboBox->setCurrentIndex(diffIndex);
 
     restoreGeometry(settings.value("geometry").toByteArray());
 }
 
 void MainWindow::saveSettings() const
 {
-    QSettings settings("opcpackagesdiff.ini", QSettings::IniFormat);
+    QSettings settings;
     settings.setValue("lastPath", m_lastPath);
 
-    settings.setValue("diff", ui->diffCommandEdit->text());
-    settings.setValue("diffArgs", ui->diffArgumentsEdit->text());
+    QList<QVariant> diffs;
+    for (int i = 0; i < ui->diffConfigComboBox->count(); ++i)
+        diffs.append(ui->diffConfigComboBox->itemData(i));
+    settings.setValue("diffs", diffs);
+    settings.setValue("diffIndex", ui->diffConfigComboBox->currentIndex());
 
     settings.setValue("geometry", saveGeometry());
 }
