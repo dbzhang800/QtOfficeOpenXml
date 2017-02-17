@@ -42,8 +42,8 @@ SOURCES += \
 win32: LIBS += -ladvapi32
 msvc*: DEFINES += _CRT_SECURE_NO_WARNINGS
 
-contains(QT_CONFIG, system-zlib) {
-    if(unix|win32-g++*):     LIBS_PRIVATE += -lz
+contains(QT_CONFIG, system-zlib) | qtConfig(system-zlib) {
+    if(unix|mingw):     LIBS += -lz
     else:                    LIBS += zdll.lib
 } else {
     p1 = $$[QT_INSTALL_HEADERS/get]/QtZlib
