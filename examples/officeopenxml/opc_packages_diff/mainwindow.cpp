@@ -201,9 +201,12 @@ void MainWindow::loadSettings()
     QList<QVariant> diffs = settings.value("diffs").toList();
     int diffIndex = settings.value("diffIndex", 0).toInt();
     if (diffs.isEmpty()) {
-        diffs.append(QStringList()<<"Gun Diff"<<"diff"<<"-r -c3 %1 %2");
+        diffs.append(QStringList()<<"Gnu Diff"<<"diff"<<"-r -c3 %1 %2");
         diffs.append(QStringList()<<"Kde Kompare"<<"kompare"<<"%1 %2");
         diffs.append(QStringList()<<"Gnome Meld"<<"meld"<<"%1 %2");
+#ifdef Q_OS_WIN
+        diffs.append(QStringList()<<"WinMerge"<<"WinMergeU"<<"/xq /r %1 %2");
+#endif
     }
     foreach (QVariant diff, diffs)
         ui->diffConfigComboBox->addItem(diff.toStringList()[0], diff);
