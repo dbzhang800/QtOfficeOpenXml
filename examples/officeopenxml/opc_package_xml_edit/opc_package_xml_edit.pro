@@ -12,3 +12,6 @@ HEADERS  += mainwindow.h \
     recentfiles.h
 
 FORMS    += mainwindow.ui
+
+target.path = $$[QT_INSTALL_EXAMPLES]/officeopenxml/opc_package_xml_edit
+INSTALLS += target

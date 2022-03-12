@@ -16,3 +16,6 @@ HEADERS += \
     binedit.h \
     imagewidget.h \
     mcexmlwidget.h
+
+target.path = $$[QT_INSTALL_EXAMPLES]/officeopenxml/opc_package_viewer
+INSTALLS += target
