@@ -234,9 +234,15 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
         if (symLinkTarget.isEmpty()) { // Mac or Windows
             symLinkTarget = fileInfo.symLinkTarget();
         }
+        QDateTime fileWasCreated;
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+        fileWasCreated = fileInfo.birthTime();
+#else
+        fileWasCreated = fileInfo.created();
+#endif
         return writeSymLink(destName, symLinkTarget, fileInfo.owner(),
                             fileInfo.group(), fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(),
-                            fileInfo.created());
+                            fileWasCreated);
     }/*end if*/
 
     qint64 size = fileInfo.size();
@@ -249,9 +255,14 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
         //qWarning() << "couldn't open file " << fileName;
         return false;
     }
-
+    QDateTime fileWasCreated;
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+    fileWasCreated = fileInfo.birthTime();
+#else
+    fileWasCreated = fileInfo.created();
+#endif
     if (!prepareWriting(destName, fileInfo.owner(), fileInfo.group(), size,
-                        fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(), fileInfo.created())) {
+                        fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(), fileWasCreated)) {
         //qWarning() << " prepareWriting" << destName << "failed";
         return false;
     }
