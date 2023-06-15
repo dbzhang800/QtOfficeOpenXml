@@ -25,6 +25,7 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qregularexpression.h>
 #include <QtCore/qdebug.h>
+#include <QVectorIterator>
 
 namespace QtOfficeOpenXml {
 namespace Mce {
