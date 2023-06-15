@@ -203,10 +203,18 @@ QDateTime PartBasedPackageProperties::dateTimeProperty(PropertyEnum pe) const
         dt = QDateTime::fromString(dt_string, Qt::TextDate);
     if (dt.isNull())
         dt = QDateTime::fromString(dt_string, Qt::RFC2822Date);
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+    QLocale ql;
+    if (dt.isNull())
+        dt = ql.toDateTime(dt_string, QLocale::LongFormat);
+    if (dt.isNull())
+        dt = ql.toDateTime(dt_string, QLocale::ShortFormat);
+#else
     if (dt.isNull())
         dt = QDateTime::fromString(dt_string, Qt::SystemLocaleLongDate);
     if (dt.isNull())
         dt = QDateTime::fromString(dt_string, Qt::SystemLocaleShortDate);
+#endif
     return dt;
 }
 
