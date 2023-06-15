@@ -42,3 +42,4 @@ lib/*
 *.suo
 
 *.cppcheck
+/*-cppcheck-build-dir
