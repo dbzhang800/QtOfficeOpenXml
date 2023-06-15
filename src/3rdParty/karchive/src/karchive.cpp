@@ -885,9 +885,11 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
             }
         }
     } while (!dirStack.isEmpty());
-
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+    std::sort(fileList.begin(), fileList.end(), sortByPosition);    // sort on d->pos, so we have a linear access
+#else
     qSort(fileList.begin(), fileList.end(), sortByPosition);    // sort on d->pos, so we have a linear access
-
+#endif
     for (QList<const KArchiveFile *>::const_iterator it = fileList.constBegin(), end = fileList.constEnd();
             it != end; ++it) {
         const KArchiveFile *f = *it;
