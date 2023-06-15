@@ -114,7 +114,11 @@ void PartBasedPackageProperties::doLoadFromXml(QIODevice *device)
 
     while (!reader.atEnd()) {
          if (reader.readNextStartElement()) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+             const QStringView name = reader.name();
+#else
              const QStringRef name = reader.name();
+#endif
              //Todo, "keywords" support lang attribute.
              for (int idx=0; idx<16; ++idx) {
                  if (name == QLatin1String(propertiesNameTable[idx])) {

@@ -77,9 +77,13 @@ public:
     inline bool isProcessingInstruction() const { return tokenType() == QXmlStreamReader::ProcessingInstruction; }
 
     bool isStandaloneDocument() const;
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+    QStringView documentVersion() const;
+    QStringView documentEncoding() const;
+#else
     QStringRef documentVersion() const;
     QStringRef documentEncoding() const;
-
+#endif
     qint64 lineNumber() const;
     qint64 columnNumber() const;
     qint64 characterOffset() const;
@@ -87,7 +91,15 @@ public:
     QXmlStreamAttributes attributes() const;
 
     QString readElementText(QXmlStreamReader::ReadElementTextBehaviour behaviour = QXmlStreamReader::ErrorOnUnexpectedElement);
-
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+    QStringView name() const;
+    QStringView namespaceUri() const;
+    QStringView qualifiedName() const;
+    QStringView prefix() const;
+    QStringView processingInstructionTarget() const;
+    QStringView processingInstructionData() const;
+    QStringView text() const;
+#else
     QStringRef name() const;
     QStringRef namespaceUri() const;
     QStringRef qualifiedName() const;
@@ -95,7 +107,7 @@ public:
     QStringRef processingInstructionTarget() const;
     QStringRef processingInstructionData() const;
     QStringRef text() const;
-
+#endif
     QXmlStreamNamespaceDeclarations namespaceDeclarations() const;
 
     void raiseError(const QString& message = QString());

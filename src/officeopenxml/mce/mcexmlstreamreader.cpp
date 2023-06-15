@@ -455,7 +455,11 @@ QXmlStreamReader::TokenType XmlStreamReader::readNext()
 
                     //Figure out whether this element's requires is satisfied.
                     bool ok = true;
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+                    QStringView nsPrefixString = d->reader->attributes().value(QLatin1String("Requires"));
+#else
                     QStringRef nsPrefixString = d->reader->attributes().value(QLatin1String("Requires"));
+#endif
                     if (!nsPrefixString.isEmpty()) {
                         QStringList nsPrefixList = nsPrefixString.toString().split(QRegularExpression(QStringLiteral("[ \\t\\r\\n]+")));
                         foreach (QString nsPrefix, nsPrefixList) {
@@ -593,7 +597,11 @@ QXmlStreamReader::TokenType XmlStreamReaderPrivate::doReadNext_1()
 
             if (!nonUnderstoodNamespaces.isEmpty()) {
                 //Find out non-understood and ignorable namespaces.
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+                QStringView nsPrefixString = reader->attributes().value(QLatin1String(mcNamespace), QLatin1String("Ignorable"));
+#else
                 QStringRef nsPrefixString = reader->attributes().value(QLatin1String(mcNamespace), QLatin1String("Ignorable"));
+#endif
                 if (!nsPrefixString.isEmpty()) {
                     QStringList nsPrefixList = nsPrefixString.toString().split(QRegularExpression(QStringLiteral("[ \\t\\r\\n]+")));
                     foreach (QString nsPrefix, nsPrefixList) {
@@ -621,7 +629,11 @@ QXmlStreamReader::TokenType XmlStreamReaderPrivate::doReadNext_1()
                     break;
 
                 //Deal with ProcessContent attribute.
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+                QStringView pcAttribValue = reader->attributes().value(QLatin1String(mcNamespace), QLatin1String("ProcessContent"));
+#else
                 QStringRef pcAttribValue = reader->attributes().value(QLatin1String(mcNamespace), QLatin1String("ProcessContent"));
+#endif
                 if (!pcAttribValue.isEmpty()) {
                     QStringList pcNameList = pcAttribValue.toString().split(QRegularExpression(QStringLiteral("[ \\t\\r\\n]+")));
                     foreach (const QString pcName, pcNameList) {
@@ -802,7 +814,11 @@ bool XmlStreamReader::isStandaloneDocument() const
      version string as specified in the XML declaration.
      Otherwise an empty string is returned.
  */
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+QStringView XmlStreamReader::documentVersion() const
+#else
 QStringRef XmlStreamReader::documentVersion() const
+#endif
 {
     Q_D(const XmlStreamReader);
     return d->reader->documentVersion();
@@ -812,7 +828,11 @@ QStringRef XmlStreamReader::documentVersion() const
      encoding string as specified in the XML declaration.
      Otherwise an empty string is returned.
  */
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+QStringView XmlStreamReader::documentEncoding() const
+#else
 QStringRef XmlStreamReader::documentEncoding() const
+#endif
 {
     Q_D(const XmlStreamReader);
     return d->reader->documentEncoding();
@@ -919,7 +939,11 @@ QString XmlStreamReader::readElementText(QXmlStreamReader::ReadElementTextBehavi
 
   \sa namespaceUri(), qualifiedName()
  */
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+QStringView XmlStreamReader::name() const
+#else
 QStringRef XmlStreamReader::name() const
+#endif
 {
     Q_D(const XmlStreamReader);
     return d->reader->name();
@@ -930,7 +954,11 @@ QStringRef XmlStreamReader::name() const
 
   \sa name(), qualifiedName()
  */
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+QStringView XmlStreamReader::namespaceUri() const
+#else
 QStringRef XmlStreamReader::namespaceUri() const
+#endif
 {
     Q_D(const XmlStreamReader);
     return d->reader->namespaceUri();
@@ -939,7 +967,11 @@ QStringRef XmlStreamReader::namespaceUri() const
 /*!
   Returns the qualified name of a StartElement or EndElement;
 */
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+QStringView XmlStreamReader::qualifiedName() const
+#else
 QStringRef XmlStreamReader::qualifiedName() const
+#endif
 {
     Q_D(const XmlStreamReader);
     return d->reader->qualifiedName();
@@ -949,7 +981,11 @@ QStringRef XmlStreamReader::qualifiedName() const
 
 \sa name(), qualifiedName()
 */
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+QStringView XmlStreamReader::prefix() const
+#else
 QStringRef XmlStreamReader::prefix() const
+#endif
 {
     Q_D(const XmlStreamReader);
     return d->reader->prefix();
@@ -958,7 +994,11 @@ QStringRef XmlStreamReader::prefix() const
 /*!
   Returns the data of a ProcessingInstruction.
  */
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+QStringView XmlStreamReader::processingInstructionData() const
+#else
 QStringRef XmlStreamReader::processingInstructionData() const
+#endif
 {
     Q_D(const XmlStreamReader);
     return d->reader->processingInstructionData();
@@ -967,7 +1007,11 @@ QStringRef XmlStreamReader::processingInstructionData() const
 /*!
   Returns the target of a ProcessingInstruction.
  */
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+QStringView XmlStreamReader::processingInstructionTarget() const
+#else
 QStringRef XmlStreamReader::processingInstructionTarget() const
+#endif
 {
     Q_D(const XmlStreamReader);
     return d->reader->processingInstructionTarget();
@@ -976,7 +1020,11 @@ QStringRef XmlStreamReader::processingInstructionTarget() const
 /*!  Returns the text of Characters, Comment, DTD, or
   EntityReference.
  */
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+QStringView XmlStreamReader::text() const
+#else
 QStringRef XmlStreamReader::text() const
+#endif
 {
     Q_D(const XmlStreamReader);
     return d->reader->text();
