@@ -526,7 +526,13 @@ QDateTime KArchivePrivate::time_tToDateTime(uint time_t)
     if (time_t == uint(-1)) {
         return QDateTime();
     }
-    return QDateTime::fromTime_t(time_t);
+    QDateTime retVal;
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+    retVal = QDateTime::fromSecsSinceEpoch(time_t);
+#else
+    retVal = QDateTime::fromTime_t(time_t);
+#endif
+    return retVal;
 }
 
 ////////////////////////////////////////////////////////////////////////

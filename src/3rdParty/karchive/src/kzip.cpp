@@ -937,7 +937,7 @@ bool KZip::closeArchive()
             // (unless I misread the spec)
             // provide only modification time
 #if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
-            unsigned long time = (unsigned long)it.value()->date().toSecsSinceEpoch();
+            unsigned long time = static_cast<unsigned long>(it.value()->date().toSecsSinceEpoch()); // Convert 64 to 32 bits!
 #else
             unsigned long time = (unsigned long)it.value()->date().toTime_t();
 #endif
