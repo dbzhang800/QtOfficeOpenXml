@@ -546,7 +546,7 @@ int BinEdit::posAt(const QPoint &pos) const
                 break;
             QChar qc(QLatin1Char(dataAt(dataPos)));
             if (!qc.isPrint())
-                qc = 0xB7;
+                qc = QChar(0xB7);
 #if (QT_VERSION >= QT_VERSION_CHECK(5,15,14))
             x -= fontMetrics().horizontalAdvance(qc);
 #else
@@ -832,7 +832,7 @@ void BinEdit::paintEvent(QPaintEvent *e)
                     break;
                 QChar qc(QLatin1Char(dataAt(pos, isOld)));
                 if (qc.unicode() >= 127 || !qc.isPrint())
-                    qc = 0xB7;
+                    qc = QChar(0xB7);
                 printable += qc;
             }
         } else {
