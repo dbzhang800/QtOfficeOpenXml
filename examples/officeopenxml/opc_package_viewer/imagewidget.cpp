@@ -245,8 +245,11 @@ void ImageWidget::wheelEvent(QWheelEvent *event)
     if (d->m_wheelScaleEnabled) {
         //Disable auto fit!!
         d->m_autoAdjustEnabled = false;
-
+#if (QT_VERSION >= QT_VERSION_CHECK(5,15,14))
+        double numDegrees = -event->angleDelta().y() / 8.0;
+#else
         double numDegrees = -event->delta() / 8.0;
+#endif
         double numSteps = numDegrees / 15.0;
         double factor = pow(1.125, numSteps);
 
