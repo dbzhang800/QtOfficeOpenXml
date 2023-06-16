@@ -46,7 +46,7 @@ class OFFICEOPENXML_AUTOTEST_EXPORT PackagePartPrivate
     Q_DECLARE_PUBLIC(PackagePart)
 
 public:
-    PackagePartPrivate(const QString &partName, const QString type, PackagePart *q, Package *package);
+    PackagePartPrivate(const QString &partName, const QString &type, PackagePart *q, Package *package);
     virtual ~PackagePartPrivate();
     void ensureRelationship() const;
     bool isRelationshipPart() const;
