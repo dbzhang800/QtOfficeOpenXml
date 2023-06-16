@@ -182,7 +182,7 @@ void MceXmlElementState::addNamespacePrefix(const QString &prefix, const QString
 }
 
 XmlStreamReaderPrivate::XmlStreamReaderPrivate(QXmlStreamReader *reader, XmlStreamReader *q):
-    mceParseFlags(0), hasFoundRootElement(false), reader(reader), q_ptr(q)
+    mceParseFlags(0), extensionElementDepth(0), hasFoundRootElement(false), reader(reader), q_ptr(q)
 {
 }
 
