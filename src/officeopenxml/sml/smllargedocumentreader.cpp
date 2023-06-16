@@ -32,7 +32,7 @@ namespace QtOfficeOpenXml {
 namespace Sml {
 
 LargeDocumentReaderPrivate::LargeDocumentReaderPrivate(LargeDocumentReader *q) :
-    ooxmlSchameType(Ooxml::TransitionalSchame),
+    ooxmlSchameType(Ooxml::TransitionalSchame), package(0),
     q_ptr(q)
 {
 }
