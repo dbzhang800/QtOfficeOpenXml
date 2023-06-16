@@ -498,7 +498,11 @@ void BinEdit::changeEvent(QEvent *e)
 void BinEdit::wheelEvent(QWheelEvent *e)
 {
     if (e->modifiers() & Qt::ControlModifier) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5,15,14))
+        const int delta = e->pixelDelta().y();
+#else
         const int delta = e->delta();
+#endif
         if (delta < 0)
             zoomOut();
         else if (delta > 0)
