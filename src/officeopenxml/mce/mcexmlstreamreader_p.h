@@ -89,6 +89,8 @@ public:
     MceXmlElementStateData(const MceXmlElementStateData &other)
         :QSharedData(other), ignorableNamespaces(other.ignorableNamespaces)
         , processContentNeededElements(other.processContentNeededElements)
+        , extensionElements(other.extensionElements)
+        , namespacePrefixes(other.namespacePrefixes)
     {}
     ~MceXmlElementStateData(){}
 
