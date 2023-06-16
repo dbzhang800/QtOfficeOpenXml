@@ -38,7 +38,7 @@ namespace Opc {
  * \class QtOfficeOpenXml::Opc::ZipPackagePartPrivate
  * \internal
  */
-ZipPackagePartPrivate::ZipPackagePartPrivate(const QString &partName, const QString type, PackagePart *q, Package *package)
+ZipPackagePartPrivate::ZipPackagePartPrivate(const QString &partName, const QString &type, PackagePart *q, Package *package)
     :PackagePartPrivate(partName, type, q, package), zipFileEntry(0), device(0)
 {
 }
