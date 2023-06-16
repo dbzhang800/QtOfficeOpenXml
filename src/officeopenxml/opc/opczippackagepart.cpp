@@ -39,7 +39,7 @@ namespace Opc {
  * \internal
  */
 ZipPackagePartPrivate::ZipPackagePartPrivate(const QString &partName, const QString &type, PackagePart *q, Package *package)
-    :PackagePartPrivate(partName, type, q, package), zipFileEntry(0), device(0)
+    :PackagePartPrivate(partName, type, q, package), zipArchive(0), zipFileEntry(0), device(0)
 {
 }
 
