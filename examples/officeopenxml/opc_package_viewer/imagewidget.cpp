@@ -64,6 +64,7 @@ ImageWidgetPrivate::ImageWidgetPrivate(ImageWidget *q) :
     m_scaleMax = 64;
     m_wheelScaleEnabled = true;
     m_autoAdjustEnabled = false;
+    m_pixmapItem = nullptr;
 }
 
 /*!
