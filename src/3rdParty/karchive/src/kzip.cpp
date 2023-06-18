@@ -1202,6 +1202,7 @@ bool KZip::doPrepareWriting(const QString &name, const QString &user,
 
 bool KZip::doFinishWriting(qint64 size)
 {
+    Q_ASSERT(d->m_currentFile);
     if (d->m_currentFile->encoding() == 8) {
         // Finish
         (void)d->m_currentDev->write(0, 0);
@@ -1210,7 +1211,6 @@ bool KZip::doFinishWriting(qint64 size)
     // If 0, d->m_currentDev was device() - don't delete ;)
     d->m_currentDev = 0;
 
-    Q_ASSERT(d->m_currentFile);
     //qDebug() << "fileName: " << d->m_currentFile->path();
     //qDebug() << "getpos (at): " << device()->pos();
     d->m_currentFile->setSize(size);
