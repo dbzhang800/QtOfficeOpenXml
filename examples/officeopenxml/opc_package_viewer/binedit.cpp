@@ -1408,7 +1408,7 @@ void BinEdit::keyPressEvent(QKeyEvent *e)
             } else {
                 if (c.unicode() >= 128 || !c.isPrint())
                     continue;
-                changeData(m_cursorPosition, c.unicode(), m_cursorPosition + 1);
+                changeData(m_cursorPosition, c.unicode(), true);
                 setCursorPosition(m_cursorPosition + 1);
             }
             setBlinkingCursorEnabled(true);
