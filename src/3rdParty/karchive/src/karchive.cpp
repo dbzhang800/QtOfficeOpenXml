@@ -327,9 +327,11 @@ bool KArchive::writeFile(const QString &name, const QByteArray &data,
 
     // Write data
     // Note: if data is null, don't call write, it would terminate the KCompressionDevice
-    if (data.constData() && size && !writeData(data.constData(), size)) {
-        //qWarning() << "writeData failed";
-        return false;
+    if (!data.isNull() && !data.isEmpty()) {
+        if (!writeData(data.constData(), size)) {
+            //qWarning() << "writeData failed";
+            return false;
+        }
     }
 
     if (!finishWriting(size)) {
