@@ -1294,7 +1294,7 @@ QString BinEdit::toolTip(const QHelpEvent *helpEvent) const
         asDouble(selStart, doubleValueOld, true);
         str << tableRowStartC << tr("<i>double</i>&nbsp;value:") << numericTableRowSepC
             << doubleValue << tableRowEndC;
-        if (doubleValue != doubleValueOld)
+        if (qFuzzyCompare(doubleValue, doubleValueOld))
             str << tableRowStartC << tr("Previous <i>double</i>&nbsp;value:") << numericTableRowSepC
                 << doubleValueOld << tableRowEndC;
         str << "</table>";
@@ -1308,7 +1308,7 @@ QString BinEdit::toolTip(const QHelpEvent *helpEvent) const
         asFloat(selStart, floatValueOld, true);
         str << tableRowStartC << tr("<i>float</i>&nbsp;value:") << numericTableRowSepC
             << floatValue << tableRowEndC;
-        if (floatValue != floatValueOld)
+        if (qFuzzyCompare(floatValue, floatValueOld))
             str << tableRowStartC << tr("Previous <i>float</i>&nbsp;value:") << numericTableRowSepC
                 << floatValueOld << tableRowEndC;
 
