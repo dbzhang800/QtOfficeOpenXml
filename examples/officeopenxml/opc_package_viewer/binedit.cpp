@@ -89,7 +89,7 @@ BinEdit::BinEdit(QWidget *parent)
     m_addressBytes = 4;
     init();
     m_unmodifiedState = 0;
-    m_readOnly = false;
+    m_readOnly = 0;
     m_hexCursor = true;
     m_cursorPosition = 0;
     m_anchorPosition = 0;
