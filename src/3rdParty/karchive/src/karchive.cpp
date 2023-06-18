@@ -172,7 +172,7 @@ bool KArchive::close()
         closeSucceeded = d->saveFile->commit();
         delete d->saveFile;
         d->saveFile = 0;
-    } if (d->deviceOwned) {
+    } else if (d->deviceOwned) {
         delete d->dev; // we created it ourselves in open()
     }
 
