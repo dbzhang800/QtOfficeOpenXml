@@ -59,7 +59,7 @@ Cell::CellType Cell::cellType() const
     Q_D(const Cell);
     if (d->attrs_raw.contains(QStringLiteral("t"))) {
         QString t = d->attrs_raw[QStringLiteral("t")];
-        for (int i=0; i<sizeof(cellTypeNameTable)/sizeof(cellTypeNameTable[0]); ++i) {
+        for (size_t i=0; i<sizeof(cellTypeNameTable)/sizeof(cellTypeNameTable[0]); ++i) {
             if (QLatin1String(cellTypeNameTable[i]) == t)
                 return (CellType)i;
         }
