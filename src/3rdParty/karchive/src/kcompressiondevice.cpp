@@ -45,7 +45,7 @@ public:
     Private() : bNeedHeader(true), bSkipHeaders(false),
         bOpenedUnderlyingDevice(false),
         bIgnoreData(false),
-        type(KCompressionDevice::None) {}
+        result(KFilterBase::Result()), filter(nullptr), type(KCompressionDevice::None)  {}
     bool bNeedHeader;
     bool bSkipHeaders;
     bool bOpenedUnderlyingDevice;
