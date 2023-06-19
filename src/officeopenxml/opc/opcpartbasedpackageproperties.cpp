@@ -155,6 +155,7 @@ void PartBasedPackageProperties::doSaveToXml(QIODevice *device)
         switch (pe) {
         case PE_Category:
         case PE_ContentStatus:
+        case PE_ContentType:
         case PE_Keywords:
         case PE_LastModifiedBy:
         case PE_LastPrinted:
