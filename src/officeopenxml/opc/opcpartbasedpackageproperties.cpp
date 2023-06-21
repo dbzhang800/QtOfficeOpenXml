@@ -114,7 +114,11 @@ void PartBasedPackageProperties::doLoadFromXml(QIODevice *device)
 
     while (!reader.atEnd()) {
          if (reader.readNextStartElement()) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+             const QStringView name = reader.name();
+#else
              const QStringRef name = reader.name();
+#endif
              //Todo, "keywords" support lang attribute.
              for (int idx=0; idx<16; ++idx) {
                  if (name == QLatin1String(propertiesNameTable[idx])) {
@@ -151,6 +155,7 @@ void PartBasedPackageProperties::doSaveToXml(QIODevice *device)
         switch (pe) {
         case PE_Category:
         case PE_ContentStatus:
+        case PE_ContentType:
         case PE_Keywords:
         case PE_LastModifiedBy:
         case PE_LastPrinted:
@@ -199,10 +204,18 @@ QDateTime PartBasedPackageProperties::dateTimeProperty(PropertyEnum pe) const
         dt = QDateTime::fromString(dt_string, Qt::TextDate);
     if (dt.isNull())
         dt = QDateTime::fromString(dt_string, Qt::RFC2822Date);
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+    QLocale ql;
+    if (dt.isNull())
+        dt = ql.toDateTime(dt_string, QLocale::LongFormat);
+    if (dt.isNull())
+        dt = ql.toDateTime(dt_string, QLocale::ShortFormat);
+#else
     if (dt.isNull())
         dt = QDateTime::fromString(dt_string, Qt::SystemLocaleLongDate);
     if (dt.isNull())
         dt = QDateTime::fromString(dt_string, Qt::SystemLocaleShortDate);
+#endif
     return dt;
 }
 

@@ -37,7 +37,7 @@ QString Workbook::bookView(const QString &attribute) const
         return QString();
     if (!bookViews_raw[0].contains(attribute))
         return QString();
-    return bookViews_raw[0][attribute].toInt();
+    return QString::fromStdString(bookViews_raw[0][attribute].toStdString());
 }
 
 void Workbook::setBookView(const QString &attribute, const QString &val)

@@ -48,7 +48,7 @@ namespace Opc {
 class ZipPackagePartPrivate : public PackagePartPrivate
 {
 public:
-    ZipPackagePartPrivate(const QString &partName, const QString type, PackagePart *q, Package *package);
+    ZipPackagePartPrivate(const QString &partName, const QString &type, PackagePart *q, Package *package);
 
     KZip *zipArchive;
     const KZipFileEntry *zipFileEntry;

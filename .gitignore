@@ -40,3 +40,6 @@ lib/*
 *.idb
 *.ncb
 *.suo
+
+*.cppcheck
+/*-cppcheck-build-dir

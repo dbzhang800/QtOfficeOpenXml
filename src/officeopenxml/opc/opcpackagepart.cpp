@@ -36,7 +36,7 @@ namespace Opc {
  * \internal
  */
 
-PackagePartPrivate::PackagePartPrivate(const QString &partName, const QString type, PackagePart *q, Package *package)
+PackagePartPrivate::PackagePartPrivate(const QString &partName, const QString &type, PackagePart *q, Package *package)
     :q_ptr(q), package(package), partName(partName), contentType(type), relationshipHelper(0)
 {
 

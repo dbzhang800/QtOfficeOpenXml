@@ -172,7 +172,7 @@ bool KArchive::close()
         closeSucceeded = d->saveFile->commit();
         delete d->saveFile;
         d->saveFile = 0;
-    } if (d->deviceOwned) {
+    } else if (d->deviceOwned) {
         delete d->dev; // we created it ourselves in open()
     }
 
@@ -234,9 +234,15 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
         if (symLinkTarget.isEmpty()) { // Mac or Windows
             symLinkTarget = fileInfo.symLinkTarget();
         }
+        QDateTime fileWasCreated;
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+        fileWasCreated = fileInfo.birthTime();
+#else
+        fileWasCreated = fileInfo.created();
+#endif
         return writeSymLink(destName, symLinkTarget, fileInfo.owner(),
                             fileInfo.group(), fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(),
-                            fileInfo.created());
+                            fileWasCreated);
     }/*end if*/
 
     qint64 size = fileInfo.size();
@@ -249,9 +255,14 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
         //qWarning() << "couldn't open file " << fileName;
         return false;
     }
-
+    QDateTime fileWasCreated;
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+    fileWasCreated = fileInfo.birthTime();
+#else
+    fileWasCreated = fileInfo.created();
+#endif
     if (!prepareWriting(destName, fileInfo.owner(), fileInfo.group(), size,
-                        fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(), fileInfo.created())) {
+                        fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(), fileWasCreated)) {
         //qWarning() << " prepareWriting" << destName << "failed";
         return false;
     }
@@ -316,9 +327,11 @@ bool KArchive::writeFile(const QString &name, const QByteArray &data,
 
     // Write data
     // Note: if data is null, don't call write, it would terminate the KCompressionDevice
-    if (data.constData() && size && !writeData(data.constData(), size)) {
-        //qWarning() << "writeData failed";
-        return false;
+    if (!data.isNull() && !data.isEmpty()) {
+        if (!writeData(data.constData(), size)) {
+            //qWarning() << "writeData failed";
+            return false;
+        }
     }
 
     if (!finishWriting(size)) {
@@ -515,7 +528,13 @@ QDateTime KArchivePrivate::time_tToDateTime(uint time_t)
     if (time_t == uint(-1)) {
         return QDateTime();
     }
-    return QDateTime::fromTime_t(time_t);
+    QDateTime retVal;
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+    retVal = QDateTime::fromSecsSinceEpoch(time_t);
+#else
+    retVal = QDateTime::fromTime_t(time_t);
+#endif
+    return retVal;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -874,9 +893,11 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
             }
         }
     } while (!dirStack.isEmpty());
-
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+    std::sort(fileList.begin(), fileList.end(), sortByPosition);    // sort on d->pos, so we have a linear access
+#else
     qSort(fileList.begin(), fileList.end(), sortByPosition);    // sort on d->pos, so we have a linear access
-
+#endif
     for (QList<const KArchiveFile *>::const_iterator it = fileList.constBegin(), end = fileList.constEnd();
             it != end; ++it) {
         const KArchiveFile *f = *it;

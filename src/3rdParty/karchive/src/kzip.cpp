@@ -76,7 +76,13 @@ static uint transformFromMsDos(const char *buffer)
     QDate qd(y, o, d);
 
     QDateTime dt(qd, qt);
-    return dt.toTime_t();
+    uint retVal;
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+    retVal = dt.toSecsSinceEpoch();
+#else
+    retVal = dt.toTime_t()
+#endif
+    return retVal;
 }
 
 // == parsing routines for zip headers
@@ -930,7 +936,11 @@ bool KZip::closeArchive()
             extfield[4] = 1 | 2 | 4;    // specify flags from local field
             // (unless I misread the spec)
             // provide only modification time
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+            unsigned long time = static_cast<unsigned long>(it.value()->date().toSecsSinceEpoch()); // Convert 64 to 32 bits!
+#else
             unsigned long time = (unsigned long)it.value()->date().toTime_t();
+#endif
             extfield[5] = char(time);
             extfield[6] = char(time >> 8);
             extfield[7] = char(time >> 16);
@@ -1032,9 +1042,15 @@ bool KZip::doPrepareWriting(const QString &name, const QString &user,
         return false;
     }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5,13,0))
+    uint atime = accessTime.toSecsSinceEpoch();
+    uint mtime = modificationTime.toSecsSinceEpoch();
+    uint ctime = creationTime.toSecsSinceEpoch();
+#else
     uint atime = accessTime.toTime_t();
     uint mtime = modificationTime.toTime_t();
     uint ctime = creationTime.toTime_t();
+#endif
 
     // Find or create parent dir
     KArchiveDirectory *parentDir = rootDir();
@@ -1186,6 +1202,7 @@ bool KZip::doPrepareWriting(const QString &name, const QString &user,
 
 bool KZip::doFinishWriting(qint64 size)
 {
+    Q_ASSERT(d->m_currentFile);
     if (d->m_currentFile->encoding() == 8) {
         // Finish
         (void)d->m_currentDev->write(0, 0);
@@ -1194,7 +1211,6 @@ bool KZip::doFinishWriting(qint64 size)
     // If 0, d->m_currentDev was device() - don't delete ;)
     d->m_currentDev = 0;
 
-    Q_ASSERT(d->m_currentFile);
     //qDebug() << "fileName: " << d->m_currentFile->path();
     //qDebug() << "getpos (at): " << device()->pos();
     d->m_currentFile->setSize(size);

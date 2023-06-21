@@ -64,6 +64,7 @@ ImageWidgetPrivate::ImageWidgetPrivate(ImageWidget *q) :
     m_scaleMax = 64;
     m_wheelScaleEnabled = true;
     m_autoAdjustEnabled = false;
+    m_pixmapItem = nullptr;
 }
 
 /*!
@@ -195,7 +196,7 @@ bool ImageWidget::isMouseWheelEnabled() const
 */
 void ImageWidget::setCurrentScale(double factor)
 {
-    if (factor == 0) {
+    if (qFuzzyCompare(factor, 0)) {
         if (!d->m_autoAdjustEnabled) {
             d->m_autoAdjustEnabled = true;
             d->doAutoFit();
@@ -245,8 +246,11 @@ void ImageWidget::wheelEvent(QWheelEvent *event)
     if (d->m_wheelScaleEnabled) {
         //Disable auto fit!!
         d->m_autoAdjustEnabled = false;
-
+#if (QT_VERSION >= QT_VERSION_CHECK(5,15,14))
+        double numDegrees = -event->angleDelta().y() / 8.0;
+#else
         double numDegrees = -event->delta() / 8.0;
+#endif
         double numSteps = numDegrees / 15.0;
         double factor = pow(1.125, numSteps);
 

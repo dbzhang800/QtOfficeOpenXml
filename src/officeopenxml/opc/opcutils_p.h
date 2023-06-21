@@ -37,8 +37,9 @@
 
 #include <QtOfficeOpenXml/officeopenxmlglobal.h>
 
-class QString;
-class QStringList;
+#include <QString>
+#include <QStringList>
+
 
 namespace QtOfficeOpenXml {
 namespace Opc {

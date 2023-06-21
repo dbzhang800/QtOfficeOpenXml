@@ -88,7 +88,7 @@ public:
     bool isReadOnly() const;
 
     int find(const QByteArray &pattern, int from = 0,
-             QTextDocument::FindFlags findFlags = 0);
+             QTextDocument::FindFlags findFlags = QTextDocument::FindFlags());
 
     void selectAll();
     void clear();
@@ -110,7 +110,7 @@ public:
 
 public Q_SLOTS:
     void highlightSearchResults(const QByteArray &pattern,
-        QTextDocument::FindFlags findFlags = 0);
+                                QTextDocument::FindFlags findFlags = QTextDocument::FindFlags());
     void copy(bool raw = false);
     void setNewWindowRequestAllowed(bool c);
 

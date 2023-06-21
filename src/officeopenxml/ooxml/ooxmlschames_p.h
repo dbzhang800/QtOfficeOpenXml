@@ -44,7 +44,7 @@ namespace Ooxml {
 
 struct OoxmlSchamesData
 {
-    OoxmlSchamesData(int id, const QString transitional, const QString &strict=QString(), const QString &prefix=QString()) :
+    OoxmlSchamesData(int id, const QString &transitional, const QString &strict=QString(), const QString &prefix=QString()) :
         id(id), prefix(prefix), strict(strict), transitional(transitional)
     {}
 

@@ -30,7 +30,7 @@ namespace QtOfficeOpenXml {
 namespace Sml {
 
 LargeDocumentWriterPrivate::LargeDocumentWriterPrivate(LargeDocumentWriter *q) :
-    isClosed(false), ooxmlSchameType(Ooxml::TransitionalSchame),
+    isClosed(false), ooxmlSchameType(Ooxml::TransitionalSchame), package(nullptr),
     q_ptr(q)
 {
 }

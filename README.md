@@ -24,13 +24,15 @@ Microsoft Office and can be used in any platform that **Qt 5.2** or newer suppor
 
 * Put the source code in any directory you like
 
-* Run following command at the toplevel directory of the project
+* Run following command at the toplevel directory of the project:
 
-```
-    qmake
-    make
-    make install
-```
+|                    | Windows Qt MINGW           | Windows Qt MSVC     |
+|--------------------|----------------------------|---------------------|
+| ```qmake```        | ```qmake```                | ```qmake```         |
+| ```make```         | ```mingw32-make```         | ```nmake```         |
+|                    | ```mingw32-make check```   | ```nmake check```   |
+| ```make install``` | ```mingw32-make install``` | ```nmake install``` |
+
 
 The library, the header files, and others will be installed to your system.
 

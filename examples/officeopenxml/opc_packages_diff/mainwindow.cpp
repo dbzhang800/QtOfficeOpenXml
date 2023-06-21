@@ -142,7 +142,7 @@ void MainWindow::onRunButtonClicked()
         return;
     }
 
-    QStringList args = ui->diffArgumentsEdit->text().split(QRegularExpression("\\s+"), QString::SkipEmptyParts);
+    QStringList args = ui->diffArgumentsEdit->text().split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
     for (int i=0; i<args.size(); ++i) {
         if (args[i] == QLatin1String("%1"))
             args[i] = m_dir1->path();
